@@ -1,0 +1,21 @@
+{
+  "name": "flaresolverr",
+  "version": "1.0.0",
+  "description": "Proxy server to bypass Cloudflare protection",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Diego Heras (ngosang)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ngosang/FlareSolverr.git"
+  },
+  "dependencies": {
+    "console-log-level": "^1.4.1",
+    "puppeteer": "^3.3.0",
+    "puppeteer-extra": "^3.1.9",
+    "puppeteer-extra-plugin-stealth": "^2.4.9"
+  }
+}
