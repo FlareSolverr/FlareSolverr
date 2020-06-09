@@ -2,7 +2,7 @@ const log = require('console-log-level')(
 {
   level: process.env.LOG_LEVEL || 'info',
   prefix: function (level) {
-    return new Date().toISOString() + " " + level.toUpperCase();
+    return reqCounter.toString() + " " + new Date().toISOString() + " " + level.toUpperCase();
   }
 });
 const puppeteer = require('puppeteer-extra');
@@ -18,10 +18,13 @@ const logHtml = process.env.LOG_HTML || false;
 // in each request. we set the user-agent in the browser args instead
 puppeteer.use(StealthPlugin());
 
+// Help logging
+var reqCounter = 0;
+
 http.createServer(function(req, res) {
+  reqCounter++;
   const startTimestamp = Date.now();
   log.info('Incoming request: ' + req.method + " " + req.url);
-
   var body = [];
   req.on('data', function(chunk) {
       body.push(chunk);
