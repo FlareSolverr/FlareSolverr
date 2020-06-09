@@ -113,7 +113,7 @@ function processRequest(params, req, res, startTimestamp) {
     } catch (error) {
       errorResponse(error.message, res, startTimestamp);
     } finally {
-      //await browser.close();
+      await browser.close();
     }
   }).catch(error => {
     errorResponse(error.message, res, startTimestamp);
