@@ -129,7 +129,7 @@ async function resolveCallenge(params, browser, res, startTimestamp) {
 
   if (reqCookies) {
     log.debug('Applying cookies');
-    await page.setCookie(...cookies);
+    await page.setCookie(...reqCookies);
   }
 
   log.debug("Navegating to... " + reqUrl);
