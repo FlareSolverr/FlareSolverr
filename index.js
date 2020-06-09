@@ -125,6 +125,12 @@ async function resolveCallenge(params, browser, res, startTimestamp) {
   const userAgent = await page.evaluate(() => navigator.userAgent);
   log.debug("User-Agent: " + userAgent);
   const reqUrl = params["url"];
+  const reqCookies = params["cookies"];
+
+  if (reqCookies) {
+    log.debug('Applying cookies');
+    await page.setCookie(...cookies);
+  }
 
   log.debug("Navegating to... " + reqUrl);
   await page.goto(reqUrl, {waitUntil: 'networkidle0'});
