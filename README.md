@@ -10,15 +10,18 @@ See the known issues section.
 FlareSolverr starts a proxy server and it waits for user requests in idle state using few resources.
 When some request arrives, it uses [puppeteer](https://github.com/puppeteer/puppeteer) with the
 [stealth plugin](https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth)
-to create an headless browser (Chrome). It opens the URL with user parameters and waits until the Cloudflare
+to create an headless browser (Firefox). It opens the URL with user parameters and waits until the Cloudflare
 challenge is solved (or timeout). The HTML code and the cookies are sent back to the user and those cookies can
 be used to bypass Cloudflare using other HTTP clients.
+
+NOTE: Web browsers consume a lot of memory. If you are running FlareSolverr on a machine with few RAM,
+do not make many requests at once. With each request a new browser is launched.
 
 ### Installation
 
 It requires NodeJS.
 
-Run `npm install` to install FlareSolverr dependencies.
+Run `PUPPETEER_PRODUCT=firefox npm install` to install FlareSolverr dependencies.
 
 ### Usage
 
@@ -30,13 +33,16 @@ curl -L -X POST 'http://localhost:8191/v1' \
 -H 'Content-Type: application/json' \
 --data-raw '{
 	"url":"http://www.google.com/",
-	"userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0"
+	"userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0",
+	"maxTimeout": 60000
 }'
 ```
 Parameter | Notes
 |--|--|
 url | Mandatory
 userAgent | Optional. Will be used by the headless browser
+maxTimeout | Optional. Max timeout to solve the challenge
+cookies | Optional. Will be used by the headless browser. Follow this format https://github.com/puppeteer/puppeteer/blob/v3.3.0/docs/api.md#pagesetcookiecookies
 
 Example response:
 ```json
@@ -106,8 +112,10 @@ I hope this will be fixed soon in the [puppeteer stealth plugin](https://github.
 
 TODO:
 * Fix remaining issues in the code (see TODOs)
-* Make the maxTimeout configurable by the user
+* Make the maxTimeout more accurate (count the time to open the first page)
 * Add support for more HTTP methods (POST, PUT, DELETE ...)
 * Add support for user HTTP headers
 * Hide sensitive information in logs 
 * Reduce Docker image size
+* Docker image for ARM architecture
+* Install instructions for Windows

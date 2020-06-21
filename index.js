@@ -1,8 +1,12 @@
+const os = require('os');
+const path = require('path');
+const fs = require('fs');
+const { v1: uuidv1 } = require('uuid');
 const log = require('console-log-level')(
 {
   level: process.env.LOG_LEVEL || 'info',
   prefix: function (level) {
-    return reqCounter.toString() + " " + new Date().toISOString() + " " + level.toUpperCase();
+    return new Date().toISOString() + " " + level.toUpperCase() + " REQ-" + reqCounter;
   }
 });
 const puppeteer = require('puppeteer-extra');
@@ -13,19 +17,17 @@ const version = pjson.version;
 const serverPort = process.env.PORT || 8191;
 const serverHost = process.env.HOST || '0.0.0.0';
 const logHtml = process.env.LOG_HTML || false;
+let reqCounter = 0;
 
 // setting "user-agent-override" evasion is not working for us because it can't be changed
 // in each request. we set the user-agent in the browser args instead
 puppeteer.use(StealthPlugin());
 
-// Help logging
-var reqCounter = 0;
-
 http.createServer(function(req, res) {
   reqCounter++;
   const startTimestamp = Date.now();
   log.info('Incoming request: ' + req.method + " " + req.url);
-  var body = [];
+  let body = [];
   req.on('data', function(chunk) {
       body.push(chunk);
   }).on('end', function() {
@@ -67,6 +69,16 @@ function errorResponse(errorMsg, res, startTimestamp) {
   res.end();
 }
 
+function prepareBrowserProfile(userAgent) {
+  const userDataDir = path.join(os.tmpdir(), '/puppeteer_firefox_profile_' + uuidv1());
+  if (!fs.existsSync(userDataDir)) {
+    fs.mkdirSync(userDataDir, { recursive: true })
+  }
+  const prefs = `user_pref("general.useragent.override", "${userAgent}");`;
+  fs.writeFile(path.join(userDataDir, 'prefs.js'), prefs, () => {});
+  return userDataDir;
+}
+
 function validateIncomingRequest(params, req, res, startTimestamp) {
   log.info('Params: ' + JSON.stringify(params));
 
@@ -89,25 +101,19 @@ function validateIncomingRequest(params, req, res, startTimestamp) {
 }
 
 function processRequest(params, req, res, startTimestamp) {
-  puppeteerArgs = [
-    '--no-sandbox',
-    '--disable-setuid-sandbox',
-    '--disable-infobars',
-    '--window-position=0,0',
-    '--ignore-certifcate-errors',
-    '--ignore-certifcate-errors-spki-list'
-  ];
+  let puppeteerOptions = {
+    product: 'firefox',
+    headless: true
+  };
   const reqUserAgent = params["userAgent"];
   if (reqUserAgent) {
     log.debug('Using custom User-Agent: ' + reqUserAgent);
-    puppeteerArgs.push('--user-agent=' + reqUserAgent);
+    // TODO: remove the profile after closing the browser
+    puppeteerOptions['userDataDir'] = prepareBrowserProfile(reqUserAgent);
   }
 
   log.debug('Launching headless browser...');
-  puppeteer.launch({
-    headless: true,
-    args: puppeteerArgs
-  }).then(async browser => {
+  puppeteer.launch(puppeteerOptions).then(async browser => {
     try {
       await resolveCallenge(params, browser, res, startTimestamp);
     } catch (error) {
@@ -117,7 +123,7 @@ function processRequest(params, req, res, startTimestamp) {
     }
   }).catch(error => {
     errorResponse(error.message, res, startTimestamp);
-  });;
+  });
 }
 
 async function resolveCallenge(params, browser, res, startTimestamp) {
@@ -125,38 +131,40 @@ async function resolveCallenge(params, browser, res, startTimestamp) {
   const userAgent = await page.evaluate(() => navigator.userAgent);
   log.debug("User-Agent: " + userAgent);
   const reqUrl = params["url"];
+  const reqMaxTimeout = params["maxTimeout"] || 60000;
   const reqCookies = params["cookies"];
 
   if (reqCookies) {
-    log.debug('Applying cookies');
+    log.debug('Using custom cookies');
     await page.setCookie(...reqCookies);
   }
 
   log.debug("Navegating to... " + reqUrl);
-  await page.goto(reqUrl, {waitUntil: 'networkidle0'});
+  await page.goto(reqUrl, {waitUntil: 'domcontentloaded'});
 
   // detect cloudflare
   const cloudflareRay = await page.$('.ray_id');
   if (cloudflareRay) {
     log.debug('Waiting for Cloudflare challenge...');
 
-    // page.waitForNavigation and page.waitFor don't work well because Cloudflare refresh the page
-    // await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 30000 })
-    // await page.waitFor(() => !document.querySelector('.ray_id'), {timeout: 30000});
-
-    // TODO: get maxTimeout from params
-    while(Date.now() - startTimestamp < 60000) {
+    while(Date.now() - startTimestamp < reqMaxTimeout) {
       await page.waitFor(1000);
 
-      // TODO: catch exception timeout in waitForNavigation
-      await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 5000 });
+      try {
+        // catch exception timeout in waitForNavigation
+        await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 5000 });
+      } catch (error) {}
+
       const cloudflareRay = await page.$('.ray_id');
       if (!cloudflareRay)
         break;
-
-      // TODO: throw timeout exception when maxTimeout is exceded
     }
-  
+
+    if (Date.now() - startTimestamp >= reqMaxTimeout) {
+      errorResponse("Maximum timeout reached. maxTimeout=" + reqMaxTimeout + " (ms)", res, startTimestamp);
+      return;
+    }
+
     log.debug("Validating HTML code...");
     const html = await page.content();
     if (html.includes("captcha-bypass") || html.includes("__cf_chl_captcha_tk__")) {

@@ -8,7 +8,7 @@ WORKDIR /home/node/flaresolverr
 
 COPY package*.json ./
 USER node
-RUN npm install
+RUN PUPPETEER_PRODUCT=firefox npm install
 COPY --chown=node:node . .
 
 ENV LOG_LEVEL=info

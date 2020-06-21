@@ -16,6 +16,7 @@
     "console-log-level": "^1.4.1",
     "puppeteer": "^3.3.0",
     "puppeteer-extra": "^3.1.9",
-    "puppeteer-extra-plugin-stealth": "^2.4.9"
+    "puppeteer-extra-plugin-stealth": "^2.4.9",
+    "uuid": "^8.1.0"
   }
 }
