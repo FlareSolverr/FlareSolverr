@@ -252,9 +252,3 @@ TODO:
 * Reduce Docker image size
 * Docker image for ARM architecture
 * Install instructions for Windows
-
-## Credits
-
-* Initial version by ngosang
-* Improved via NoahCardoza's [CloudProxy](https://github.com/NoahCardoza/CloudProxy) version.
-
