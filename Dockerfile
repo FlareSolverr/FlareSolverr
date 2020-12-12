@@ -1,20 +1,30 @@
-FROM node:10-jessie
+FROM --platform=${TARGETPLATFORM:-linux/amd64} node:15.2.1-alpine3.11
 
-RUN apt-get update -y && \
-    apt-get install -y gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget libgbm1 && \
-    apt-get clean && rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
-RUN mkdir -p /home/node/flaresolverr && chown -R node:node /home/node/flaresolverr
-WORKDIR /home/node/flaresolverr
+# Print build information
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+RUN printf "I am running on ${BUILDPLATFORM:-linux/amd64}, building for ${TARGETPLATFORM:-linux/amd64}\n$(uname -a)\n"
 
-COPY package*.json ./
+# Install Chromium, dumb-init and remove all locales but en-US
+RUN apk add --no-cache chromium dumb-init && \
+    find /usr/lib/chromium/locales -type f ! -name 'en-US.*' -delete
+
+# Copy FlareSolverr code
 USER node
-RUN PUPPETEER_PRODUCT=firefox npm install
-COPY --chown=node:node . .
+RUN mkdir -p /home/node/flaresolverr
+WORKDIR /home/node/flaresolverr
+COPY --chown=node:node package.json package-lock.json tsconfig.json ./
+COPY --chown=node:node src ./src/
 
-ENV LOG_LEVEL=info
-ENV LOG_HTML=false
-ENV PORT=8191
-ENV HOST=0.0.0.0
+# Install package. Skip installing Chrome, we will use the installed package.
+ENV PUPPETEER_PRODUCT=chrome \
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+RUN npm install && \
+    npm run build && \
+    rm -rf src tsconfig.json && \
+    npm prune --production
 
 EXPOSE 8191
-CMD [ "node", "index.js" ]
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+CMD ["npm", "start"]

@@ -115,4 +115,9 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-.idea/
+# IntelliJ IDEA
+# .idea/
+# *.iml
+
+# Project Development
+testing/

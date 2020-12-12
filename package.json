@@ -1,22 +1,46 @@
 {
   "name": "flaresolverr",
-  "version": "1.0.0",
-  "description": "Proxy server to bypass Cloudflare protection",
-  "main": "index.js",
+  "version": "1.1.0",
+  "description": "Proxy server to bypass Cloudflare protection.",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./dist/index.js",
+    "build": "tsc",
+    "dev": "nodemon -e ts --exec ts-node src/index.ts"
   },
   "author": "Diego Heras (ngosang)",
+  "contributors": [
+    {
+      "name": "Noah Cardoza",
+      "url": "https://github.com/NoahCardoza/CloudProxy.git"
+    }
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ngosang/FlareSolverr.git"
+    "url": "https://github.com/ngosang/FlareSolverr"
   },
   "dependencies": {
     "console-log-level": "^1.4.1",
+    "got": "^11.5.1",
+    "hcaptcha-solver": "^1.0.2",
     "puppeteer": "^3.3.0",
-    "puppeteer-extra": "^3.1.9",
-    "puppeteer-extra-plugin-stealth": "^2.4.9",
-    "uuid": "^8.1.0"
+    "puppeteer-extra": "^3.1.15",
+    "puppeteer-extra-plugin-stealth": "^2.6.5",
+    "uuid": "^8.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^14.0.23",
+    "@types/puppeteer": "^3.0.1",
+    "@types/uuid": "^8.0.0",
+    "eslint": "^7.5.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "nodemon": "^2.0.4",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
   }
 }
