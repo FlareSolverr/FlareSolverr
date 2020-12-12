@@ -2,9 +2,10 @@ import { v1 as UUIDv1 } from 'uuid'
 import sessions, { SessionsCacheItem } from './session'
 import { RequestContext } from './types'
 import log from './log'
-import { Browser, SetCookie, Request, Page, Headers, HttpMethod, Overrides, Cookie } from 'puppeteer'
+import { SetCookie, Request, Headers, HttpMethod, Overrides, Cookie } from 'puppeteer'
 import { TimeoutError } from 'puppeteer/Errors'
 import getCaptchaSolver, { CaptchaType } from './captcha'
+import * as Puppeteer from "puppeteer-extra/dist/puppeteer";
 
 export interface BaseAPICall {
   cmd: string
@@ -70,7 +71,7 @@ type OverridesProps =
 const CHALLENGE_SELECTORS = ['#trk_jschal_js', '.ray_id', '.attack-box']
 const TOKEN_INPUT_NAMES = ['g-recaptcha-response', 'h-captcha-response']
 
-async function interceptResponse(page: Page, callback: (payload: ChallengeResolutionT) => any) {
+async function interceptResponse(page: Puppeteer.Page, callback: (payload: ChallengeResolutionT) => any) {
   const client = await page.target().createCDPSession();
   await client.send('Fetch.enable', {
     patterns: [
@@ -116,7 +117,7 @@ async function interceptResponse(page: Page, callback: (payload: ChallengeResolu
   });
 }
 
-async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, download, returnOnlyCookies }: BaseRequestAPICall, page: Page): Promise<ChallengeResolutionT | void> {
+async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, download, returnOnlyCookies }: BaseRequestAPICall, page: Puppeteer.Page): Promise<ChallengeResolutionT | void> {
 
   maxTimeout = maxTimeout || 60000
   let status = 'ok'
@@ -319,7 +320,7 @@ function mergeSessionWithParams({ defaults }: SessionsCacheItem, params: BaseReq
   return copy
 }
 
-async function setupPage(ctx: RequestContext, params: BaseRequestAPICall, browser: Browser): Promise<Page> {
+async function setupPage(ctx: RequestContext, params: BaseRequestAPICall, browser: Puppeteer.Browser): Promise<Puppeteer.Page> {
   const page = await browser.newPage()
 
   // merge session defaults with params

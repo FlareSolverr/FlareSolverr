@@ -3,10 +3,11 @@ import * as path from 'path'
 import * as fs from 'fs'
 
 import puppeteer from 'puppeteer-extra'
-import { LaunchOptions, Browser, Headers, SetCookie } from 'puppeteer'
+import { LaunchOptions, Headers, SetCookie } from 'puppeteer'
 
 import log from './log'
 import { deleteFolderRecursive, sleep, removeEmptyFields } from './utils'
+import * as Puppeteer from "puppeteer-extra/dist/puppeteer";
 
 interface SessionPageDefaults {
   headers?: Headers
@@ -14,7 +15,7 @@ interface SessionPageDefaults {
 }
 
 export interface SessionsCacheItem {
-  browser: Browser
+  browser: Puppeteer.Browser
   userDataDir?: string
   defaults: SessionPageDefaults
 }
@@ -77,7 +78,7 @@ export default {
     // TODO: sometimes browser instances are created and not connected to correctly.
     //       how do we handle/quit those instances inside Docker?
     let launchTries = 3
-    let browser;
+    let browser: Puppeteer.Browser;
 
     while (0 <= launchTries--) {
       try {
@@ -90,7 +91,7 @@ export default {
       }
     }
 
-    if (!browser) { throw Error(`Failed to lanch browser 3 times in a row.`) }
+    if (!browser) { throw Error(`Failed to launch browser 3 times in a row.`) }
 
     if (cookies) {
       const page = await browser.newPage()
@@ -98,7 +99,7 @@ export default {
     }
 
     sessionCache[id] = {
-      browser,
+      browser: browser,
       userDataDir: puppeteerOptions.userDataDir,
       defaults: removeEmptyFields({
         userAgent,
