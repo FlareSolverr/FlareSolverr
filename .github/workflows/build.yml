@@ -21,7 +21,7 @@ jobs:
         uses: crazy-max/ghaction-docker-meta@v1
         with:
           images: ${{ env.REPOSITORY }},ghcr.io/${{ env.REPOSITORY }}
-          tag-sha: true
+          tag-sha: false
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
