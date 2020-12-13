@@ -1,5 +1,9 @@
 # FlareSolverr
 
+[![GitHub issues](https://img.shields.io/github/issues/FlareSolverr/FlareSolverr.svg?maxAge=60&style=flat-square)](https://github.com/FlareSolverr/FlareSolverr/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/FlareSolverr/FlareSolverr.svg?maxAge=60&style=flat-square)](https://github.com/FlareSolverr/FlareSolverr/pulls)
+[![Docker Pulls](https://img.shields.io/docker/pulls/flaresolverr/flaresolverr.svg?maxAge=60&style=flat-square)](https://hub.docker.com/r/flaresolverr/flaresolverr/)
+
 FlareSolverr is a proxy server to bypass Cloudflare protection
 
 :warning: This project is in beta state. Some things may not work and the API can change at any time.
@@ -21,13 +25,43 @@ soon as you are done using them.
 
 ## Installation
 
+### Docker
+
+It is recommended to install using a Docker container because the project depends on an external browser that is
+already included within the image.
+
+Docker images are available in:
+* GitHub Registry => https://github.com/orgs/FlareSolverr/packages/container/package/flaresolverr
+* DockerHub => https://hub.docker.com/r/flaresolverr/flaresolverr
+
+Supported architectures are:
+| Architecture | Tag |
+| :----: | --- |
+| x86-64 | linux/amd64 |
+| ARM64 | linux/arm64 |
+| ARM32 | linux/arm/v7 |
+
+We provide a `docker-compose.yml` configuration file. Clone this repository and execute `docker-compose up -d` to start
+the container.
+
+If you prefer the `docker cli` execute the following command.
+```bash
+docker run -d \
+  --name=flaresolverr \
+  -e LOG_LEVEL=info \
+  --restart unless-stopped \
+  ghcr.io/flaresolverr/flaresolverr:latest
+```
+
+### From source code
+
 It requires NodeJS.
 
 Run `PUPPETEER_PRODUCT=chrome npm install` to install FlareSolverr dependencies.
 
-## Usage
-
 First run `npm run build`. Once the TypeScript is compiled, you can use `npm start` to start FlareSolverr.
+
+## Usage
 
 Example request:
 ```bash
@@ -163,7 +197,7 @@ Parameter | Notes
 |--|--|
 postData | Must be a string. If you want to POST a form, don't forget to set the `Content-Type` header to `application/x-www-form-urlencoded` or the server might not understand your request.
 
-## Downloading Images and PDFs (small files)
+### Download small files
 
 If you need to access an image/pdf or small file, you should pass the `download` parameter to `request.get` setting it
 to `true`. Rather than access the html and return text it will return the buffer **base64** encoded which you will be
@@ -220,15 +254,6 @@ HARVESTER_ENDPOINT=https://127.0.0.1:5000/token
 **Note**: above I set `HARVESTER_ENDPOINT` to the default configuration of the captcha harvester's server, but that
 could change if you customize the command line flags. Simply put, `HARVESTER_ENDPOINT` should be set to the URI of the
 route that returns a token in plain text when called.
-
-## Docker
-
-You can edit environment variables in `./Dockerfile` and build your own image.
-
-```bash
-docker build -t flaresolverr:latest .
-docker run --restart=always --name flaresolverr -p 8191:8191 -d flaresolverr:latest
-```
 
 ## Related projects
 
