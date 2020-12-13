@@ -415,7 +415,7 @@ const browserRequest = async (ctx: RequestContext, params: BaseRequestAPICall) =
     }
   } catch (error) {
     log.error(error)
-    return ctx.errorResponse("Unable to process browser request")
+    return ctx.errorResponse("Unable to process browser request. Error: " + error)
   } finally {
     if (oneTimeSession) { sessions.destroy(sessionId) }
   }
