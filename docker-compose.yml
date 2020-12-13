@@ -1,0 +1,18 @@
+---
+version: "2.1"
+services:
+  flaresolverr:
+    # DockerHub mirror flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      # Used to change the verbosity of the logging
+      - LOG_LEVEL=info
+      # Enables hcaptcha-solver => https://github.com/JimmyLaurent/hcaptcha-solver
+      #- CAPTCHA_SOLVER=hcaptcha-solver
+      # Enables CaptchaHarvester => https://github.com/NoahCardoza/CaptchaHarvester
+      #- CAPTCHA_SOLVER=harvester
+      #- HARVESTER_ENDPOINT=https://127.0.0.1:5000/token
+    ports:
+      - 8191:8191
+    restart: unless-stopped 
