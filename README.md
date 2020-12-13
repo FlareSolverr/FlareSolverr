@@ -55,11 +55,12 @@ docker run -d \
 
 ### From source code
 
-It requires NodeJS.
-
-Run `PUPPETEER_PRODUCT=chrome npm install` to install FlareSolverr dependencies.
-
-First run `npm run build`. Once the TypeScript is compiled, you can use `npm start` to start FlareSolverr.
+This is the recommended way for Windows / MacOS users and for developers.
+* Install [NodeJS](https://nodejs.org/)
+* Clone this repository and open a shell in that path
+* Run `npm install` command to install FlareSolverr dependencies
+* Run `npm run build` command to compile TypeScript code
+* Run `npm start` command to start FlareSolverr
 
 ## Usage
 
