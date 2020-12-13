@@ -68,6 +68,8 @@ type OverridesProps =
   'postData' |
   'headers'
 
+// We always set a Windows User-Agent because ARM builds are detected by CloudFlare
+const DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36"
 const CHALLENGE_SELECTORS = ['#trk_jschal_js', '.ray_id', '.attack-box']
 const TOKEN_INPUT_NAMES = ['g-recaptcha-response', 'h-captcha-response']
 
@@ -341,6 +343,8 @@ async function setupPage(ctx: RequestContext, params: BaseRequestAPICall, browse
   if (userAgent) {
     log.debug(`Using custom UA: ${userAgent}`)
     await page.setUserAgent(userAgent)
+  } else {
+    await page.setUserAgent(DEFAULT_USER_AGENT)
   }
 
   if (headers) {
