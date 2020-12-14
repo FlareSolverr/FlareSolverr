@@ -1,6 +1,7 @@
 export enum CaptchaType {
   re = 'reCaptcha',
-  h = 'hCaptcha'
+  h = 'hCaptcha',
+  fun = 'funCaptcha'
 }
 
 export interface SolverOptions {
