@@ -147,9 +147,12 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
 
     if (response.status() > 400) {
       // detect cloudflare wait 5s
+      let selectorFoundCount = 0
       for (const selector of CHALLENGE_SELECTORS) {
         const cfChallengeElem = await page.$(selector)
         if (cfChallengeElem) {
+          selectorFoundCount++
+          log.debug(`'${selector}' challenge element detected.`)
           log.debug('Waiting for Cloudflare challenge...')
 
           let interceptingResult: ChallengeResolutionT;
@@ -195,6 +198,12 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
         } else {
           log.debug(`No '${selector}' challenge element detected.`)
         }
+      }
+      log.debug("Number of selector found: " + selectorFoundCount + ", total selector: " + CHALLENGE_SELECTORS.length)
+      if (selectorFoundCount == 0)
+      {
+        await page.close()
+        return ctx.errorResponse('No challenge selectors found, unable to proceed')
       }
     }
 
