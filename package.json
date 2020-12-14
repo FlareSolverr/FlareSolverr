@@ -27,7 +27,7 @@
     "puppeteer-extra": "^3.1.15",
     "puppeteer-extra-plugin-stealth": "^2.6.5",
     "uuid": "^8.2.0",
-    "@antiadmin/anticaptchaofficial"
+    "@antiadmin/anticaptchaofficial": "^1.0.12"
   },
   "devDependencies": {
     "@types/node": "^14.0.23",
