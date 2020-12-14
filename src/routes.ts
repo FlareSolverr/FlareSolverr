@@ -134,6 +134,8 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
   log.debug(`Navigating to... ${url}`)
   let response = await page.goto(url, { waitUntil: 'domcontentloaded' })
 
+  log.html(await page.content())
+
   // look for challenge
   if (response.headers().server.startsWith('cloudflare')) {
     log.info('Cloudflare detected')
@@ -148,7 +150,6 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
       for (const selector of CHALLENGE_SELECTORS) {
         const cfChallengeElem = await page.$(selector)
         if (cfChallengeElem) {
-          log.html(await page.content())
           log.debug('Waiting for Cloudflare challenge...')
 
           let interceptingResult: ChallengeResolutionT;
@@ -181,6 +182,7 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
 
             response = await page.reload({ waitUntil: 'domcontentloaded' })
             log.debug('Reloaded page...')
+            log.html(await page.content())
           }
 
           if (Date.now() - ctx.startTimestamp >= maxTimeout) {
@@ -203,7 +205,6 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
         const captchaStartTimestamp = Date.now()
         const challengeForm = await page.$('#challenge-form')
         if (challengeForm) {
-          log.html(await page.content())
           const captchaTypeElm = await page.$('input[name="cf_captcha_kind"]')
           const cfCaptchaType: string = await captchaTypeElm.evaluate((e: any) => e.value)
           const captchaType: CaptchaType = (CaptchaType as any)[cfCaptchaType]
