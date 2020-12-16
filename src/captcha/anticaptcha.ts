@@ -2,6 +2,7 @@ const solveCaptcha = require('@antiadmin/anticaptchaofficial');
 const ANTI_CAPTCHA_APIKEY: string = process.env.ANTI_CAPTCHA_APIKEY || '0123456789abcdefghijklmnopqrstuvwxyz'
 let task = "";
 
+import log from '../log'
 import { SolverOptions } from '.'
 /*
     This method uses the @antiadmin/anticaptchaofficial project:
@@ -11,13 +12,15 @@ import { SolverOptions } from '.'
         
 */
 
-export default async function solve({ url }: SolverOptions, { sitekey }: SolverOptions, { type }: SolverOptions): Promise<string> {
+export default async function solve({ url, type, sitekey }: SolverOptions): Promise<string> {
   try {
+    log.info(`Using anti-captcha solver`);
     solveCaptcha.Setapikey(ANTI_CAPTCHA_APIKEY)
-    solveCaptcha.getBalance()
+    const balance = solveCaptcha.getBalance()
      .then((balance: string) => console.log('my anti-captcha balance is $'+balance))
      .catch((error: string) => console.log('received error '+error))
     //switch between functions given captchatype
+    log.info(`my anti-captcha balance is ${balance}`);
     switch(type) {
       case 'funCaptcha':
         task = await solveCaptcha.solveFunCaptchaProxyless(url, sitekey)
@@ -27,7 +30,7 @@ export default async function solve({ url }: SolverOptions, { sitekey }: SolverO
         .catch((error: string) => console.log('test received error '+error));
         break;
       case 'reCaptcha':
-        task = await solveCaptcha.solveRecaptchaV3(url, 
+        task = await solveCaptcha.solveRecaptchaV3(url,
             sitekey,
             0.3, //minimum score required: 0.3, 0.7 or 0.9
             'PAGE_ACTION_CAN_BE_EMPTY')
