@@ -20,14 +20,14 @@
     "url": "https://github.com/ngosang/FlareSolverr"
   },
   "dependencies": {
+    "@antiadmin/anticaptchaofficial": "^1.0.12",
     "console-log-level": "^1.4.1",
     "got": "^11.5.1",
     "hcaptcha-solver": "^1.0.2",
     "puppeteer": "^3.3.0",
     "puppeteer-extra": "^3.1.15",
     "puppeteer-extra-plugin-stealth": "^2.6.5",
-    "uuid": "^8.2.0",
-    "@antiadmin/anticaptchaofficial": "^1.0.12"
+    "uuid": "^8.2.0"
   },
   "devDependencies": {
     "@types/node": "^14.0.23",
