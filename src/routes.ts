@@ -210,10 +210,24 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
           if (!captchaType) { return ctx.errorResponse('Unknown captcha type!') }
 
           let sitekey = null
+          /*
           if (captchaType != 'hCaptcha' && process.env.CAPTCHA_SOLVER != 'hcaptcha-solver') {
             const sitekeyElem = await page.$('*[data-sitekey]')
             if (!sitekeyElem) { return ctx.errorResponse('Could not find sitekey!') }
             sitekey = await sitekeyElem.evaluate((e) => e.getAttribute('data-sitekey'))
+          }*/
+          if(captchaType == 'hCaptcha'){
+            const sitekeyElem = await page.$('div[id=cf-hcaptcha-container] > iframe')
+            if (!sitekeyElem) { return ctx.errorResponse('Could not find sitekey!') }
+            sitekey = await sitekeyElem.evaluate((e) => e.getAttribute('src') )
+            log.debug('sitekey iframe src' + sitekey)
+            sitekey = sitekey.split(';')
+            log.debug('sitekey splitted ' + sitekey)
+            sitekey = sitekey[sitekey.indexOf('sitekey')]
+            log.debug('sitekey should be sitekey=xxxxxx ' + sitekey)
+            sitekey = sitekey.split('=')
+            sitekey = sitekey[1]
+            log.debug('sitekey should be final value now : ' + sitekey)
           }
 
           log.info('Waiting to receive captcha token to bypass challenge...')

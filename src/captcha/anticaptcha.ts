@@ -1,8 +1,5 @@
-const solveCaptcha = require('@antiadmin/anticaptchaofficial');
-const ANTI_CAPTCHA_APIKEY: string = process.env.ANTI_CAPTCHA_APIKEY || '0123456789abcdefghijklmnopqrstuvwxyz'
-let task = "";
-
 import log from '../log'
+
 import { SolverOptions } from '.'
 /*
     This method uses the @antiadmin/anticaptchaofficial project:
@@ -12,15 +9,27 @@ import { SolverOptions } from '.'
         
 */
 
-export default async function solve({ url, type, sitekey }: SolverOptions): Promise<string> {
+const solveCaptcha = require('@antiadmin/anticaptchaofficial');
+const ANTI_CAPTCHA_APIKEY: string = process.env.ANTI_CAPTCHA_APIKEY || '0123456789abcdefghijklmnopqrstuvwxyz'
+let task = "";
+
+export default async function solve({ url, sitekey, type }: SolverOptions): Promise<string> {
   try {
-    log.info(`Using anti-captcha solver`);
-    solveCaptcha.Setapikey(ANTI_CAPTCHA_APIKEY)
-    const balance = solveCaptcha.getBalance()
-     .then((balance: string) => console.log('my anti-captcha balance is $'+balance))
+    log.debug(`Using anti-captcha solver with params`);
+    log.debug(`url ${url}`);
+    log.debug(`type ${type}`);
+    log.debug(`sitekey ${sitekey}`);
+
+    solveCaptcha.setAPIKey(ANTI_CAPTCHA_APIKEY)
+    
+    solveCaptcha.getBalance()
+     .then(
+       (balance: string) => console.log('my anti-captcha balance is $'+balance), 
+       (balance: string) => log.debug('your anti-captcha balance is $'+balance)
+     )
      .catch((error: string) => console.log('received error '+error))
     //switch between functions given captchatype
-    log.info(`my anti-captcha balance is ${balance}`);
+    
     switch(type) {
       case 'funCaptcha':
         task = await solveCaptcha.solveFunCaptchaProxyless(url, sitekey)
