@@ -290,6 +290,8 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
         message = 'Captcha detected but no automatic solver is configured.'
       }
     }
+
+    log.debug("Response is: " + response.status())
   }
 
   const payload: ChallengeResolutionT = {
