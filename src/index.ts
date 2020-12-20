@@ -65,11 +65,19 @@ function validateIncomingRequest(ctx: RequestContext, params: BaseAPICall) {
 }
 
 createServer((req: IncomingMessage, res: ServerResponse) => {
+  const startTimestamp = Date.now()
+
   // count the request for the log prefix
   log.incRequests()
-
-  const startTimestamp = Date.now()
   log.info(`Incoming request: ${req.method} ${req.url}`)
+
+  // show welcome message
+  if (req.url == '/') {
+    successResponse("FlareSolverr is ready!", null, res, startTimestamp);
+    return;
+  }
+
+  // get request body
   const bodyParts: any[] = []
   req.on('data', chunk => {
     bodyParts.push(chunk)
@@ -102,5 +110,5 @@ createServer((req: IncomingMessage, res: ServerResponse) => {
     })
   })
 }).listen(serverPort, serverHost, () => {
-  log.info(`FlareSolverr v${version} listening on http://${serverHost}:${serverPort}`)
+  log.info(`FlareSolverr ${version} listening on http://${serverHost}:${serverPort}`)
 })
