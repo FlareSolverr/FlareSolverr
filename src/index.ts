@@ -3,7 +3,7 @@ import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { RequestContext } from './types'
 import Router, { BaseAPICall } from './routes'
 
-const version: string = require('../package.json').version
+const version: string = "v" + require('../package.json').version
 const serverPort: number = Number(process.env.PORT) || 8191
 const serverHost: string = process.env.HOST || '0.0.0.0'
 
