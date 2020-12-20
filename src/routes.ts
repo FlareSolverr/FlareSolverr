@@ -6,6 +6,7 @@ import { SetCookie, Request, Headers, HttpMethod, Overrides, Cookie } from 'pupp
 import { TimeoutError } from 'puppeteer/Errors'
 import getCaptchaSolver, { CaptchaType } from './captcha'
 import * as Puppeteer from "puppeteer-extra/dist/puppeteer";
+const Timeout = require('await-timeout');
 
 export interface BaseAPICall {
   cmd: string
@@ -119,9 +120,22 @@ async function interceptResponse(page: Puppeteer.Page, callback: (payload: Chall
   });
 }
 
-async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, download, returnOnlyCookies }: BaseRequestAPICall, page: Puppeteer.Page): Promise<ChallengeResolutionT | void> {
+async function resolveChallengeWithTimeout(ctx: RequestContext, params: BaseRequestAPICall, page: Puppeteer.Page) {
+  const maxTimeout = params.maxTimeout || 60000
+  const timer = new Timeout();
+  try {
+    const promise = resolveChallenge(ctx, params, page);
+    return await Promise.race([
+      promise,
+      timer.set(maxTimeout, `Maximum timeout reached. maxTimeout=${maxTimeout} (ms)`)
+    ]);
+  } finally {
+    timer.clear();
+  }
+}
 
-  maxTimeout = maxTimeout || 60000
+async function resolveChallenge(ctx: RequestContext, { url, proxy, download, returnOnlyCookies }: BaseRequestAPICall, page: Puppeteer.Page): Promise<ChallengeResolutionT | void> {
+
   let status = 'ok'
   let message = ''
 
@@ -162,8 +176,7 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
             });
           }
 
-          // TODO: find out why these pages hang sometimes
-          while (Date.now() - ctx.startTimestamp < maxTimeout) {
+          while (true) {
             await page.waitFor(1000)
             try {
               // catch exception timeout in waitForNavigation
@@ -186,11 +199,6 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
             response = await page.reload({ waitUntil: 'domcontentloaded' })
             log.debug('Reloaded page...')
             log.html(await page.content())
-          }
-
-          if (Date.now() - ctx.startTimestamp >= maxTimeout) {
-            ctx.errorResponse(`Maximum timeout reached. maxTimeout=${maxTimeout} (ms)`)
-            return
           }
 
           log.debug('Validating HTML code...')
@@ -418,7 +426,7 @@ const browserRequest = async (ctx: RequestContext, params: BaseRequestAPICall) =
 
   try {
     const page = await setupPage(ctx, params, session.browser)
-    const data = await resolveChallenge(ctx, params, page)
+    const data = await resolveChallengeWithTimeout(ctx, params, page)
 
     if (data) {
       const { status } = data

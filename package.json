@@ -20,6 +20,7 @@
     "url": "https://github.com/ngosang/FlareSolverr"
   },
   "dependencies": {
+    "await-timeout": "^1.1.1",
     "console-log-level": "^1.4.1",
     "got": "^11.5.1",
     "hcaptcha-solver": "^1.0.2",
@@ -29,6 +30,7 @@
     "uuid": "^8.2.0"
   },
   "devDependencies": {
+    "@types/await-timeout": "^0.3.1",
     "@types/node": "^14.0.23",
     "@types/puppeteer": "^3.0.1",
     "@types/uuid": "^8.0.0",
