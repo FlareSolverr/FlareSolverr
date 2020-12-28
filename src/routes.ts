@@ -138,7 +138,7 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
   if (response.headers().server.startsWith('cloudflare')) {
     log.info('Cloudflare detected')
 
-    if (await page.$('.cf-error-code')) {
+    if (await page.$('span[data-translate="error"]')) {
       await page.close()
       return ctx.errorResponse('Cloudflare has blocked this request (Code 1020 Detected).')
     }
@@ -149,7 +149,7 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
         const cfChallengeElem = await page.$(selector)
         if (cfChallengeElem) {
           log.html(await page.content())
-          log.debug('Waiting for Cloudflare challenge...')
+          log.debug('Waiting for Cloudflare challenge... found selector ' + selector)
 
           let interceptingResult: ChallengeResolutionT;
           if (returnOnlyCookies) { //If we just want to get the cookies, intercept the response before we get the content/body (just cookies and headers)
@@ -210,6 +210,7 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
           if (!captchaType) { return ctx.errorResponse('Unknown captcha type!') }
 
           let sitekey = null
+          let challengeform = null
           /*
           if (captchaType != 'hCaptcha' && process.env.CAPTCHA_SOLVER != 'hcaptcha-solver') {
             const sitekeyElem = await page.$('*[data-sitekey]')
@@ -218,6 +219,13 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
           }*/
           if(captchaType == 'hCaptcha'){
             const sitekeyElem = await page.$('div[id=cf-hcaptcha-container] > iframe')
+            const ChallengeFormElem = await page.$('#challenge-form')
+            if(ChallengeFormElem){
+              challengeform = await ChallengeFormElem.evaluate((e) => e.getAttribute('action') )
+              log.debug("Going to URL " + challengeform)
+              page.goto(challengeform);
+            }   
+
             if (!sitekeyElem) { return ctx.errorResponse('Could not find sitekey!') }
             sitekey = await sitekeyElem.evaluate((e) => e.getAttribute('src') )
             log.debug('sitekey iframe src' + sitekey)
