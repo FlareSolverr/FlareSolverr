@@ -1,6 +1,6 @@
 {
   "name": "flaresolverr",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Proxy server to bypass Cloudflare protection.",
   "scripts": {
     "start": "node ./dist/index.js",
@@ -20,7 +20,11 @@
     "url": "https://github.com/ngosang/FlareSolverr"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@antiadmin/anticaptchaofficial": "^1.0.12",
+=======
+    "await-timeout": "^1.1.1",
+>>>>>>> upstream/master
     "console-log-level": "^1.4.1",
     "got": "^11.5.1",
     "hcaptcha-solver": "^1.0.2",
@@ -30,6 +34,7 @@
     "uuid": "^8.2.0"
   },
   "devDependencies": {
+    "@types/await-timeout": "^0.3.1",
     "@types/node": "^14.0.23",
     "@types/puppeteer": "^3.0.1",
     "@types/uuid": "^8.0.0",

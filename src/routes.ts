@@ -6,6 +6,7 @@ import { SetCookie, Request, Headers, HttpMethod, Overrides, Cookie } from 'pupp
 import { TimeoutError } from 'puppeteer/Errors'
 import getCaptchaSolver, { CaptchaType } from './captcha'
 import * as Puppeteer from "puppeteer-extra/dist/puppeteer";
+const Timeout = require('await-timeout');
 
 export interface BaseAPICall {
   cmd: string
@@ -69,7 +70,7 @@ type OverridesProps =
   'headers'
 
 // We always set a Windows User-Agent because ARM builds are detected by CloudFlare
-const DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36"
+const DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36"
 const CHALLENGE_SELECTORS = ['#trk_jschal_js', '.ray_id', '.attack-box']
 const TOKEN_INPUT_NAMES = ['g-recaptcha-response', 'h-captcha-response']
 
@@ -119,9 +120,22 @@ async function interceptResponse(page: Puppeteer.Page, callback: (payload: Chall
   });
 }
 
-async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, download, returnOnlyCookies }: BaseRequestAPICall, page: Puppeteer.Page): Promise<ChallengeResolutionT | void> {
+async function resolveChallengeWithTimeout(ctx: RequestContext, params: BaseRequestAPICall, page: Puppeteer.Page) {
+  const maxTimeout = params.maxTimeout || 60000
+  const timer = new Timeout();
+  try {
+    const promise = resolveChallenge(ctx, params, page);
+    return await Promise.race([
+      promise,
+      timer.set(maxTimeout, `Maximum timeout reached. maxTimeout=${maxTimeout} (ms)`)
+    ]);
+  } finally {
+    timer.clear();
+  }
+}
 
-  maxTimeout = maxTimeout || 60000
+async function resolveChallenge(ctx: RequestContext, { url, proxy, download, returnOnlyCookies }: BaseRequestAPICall, page: Puppeteer.Page): Promise<ChallengeResolutionT | void> {
+
   let status = 'ok'
   let message = ''
 
@@ -134,6 +148,8 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
   log.debug(`Navigating to... ${url}`)
   let response = await page.goto(url, { waitUntil: 'domcontentloaded' })
 
+  log.html(await page.content())
+
   // look for challenge
   if (response.headers().server.startsWith('cloudflare')) {
     log.info('Cloudflare detected')
@@ -145,11 +161,18 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
 
     if (response.status() > 400) {
       // detect cloudflare wait 5s
+      let selectorFoundCount = 0
       for (const selector of CHALLENGE_SELECTORS) {
         const cfChallengeElem = await page.$(selector)
         if (cfChallengeElem) {
+<<<<<<< HEAD
           log.html(await page.content())
           log.debug('Waiting for Cloudflare challenge... found selector ' + selector)
+=======
+          selectorFoundCount++
+          log.debug(`'${selector}' challenge element detected.`)
+          log.debug('Waiting for Cloudflare challenge...')
+>>>>>>> upstream/master
 
           let interceptingResult: ChallengeResolutionT;
           if (returnOnlyCookies) { //If we just want to get the cookies, intercept the response before we get the content/body (just cookies and headers)
@@ -158,8 +181,7 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
             });
           }
 
-          // TODO: find out why these pages hang sometimes
-          while (Date.now() - ctx.startTimestamp < maxTimeout) {
+          while (true) {
             await page.waitFor(1000)
             try {
               // catch exception timeout in waitForNavigation
@@ -181,11 +203,7 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
 
             response = await page.reload({ waitUntil: 'domcontentloaded' })
             log.debug('Reloaded page...')
-          }
-
-          if (Date.now() - ctx.startTimestamp >= maxTimeout) {
-            ctx.errorResponse(`Maximum timeout reached. maxTimeout=${maxTimeout} (ms)`)
-            return
+            log.html(await page.content())
           }
 
           log.debug('Validating HTML code...')
@@ -193,6 +211,12 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
         } else {
           log.debug(`No '${selector}' challenge element detected.`)
         }
+      }
+      log.debug("Number of selector found: " + selectorFoundCount + ", total selector: " + CHALLENGE_SELECTORS.length)
+      if (selectorFoundCount == 0)
+      {
+        await page.close()
+        return ctx.errorResponse('No challenge selectors found, unable to proceed')
       }
     }
 
@@ -203,7 +227,6 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
         const captchaStartTimestamp = Date.now()
         const challengeForm = await page.$('#challenge-form')
         if (challengeForm) {
-          log.html(await page.content())
           const captchaTypeElm = await page.$('input[name="cf_captcha_kind"]')
           const cfCaptchaType: string = await captchaTypeElm.evaluate((e: any) => e.value)
           const captchaType: CaptchaType = (CaptchaType as any)[cfCaptchaType]
@@ -302,6 +325,8 @@ async function resolveChallenge(ctx: RequestContext, { url, maxTimeout, proxy, d
         message = 'Captcha detected but no automatic solver is configured.'
       }
     }
+
+    log.debug("Response is: " + response.status())
   }
 
   const payload: ChallengeResolutionT = {
@@ -428,7 +453,7 @@ const browserRequest = async (ctx: RequestContext, params: BaseRequestAPICall) =
 
   try {
     const page = await setupPage(ctx, params, session.browser)
-    const data = await resolveChallenge(ctx, params, page)
+    const data = await resolveChallengeWithTimeout(ctx, params, page)
 
     if (data) {
       const { status } = data
