@@ -110,5 +110,6 @@ createServer((req: IncomingMessage, res: ServerResponse) => {
     })
   })
 }).listen(serverPort, serverHost, () => {
-  log.info(`FlareSolverr ${version} listening on http://${serverHost}:${serverPort}`)
+  log.info(`FlareSolverr ${version} listening on http://${serverHost}:${serverPort}`);
+  log.debug('Debug log enabled');
 })
