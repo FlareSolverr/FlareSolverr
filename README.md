@@ -209,43 +209,49 @@ moment there is nothing setup to do so. If this is something you need feel free 
 
 ## Environment variables
 
-To set the environment vars in Linux run `export LOG_LEVEL=debug` and then start FlareSolverr in the same shell.
-
 Name | Default | Notes
 |--|--|--|
-LOG_LEVEL | info | Used to change the verbosity of the logging.
+LOG_LEVEL | info | Used to change the verbosity of the logging. Use `LOG_LEVEL=debug` for more information.
 LOG_HTML | false | Used for debugging. If `true` all HTML that passes through the proxy will be logged to the console in `debug` level.
 PORT | 8191 | Change this if you already have a process running on port `8191`.
 HOST | 0.0.0.0 | This shouldn't need to be messed with but if you insist, it's here!
 CAPTCHA_SOLVER | None | This is used to select which captcha solving method it used when a captcha is encountered.
 HEADLESS | true | This is used to debug the browser by not running it in headless mode.
 
+Environment variables are set differently depending on the operating system. Some examples:
+* Docker: Take a look at the Docker section in this document. Environment variables can be set in the `docker-compose.yml` file or in the Docker CLI command.
+* Linux: Run `export LOG_LEVEL=debug` and then start FlareSolverr in the same shell.
+
 ## Captcha Solvers
 
-Sometimes CF not only gives mathematical computations and browser tests, sometimes they also require the user to solve
-a captcha. If this is the case, FlareSolverr will return the captcha page. But that's not very helpful to you is it?
+Sometimes CloudFlare not only gives mathematical computations and browser tests, sometimes they also require the user to
+solve a captcha.
+If this is the case, FlareSolverr will return the error `Captcha detected but no automatic solver is configured.`
 
 FlareSolverr can be customized to solve the captchas automatically by setting the environment variable `CAPTCHA_SOLVER`
 to the file name of one of the adapters inside the [/captcha](src/captcha) directory.
 
 ### hcaptcha-solver
 
-This method makes use of the [hcaptcha-solver](https://github.com/JimmyLaurent/hcaptcha-solver) project which attempts
-to solve hCaptcha by randomly selecting images.
+This method makes use of the [hcaptcha-solver](https://github.com/JimmyLaurent/hcaptcha-solver) project.
 
-To use this solver you must first install it and then set it as the `CAPTCHA_SOLVER`.
+NOTE: This solver works picking random images so it will fail in a lot of requests and it's hard to know if it is
+working or not. In a real use case with Sonarr/Radarr + Jackett it is still useful because those apps make a new request
+each 15 minutes. Eventually one of the requests is going to work and Jackett saves the cookie forever (until it stops
+working).
+
+To use this solver you must set the environment variable:
 
 ```bash
-npm i hcaptcha-solver
 CAPTCHA_SOLVER=hcaptcha-solver
 ```
 
 ### CaptchaHarvester
 
 This method makes use of the [CaptchaHarvester](https://github.com/NoahCardoza/CaptchaHarvester) project which allows
-users to collect thier own tokens from ReCaptcha V2/V3 and hCaptcha for free.
+users to collect their own tokens from ReCaptcha V2/V3 and hCaptcha for free.
 
-To use this method you must set these ENV variables:
+To use this method you must set these environment variables:
 
 ```bash
 CAPTCHA_SOLVER=harvester
