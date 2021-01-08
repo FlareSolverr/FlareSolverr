@@ -128,8 +128,9 @@ Parameter | Notes
 url | Mandatory
 session | Optional. Will send the request from and existing browser instance. If one is not sent it will create a temporary instance that will be destroyed immediately after the request is completed.
 headers | Optional. To specify user headers.
-maxTimeout | Optional. Max timeout to solve the challenge
-cookies | Optional. Will be used by the headless browser. Follow [this](https://github.com/puppeteer/puppeteer/blob/v3.3.0/docs/api.md#pagesetcookiecookies) format
+maxTimeout | Optional, default value 60000. Max timeout to solve the challenge in milliseconds.
+cookies | Optional. Will be used by the headless browser. Follow [this](https://github.com/puppeteer/puppeteer/blob/v3.3.0/docs/api.md#pagesetcookiecookies) format.
+returnOnlyCookies | Optional, default false. Only returns the cookies. Response data, headers and other parts of the response are removed.
 
 Example response from running the `curl` above:
 

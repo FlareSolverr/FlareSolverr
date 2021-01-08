@@ -74,52 +74,6 @@ const DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKi
 const CHALLENGE_SELECTORS = ['#trk_jschal_js', '.ray_id', '.attack-box']
 const TOKEN_INPUT_NAMES = ['g-recaptcha-response', 'h-captcha-response']
 
-async function interceptResponse(page: Puppeteer.Page, callback: (payload: ChallengeResolutionT) => any) {
-  const client = await page.target().createCDPSession();
-  await client.send('Fetch.enable', {
-    patterns: [
-      {
-        urlPattern: '*',
-        resourceType: 'Document',
-        requestStage: 'Response',
-      },
-    ],
-  });
-
-  client.on('Fetch.requestPaused', async (e) => {
-    log.debug('Fetch.requestPaused. Checking if the response has valid cookies')
-    let headers = e.responseHeaders || []
-
-    let cookies = await page.cookies();
-    log.debug(cookies)
-
-    if (cookies.filter((c: Cookie) => c.name === 'cf_clearance').length > 0) {
-      log.debug('Aborting request and return cookies. valid cookies found')
-      await client.send('Fetch.failRequest', {requestId: e.requestId, errorReason: 'Aborted'})
-
-      let status = 'ok'
-      let message = ''
-      const payload: ChallengeResolutionT = {
-        status,
-        message,
-        result: {
-          url: page.url(),
-          status: e.status,
-          headers: headers.reduce((a: any, x: { name: any; value: any }) => ({ ...a, [x.name]: x.value }), {}),
-          response: null,
-          cookies: cookies,
-          userAgent: ''
-        }
-      }
-
-      callback(payload);
-    } else {
-      log.debug('Continuing request. no valid cookies found')
-      await client.send('Fetch.continueRequest', {requestId: e.requestId})
-    }
-  });
-}
-
 async function resolveChallengeWithTimeout(ctx: RequestContext, params: BaseRequestAPICall, page: Puppeteer.Page) {
   const maxTimeout = params.maxTimeout || 60000
   const timer = new Timeout();
@@ -169,24 +123,12 @@ async function resolveChallenge(ctx: RequestContext, { url, proxy, download, ret
           log.debug(`'${selector}' challenge element detected.`)
           log.debug('Waiting for Cloudflare challenge...')
 
-          let interceptingResult: ChallengeResolutionT;
-          if (returnOnlyCookies) { //If we just want to get the cookies, intercept the response before we get the content/body (just cookies and headers)
-            await interceptResponse(page, async function(payload){
-              interceptingResult = payload;
-            });
-          }
-
           while (true) {
             await page.waitFor(1000)
             try {
               // catch exception timeout in waitForNavigation
               response = await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 5000 })
             } catch (error) { }
-
-            if (returnOnlyCookies && interceptingResult) {
-              await page.close();
-              return interceptingResult;
-            }
 
             try {
               // catch Execution context was destroyed
@@ -277,21 +219,10 @@ async function resolveChallenge(ctx: RequestContext, { url, proxy, download, ret
           const timeLeft = randomWaitTime - captchaSolveTotalTime
           if (timeLeft > 0) { await page.waitFor(timeLeft) }
 
-          let interceptingResult: ChallengeResolutionT;
-          if (returnOnlyCookies) { //If we just want to get the cookies, intercept the response before we get the content/body (just cookies and headers)
-            await interceptResponse(page, async function(payload){
-              interceptingResult = payload;
-            });
-          }
-
           // submit captcha response
           challengeForm.evaluate((e: HTMLFormElement) => e.submit())
           response = await page.waitForNavigation({ waitUntil: 'domcontentloaded' })
 
-          if (returnOnlyCookies && interceptingResult) {
-            await page.close();
-            return interceptingResult;
-          }
         }
       } else {
         status = 'warning'
@@ -315,14 +246,19 @@ async function resolveChallenge(ctx: RequestContext, { url, proxy, download, ret
     }
   }
 
-  if (download) {
-    // for some reason we get an error unless we reload the page
-    // has something to do with a stale buffer and this is the quickest
-    // fix since I am short on time
-    response = await page.goto(url, { waitUntil: 'domcontentloaded' })
-    payload.result.response = (await response.buffer()).toString('base64')
+  if (returnOnlyCookies) {
+    payload.result.headers = null;
+    payload.result.userAgent = null;
   } else {
-    payload.result.response = await page.content()
+    if (download) {
+      // for some reason we get an error unless we reload the page
+      // has something to do with a stale buffer and this is the quickest
+      // fix since I am short on time
+      response = await page.goto(url, { waitUntil: 'domcontentloaded' })
+      payload.result.response = (await response.buffer()).toString('base64')
+    } else {
+      payload.result.response = await page.content()
+    }
   }
 
   // make sure the page is closed because if it isn't and error will be thrown
@@ -472,14 +408,6 @@ export const routes: Routes = {
       return ctx.errorResponse('Must send param "postBody" when sending a POST request.')
     }
 
-    await browserRequest(ctx, params)
-  },
-  'request.cookies': async (ctx, params: BaseRequestAPICall) => {
-    params.returnOnlyCookies = true
-    params.method = 'GET'
-    if (params.postData) {
-      return ctx.errorResponse('Cannot use "postBody" when sending a GET request.')
-    }
     await browserRequest(ctx, params)
   },
 }
