@@ -1,6 +1,5 @@
 import {Response} from 'puppeteer'
 import {Page} from "puppeteer-extra/dist/puppeteer";
-import {TimeoutError} from "puppeteer/Errors";
 
 import log from "../log";
 import getCaptchaSolver, {CaptchaType} from "../captcha";
@@ -25,14 +24,14 @@ export default async function resolveChallenge(url: string, page: Page, response
     throw new Error('Cloudflare has blocked this request (Code 1020 Detected).')
   }
 
+  let selectorFoundCount = 0;
   if (response.status() > 400) {
     // detect cloudflare wait 5s
-    let selectorFoundCount = 0
     for (const selector of CHALLENGE_SELECTORS) {
       const cfChallengeElem = await page.$(selector)
       if (cfChallengeElem) {
         selectorFoundCount++
-        log.debug(`'${selector}' challenge element detected.`)
+        log.debug(`Javascript challenge element '${selector}' detected.`)
         log.debug('Waiting for Cloudflare challenge...')
 
         while (true) {
@@ -51,7 +50,7 @@ export default async function resolveChallenge(url: string, page: Page, response
           { }
 
           response = await page.reload({ waitUntil: 'domcontentloaded' })
-          log.debug('Reloaded page...')
+          log.debug('Page reloaded.')
           log.html(await page.content())
         }
 
@@ -61,15 +60,16 @@ export default async function resolveChallenge(url: string, page: Page, response
         log.debug(`No '${selector}' challenge element detected.`)
       }
     }
-    log.debug("Number of selector found: " + selectorFoundCount + ", total selector: " + CHALLENGE_SELECTORS.length)
-    if (selectorFoundCount == 0)
-    {
-      throw new Error('No challenge selectors found, unable to proceed')
-    }
+    log.debug("Javascript challenge selectors found: " + selectorFoundCount + ", total selectors: " + CHALLENGE_SELECTORS.length)
+  } else {
+    // some sites use cloudflare but there is no challenge
+    log.debug(`Javascript challenge not detected. Status code: ${response.status()}`);
+    selectorFoundCount = 1;
   }
 
   // it seems some captcha pages return 200 sometimes
   if (await page.$('input[name="cf_captcha_kind"]')) {
+    log.info('Captcha challenge detected.');
     const captchaSolver = getCaptchaSolver()
     if (captchaSolver) {
       const captchaStartTimestamp = Date.now()
@@ -97,14 +97,22 @@ export default async function resolveChallenge(url: string, page: Page, response
           sitekey,
           type: captchaType
         })
-
+        log.debug(`Token received: ${token}`);
         if (!token) {
           throw new Error('Token solver failed to return a token.')
         }
 
+        let responseFieldsFoundCount = 0;
         for (const name of TOKEN_INPUT_NAMES) {
           const input = await page.$(`textarea[name="${name}"]`)
-          if (input) { await input.evaluate((e: HTMLTextAreaElement, token) => { e.value = token }, token) }
+          if (input) {
+            responseFieldsFoundCount ++;
+            log.debug(`Challenge response field '${name}' found in challenge form.`);
+            await input.evaluate((e: HTMLTextAreaElement, token) => { e.value = token }, token);
+          }
+        }
+        if (responseFieldsFoundCount == 0) {
+          throw new Error('Challenge response field not found in challenge form.');
         }
 
         // ignore preset event listeners on the form
@@ -116,30 +124,39 @@ export default async function resolveChallenge(url: string, page: Page, response
         // TODO: look into how they do it and come up with a more solid solution
         try {
           // this element is added with js and we want to wait for all the js to load before submitting
-          await page.waitForSelector('#challenge-form [type=submit]', { timeout: 5000 })
+          await page.waitForSelector('#challenge-form', { timeout: 10000 })
         } catch (err) {
-          if (err instanceof TimeoutError) {
-            log.debug(`No '#challenge-form [type=submit]' element detected.`)
-          }
+          throw new Error("No '#challenge-form' element detected.");
         }
 
         // calculates the time it took to solve the captcha
         const captchaSolveTotalTime = Date.now() - captchaStartTimestamp
 
         // generates a random wait time
-        const randomWaitTime = (Math.floor(Math.random() * 20) + 10) * 1000
+        const randomWaitTime = (Math.floor(Math.random() * 10) + 10) * 1000
 
         // waits, if any, time remaining to appear human but stay as fast as possible
         const timeLeft = randomWaitTime - captchaSolveTotalTime
-        if (timeLeft > 0) { await page.waitFor(timeLeft) }
+        if (timeLeft > 0) {
+          log.debug(`Waiting for '${timeLeft}' milliseconds.`);
+          await page.waitFor(timeLeft);
+        }
 
         // submit captcha response
         challengeForm.evaluate((e: HTMLFormElement) => e.submit())
         response = await page.waitForNavigation({ waitUntil: 'domcontentloaded' })
 
+        if (await page.$('input[name="cf_captcha_kind"]')) {
+          throw new Error('Captcha service failed to solve the challenge.');
+        }
       }
     } else {
       throw new Error('Captcha detected but no automatic solver is configured.');
+    }
+  } else {
+    if (selectorFoundCount == 0)
+    {
+      throw new Error('No challenge selectors found, unable to proceed')
     }
   }
 
