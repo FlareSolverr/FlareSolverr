@@ -7,19 +7,24 @@ on:
 
 jobs:
   build:
-    name: Create Release
+    name: Create release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # get all commits, branches and tags (required for the changelog)
 
-      - name: Build Changelog
-        id: github_release
-        uses: mikepenz/release-changelog-builder-action@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+      - name: Build changelog
+        id: github_changelog
+        run: |
+          changelog=$(git log $(git describe --tags --abbrev=0)..HEAD --no-merges --oneline)
+          changelog="${changelog//'%'/'%25'}"
+          changelog="${changelog//$'\n'/'%0A'}"
+          changelog="${changelog//$'\r'/'%0D'}"
+          echo "##[set-output name=changelog;]${changelog}"
 
-      - name: Create Release
+      - name: Create release
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -27,6 +32,6 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
-          body: ${{ steps.github_release.outputs.changelog }}
+          body: ${{ steps.github_changelog.outputs.changelog }}
           draft: false
           prerelease: false
