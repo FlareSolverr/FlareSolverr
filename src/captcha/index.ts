@@ -1,3 +1,5 @@
+import log from "../log";
+
 export enum CaptchaType {
   re = 'reCaptcha',
   h = 'hCaptcha'
@@ -30,6 +32,8 @@ export default (): Solver => {
       }
     }
   }
+
+  log.info(`Using '${method} to solve the captcha.`);
 
   return captchaSolvers[method]
 }
