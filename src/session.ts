@@ -76,6 +76,12 @@ export default {
       puppeteerOptions.userDataDir = prepareBrowserProfile(id)
     }
 
+    // if we are running inside executable binary, change chrome path
+    if (typeof (process as any).pkg !== 'undefined') {
+      const exe = process.platform === "win32" ? 'chrome.exe' : 'chrome';
+      puppeteerOptions.executablePath = path.join(path.dirname(process.execPath), 'chrome', exe)
+    }
+
     log.debug('Launching headless browser...')
 
     // TODO: maybe access env variable?

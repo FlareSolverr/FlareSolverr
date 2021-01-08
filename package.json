@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node ./dist/index.js",
     "build": "tsc",
-    "dev": "nodemon -e ts --exec ts-node src/index.ts"
+    "dev": "nodemon -e ts --exec ts-node src/index.ts",
+    "package": "node build-binaries.js"
   },
   "author": "Diego Heras (ngosang)",
   "contributors": [
@@ -18,6 +19,14 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/ngosang/FlareSolverr"
+  },
+  "pkg": {
+    "assets": [
+      "node_modules/puppeteer-extra-plugin-stealth/**/*.*"
+    ]
+  },
+  "bin": {
+    "flaresolverr": "dist/index.js"
   },
   "dependencies": {
     "await-timeout": "^1.1.1",
@@ -34,6 +43,7 @@
     "@types/node": "^14.0.23",
     "@types/puppeteer": "^3.0.1",
     "@types/uuid": "^8.0.0",
+    "archiver": "^5.2.0",
     "eslint": "^7.5.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-standard": "^14.1.1",
@@ -42,6 +52,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "nodemon": "^2.0.4",
+    "pkg": "^4.4.9",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.7"
   }

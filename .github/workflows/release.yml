@@ -15,6 +15,17 @@ jobs:
         with:
           fetch-depth: 0 # get all commits, branches and tags (required for the changelog)
 
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Build artifacts
+        run: |
+          npm install
+          npm run build
+          npm run package
+
       - name: Build changelog
         id: github_changelog
         run: |
@@ -35,3 +46,10 @@ jobs:
           body: ${{ steps.github_changelog.outputs.changelog }}
           draft: false
           prerelease: false
+
+      - name: Upload release artifacts
+        uses: alexellis/upload-assets@0.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        with:
+          asset_paths: '["./bin/*.zip"]'
