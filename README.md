@@ -226,6 +226,8 @@ Environment variables are set differently depending on the operating system. Som
 
 ## Captcha Solvers
 
+:warning: At this time none of the captcha solvers work. You can check the status in the open issues. Any help is welcome.
+
 Sometimes CloudFlare not only gives mathematical computations and browser tests, sometimes they also require the user to
 solve a captcha.
 If this is the case, FlareSolverr will return the error `Captcha detected but no automatic solver is configured.`
