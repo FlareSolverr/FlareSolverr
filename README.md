@@ -224,6 +224,7 @@ HEADLESS | true | This is used to debug the browser by not running it in headles
 Environment variables are set differently depending on the operating system. Some examples:
 * Docker: Take a look at the Docker section in this document. Environment variables can be set in the `docker-compose.yml` file or in the Docker CLI command.
 * Linux: Run `export LOG_LEVEL=debug` and then start FlareSolverr in the same shell.
+* Windows: Open `cmd.exe`, run `set LOG_LEVEL=debug` and then start FlareSolverr in the same shell.
 
 ## Captcha Solvers
 
