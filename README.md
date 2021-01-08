@@ -55,9 +55,16 @@ docker run -d \
   ghcr.io/flaresolverr/flaresolverr:latest
 ```
 
+### Precompiled binaries
+
+This is the recommended way for Windows users.
+* Download the [FlareSolverr zip](https://github.com/FlareSolverr/FlareSolverr/releases) from the release's assets. It is available for Windows and Linux.
+* Extract the zip file. FlareSolverr executable and chrome folder must be in the same directory.
+* Execute FlareSolverr binary. In the environment variables section you can find how to change the configuration.
+
 ### From source code
 
-This is the recommended way for Windows / MacOS users and for developers.
+This is the recommended way for MacOS users and for developers.
 * Install [NodeJS](https://nodejs.org/)
 * Clone this repository and open a shell in that path
 * Run `npm install` command to install FlareSolverr dependencies
