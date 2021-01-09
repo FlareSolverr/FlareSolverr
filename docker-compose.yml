@@ -6,13 +6,17 @@ services:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
     environment:
+      - LOG_HTML=${LOG_HTML:-false}
+      - HOST=${HOST:-0.0.0.0}
       # Used to change the verbosity of the logging
-      - LOG_LEVEL=info
+      - LOG_LEVEL=${LOG_LEVEL:-info}
       # Enables hcaptcha-solver => https://github.com/JimmyLaurent/hcaptcha-solver
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-None}
       #- CAPTCHA_SOLVER=hcaptcha-solver
       # Enables CaptchaHarvester => https://github.com/NoahCardoza/CaptchaHarvester
       #- CAPTCHA_SOLVER=harvester
       #- HARVESTER_ENDPOINT=https://127.0.0.1:5000/token
+      - HEADLESS=${HEADLESS:-true}
     ports:
-      - 8191:8191
-    restart: unless-stopped 
+      - "${PORT:-8191}:8191"
+    restart: unless-stopped
