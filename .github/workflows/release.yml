@@ -29,7 +29,7 @@ jobs:
       - name: Build changelog
         id: github_changelog
         run: |
-          changelog=$(git log $(git describe --tags --abbrev=0)..HEAD --no-merges --oneline)
+          changelog=$(git log $(git tag | tail -2 | head -1)..HEAD --no-merges --oneline)
           changelog="${changelog//'%'/'%25'}"
           changelog="${changelog//$'\n'/'%0A'}"
           changelog="${changelog//$'\r'/'%0D'}"
