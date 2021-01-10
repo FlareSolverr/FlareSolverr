@@ -225,7 +225,7 @@ LOG_LEVEL | info | Used to change the verbosity of the logging. Use `LOG_LEVEL=d
 LOG_HTML | false | Used for debugging. If `true` all HTML that passes through the proxy will be logged to the console in `debug` level.
 PORT | 8191 | Change this if you already have a process running on port `8191`.
 HOST | 0.0.0.0 | This shouldn't need to be messed with but if you insist, it's here!
-CAPTCHA_SOLVER | None | This is used to select which captcha solving method it used when a captcha is encountered.
+CAPTCHA_SOLVER | none | This is used to select which captcha solving method it used when a captcha is encountered.
 HEADLESS | true | This is used to debug the browser by not running it in headless mode.
 
 Environment variables are set differently depending on the operating system. Some examples:

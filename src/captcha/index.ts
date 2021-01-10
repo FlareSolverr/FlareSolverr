@@ -18,7 +18,9 @@ const captchaSolvers: { [key: string]: Solver } = {}
 export default (): Solver => {
   const method = process.env.CAPTCHA_SOLVER
 
-  if (!method) { return null }
+  if (!method || method.toLowerCase() == 'none') {
+    return null;
+  }
 
   if (!(method in captchaSolvers)) {
     try {
