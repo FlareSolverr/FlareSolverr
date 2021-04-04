@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const {execSync} = require('child_process')
+const { execSync } = require('child_process')
 const archiver = require('archiver')
 const puppeteer = require('puppeteer')
 const version = 'v' + require('./package.json').version;
@@ -13,7 +13,8 @@ const version = 'v' + require('./package.json').version;
       chromeFolder: 'chrome-linux',
       fsExec: 'flaresolverr-linux',
       fsZipExec: 'flaresolverr',
-      fsZipName: 'linux-x64'
+      fsZipName: 'linux-x64',
+      fsLicenseName: 'LICENSE'
     },
     {
       platform: 'win64',
@@ -21,7 +22,8 @@ const version = 'v' + require('./package.json').version;
       chromeFolder: 'chrome-win',
       fsExec: 'flaresolverr-win.exe',
       fsZipExec: 'flaresolverr.exe',
-      fsZipName: 'windows-x64'
+      fsZipName: 'windows-x64',
+      fsLicenseName: 'LICENSE.txt'
     }
     // TODO: this is working but changes are required in session.ts to find chrome path
     // {
@@ -30,14 +32,15 @@ const version = 'v' + require('./package.json').version;
     //   chromeFolder: 'chrome-mac',
     //   fsExec: 'flaresolverr-macos',
     //   fsZipExec: 'flaresolverr',
-    //   fsZipName: 'macos'
+    //   fsZipName: 'macos',
+    //   fsLicenseName: 'LICENSE'
     // }
   ]
 
   // generate executables
   console.log('Generating executables...')
   if (fs.existsSync('bin')) {
-    fs.rmdirSync('bin', {recursive: true})
+    fs.rmdirSync('bin', { recursive: true })
   }
   execSync('pkg -t node14-win-x64,node14-linux-x64 --out-path bin .')
   // execSync('pkg -t node14-win-x64,node14-mac-x64,node14-linux-x64 --out-path bin .')
@@ -70,9 +73,10 @@ const version = 'v' + require('./package.json').version;
 
     archive.pipe(output)
 
+    archive.file('LICENSE', { name: 'flaresolverr/' + os.fsLicenseName })
     archive.file('bin/' + os.fsExec, { name: 'flaresolverr/' + os.fsZipExec })
     archive.directory('bin/puppeteer/' + os.platform + '-' + os.version + '/' + os.chromeFolder, 'flaresolverr/chrome')
 
-    archive.finalize()
+    await archive.finalize()
   }
 })()
