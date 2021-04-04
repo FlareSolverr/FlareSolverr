@@ -1,8 +1,13 @@
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 import log from './log'
 import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { RequestContext } from './types'
 import Router, { BaseAPICall } from './routes'
 import getCaptchaSolver from "./captcha";
+import sessions from "./session";
+import {v1 as UUIDv1} from "uuid";
 
 const version: string = "v" + require('../package.json').version
 const serverPort: number = Number(process.env.PORT) || 8191
@@ -28,6 +33,22 @@ function validateEnvironmentVariables() {
     log.error(`The environment variable 'CAPTCHA_SOLVER' is wrong. ${e.message}`);
     process.exit(1);
   }
+}
+
+async function testChromeInstallation() {
+  log.debug("Testing Chrome installation...")
+  // create a temporary file for testing
+  const filePath = path.join(os.tmpdir(), 'flaresolverr.txt')
+  fs.writeFileSync(filePath, 'flaresolverr');
+  // launch the browser
+  const url = `file://${filePath}`;
+  const session = await sessions.create(UUIDv1(), {
+    userAgent: null,
+    oneTimeSession: true
+  })
+  const page = await session.browser.newPage()
+  await page.goto(url, { waitUntil: 'domcontentloaded' })
+  log.debug("Test successful.")
 }
 
 function errorResponse(errorMsg: string, res: ServerResponse, startTimestamp: number) {
@@ -87,64 +108,66 @@ function validateIncomingRequest(ctx: RequestContext, params: BaseAPICall) {
 }
 
 // init
+log.info(`FlareSolverr ${version}`);
+log.debug('Debug log enabled');
 validateEnvironmentVariables();
+testChromeInstallation().then(r =>
+  createServer((req: IncomingMessage, res: ServerResponse) => {
+    const startTimestamp = Date.now()
 
-createServer((req: IncomingMessage, res: ServerResponse) => {
-  const startTimestamp = Date.now()
-
-  // health endpoint. this endpoint is special because it doesn't print traces
-  if (req.url == '/health') {
-    res.writeHead(200, {
-      'Content-Type': 'application/json'
-    })
-    res.write(JSON.stringify({"status": "ok"}))
-    res.end()
-    return;
-  }
-
-  // count the request for the log prefix
-  log.incRequests()
-  log.info(`Incoming request: ${req.method} ${req.url}`)
-
-  // show welcome message
-  if (req.url == '/') {
-    successResponse("FlareSolverr is ready!", null, res, startTimestamp);
-    return;
-  }
-
-  // get request body
-  const bodyParts: any[] = []
-  req.on('data', chunk => {
-    bodyParts.push(chunk)
-  }).on('end', () => {
-    // parse params
-    const body = Buffer.concat(bodyParts).toString()
-    let params: BaseAPICall = null
-    try {
-      params = JSON.parse(body)
-    } catch (err) {
-      errorResponse('Body must be in JSON format', res, startTimestamp)
-      return
+    // health endpoint. this endpoint is special because it doesn't print traces
+    if (req.url == '/health') {
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      })
+      res.write(JSON.stringify({"status": "ok"}))
+      res.end()
+      return;
     }
 
-    const ctx: RequestContext = {
-      req,
-      res,
-      startTimestamp,
-      errorResponse: (msg) => errorResponse(msg, res, startTimestamp),
-      successResponse: (msg, extendedProperties) => successResponse(msg, extendedProperties, res, startTimestamp)
+    // count the request for the log prefix
+    log.incRequests()
+    log.info(`Incoming request: ${req.method} ${req.url}`)
+
+    // show welcome message
+    if (req.url == '/') {
+      successResponse("FlareSolverr is ready!", null, res, startTimestamp);
+      return;
     }
 
-    // validate params
-    if (!validateIncomingRequest(ctx, params)) { return }
+    // get request body
+    const bodyParts: any[] = []
+    req.on('data', chunk => {
+      bodyParts.push(chunk)
+    }).on('end', () => {
+      // parse params
+      const body = Buffer.concat(bodyParts).toString()
+      let params: BaseAPICall = null
+      try {
+        params = JSON.parse(body)
+      } catch (err) {
+        errorResponse('Body must be in JSON format', res, startTimestamp)
+        return
+      }
 
-    // process request
-    Router(ctx, params).catch(e => {
-      console.error(e)
-      ctx.errorResponse(e.message)
+      const ctx: RequestContext = {
+        req,
+        res,
+        startTimestamp,
+        errorResponse: (msg) => errorResponse(msg, res, startTimestamp),
+        successResponse: (msg, extendedProperties) => successResponse(msg, extendedProperties, res, startTimestamp)
+      }
+
+      // validate params
+      if (!validateIncomingRequest(ctx, params)) { return }
+
+      // process request
+      Router(ctx, params).catch(e => {
+        console.error(e)
+        ctx.errorResponse(e.message)
+      })
     })
+  }).listen(serverPort, serverHost, () => {
+    log.info(`Listening on http://${serverHost}:${serverPort}`);
   })
-}).listen(serverPort, serverHost, () => {
-  log.info(`FlareSolverr ${version} listening on http://${serverHost}:${serverPort}`);
-  log.debug('Debug log enabled');
-})
+)
