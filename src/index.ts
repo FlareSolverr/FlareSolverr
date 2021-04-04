@@ -92,6 +92,16 @@ validateEnvironmentVariables();
 createServer((req: IncomingMessage, res: ServerResponse) => {
   const startTimestamp = Date.now()
 
+  // health endpoint. this endpoint is special because it doesn't print traces
+  if (req.url == '/health') {
+    res.writeHead(200, {
+      'Content-Type': 'application/json'
+    })
+    res.write(JSON.stringify({"status": "ok"}))
+    res.end()
+    return;
+  }
+
   // count the request for the log prefix
   log.incRequests()
   log.info(`Incoming request: ${req.method} ${req.url}`)
