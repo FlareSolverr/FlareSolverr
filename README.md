@@ -224,12 +224,12 @@ moment there is nothing setup to do so. If this is something you need feel free 
 
 Name | Default | Notes
 |--|--|--|
-LOG_LEVEL | info | Used to change the verbosity of the logging. Use `LOG_LEVEL=debug` for more information.
-LOG_HTML | false | Used for debugging. If `true` all HTML that passes through the proxy will be logged to the console in `debug` level.
-PORT | 8191 | Change this if you already have a process running on port `8191`.
-HOST | 0.0.0.0 | This shouldn't need to be messed with but if you insist, it's here!
-CAPTCHA_SOLVER | none | This is used to select which captcha solving method it used when a captcha is encountered.
-HEADLESS | true | This is used to debug the browser by not running it in headless mode.
+LOG_LEVEL | info | Verbosity of the logging. Use `LOG_LEVEL=debug` for more information.
+LOG_HTML | false | Only for debugging. If `true` all HTML that passes through the proxy will be logged to the console in `debug` level.
+CAPTCHA_SOLVER | none | Captcha solving method. It used when a captcha is encountered. See the Captcha Solvers section.
+HEADLESS | true | Only for debugging. To run the web browser in headless mode or visible.
+PORT | 8191 | Listening port. You don't need to change this if you are running on Docker.
+HOST | 0.0.0.0 | Listening interface. You don't need to change this if you are running on Docker.
 
 Environment variables are set differently depending on the operating system. Some examples:
 * Docker: Take a look at the Docker section in this document. Environment variables can be set in the `docker-compose.yml` file or in the Docker CLI command.

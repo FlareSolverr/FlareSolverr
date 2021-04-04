@@ -30,12 +30,12 @@ export default (): Solver => {
         throw Error(`The solver '${method}' is not a valid captcha solving method.`)
       } else {
         console.error(e)
-        throw Error(`An error occured loading the solver '${method}'.`)
+        throw Error(`An error occurred loading the solver '${method}'.`)
       }
     }
   }
 
-  log.info(`Using '${method} to solve the captcha.`);
+  log.info(`Using '${method}' to solve the captcha.`);
 
   return captchaSolvers[method]
 }

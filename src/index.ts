@@ -2,11 +2,33 @@ import log from './log'
 import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { RequestContext } from './types'
 import Router, { BaseAPICall } from './routes'
+import getCaptchaSolver from "./captcha";
 
 const version: string = "v" + require('../package.json').version
 const serverPort: number = Number(process.env.PORT) || 8191
 const serverHost: string = process.env.HOST || '0.0.0.0'
 
+function validateEnvironmentVariables() {
+  // ip and port variables are validated by nodejs
+  if (process.env.LOG_LEVEL && ['error', 'warn', 'info', 'verbose', 'debug'].indexOf(process.env.LOG_LEVEL) == -1) {
+    log.error(`The environment variable 'LOG_LEVEL' is wrong. Check the documentation.`);
+    process.exit(1);
+  }
+  if (process.env.LOG_HTML && ['true', 'false'].indexOf(process.env.LOG_HTML) == -1) {
+    log.error(`The environment variable 'LOG_HTML' is wrong. Check the documentation.`);
+    process.exit(1);
+  }
+  if (process.env.HEADLESS && ['true', 'false'].indexOf(process.env.HEADLESS) == -1) {
+    log.error(`The environment variable 'HEADLESS' is wrong. Check the documentation.`);
+    process.exit(1);
+  }
+  try {
+    getCaptchaSolver();
+  } catch (e) {
+    log.error(`The environment variable 'CAPTCHA_SOLVER' is wrong. ${e.message}`);
+    process.exit(1);
+  }
+}
 
 function errorResponse(errorMsg: string, res: ServerResponse, startTimestamp: number) {
   log.error(errorMsg)
@@ -63,6 +85,9 @@ function validateIncomingRequest(ctx: RequestContext, params: BaseAPICall) {
 
   return true
 }
+
+// init
+validateEnvironmentVariables();
 
 createServer((req: IncomingMessage, res: ServerResponse) => {
   const startTimestamp = Date.now()
