@@ -117,7 +117,7 @@ export default async function resolveChallenge(url: string, page: Page, response
 
         // ignore preset event listeners on the form
         await page.evaluate(() => {
-          window.addEventListener('submit', (e) => { event.stopPropagation() }, true)
+          window.addEventListener('submit', (e) => { e.stopPropagation() }, true)
         })
 
         // it seems some sites obfuscate their challenge forms

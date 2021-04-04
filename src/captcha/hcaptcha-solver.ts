@@ -12,8 +12,7 @@ import { SolverOptions } from '.'
 
 export default async function solve({ url }: SolverOptions): Promise<string> {
   try {
-    const token = await solveCaptcha(url)
-    return token
+    return await solveCaptcha(url)
   } catch (e) {
     console.error(e)
     return null

@@ -180,18 +180,17 @@ async function setupPage(ctx: RequestContext, params: BaseRequestAPICall, browse
   }
 
   if (headers) {
-    log.debug(`Adding custom headers: ${JSON.stringify(headers, null, 2)}`,)
+    log.debug(`Adding custom headers: ${JSON.stringify(headers)}`)
     overrideResolvers.headers = request => Object.assign(request.headers(), headers)
   }
 
   if (cookies) {
-    log.debug(`Setting custom cookies: ${JSON.stringify(cookies, null, 2)}`,)
+    log.debug(`Setting custom cookies: ${JSON.stringify(cookies)}`)
     await page.setCookie(...cookies)
   }
 
   // if any keys have been set on the object
   if (Object.keys(overrideResolvers).length > 0) {
-    log.debug(overrideResolvers)
     let callbackRunOnce = false
     const callback = (request: Request) => {
 
@@ -208,8 +207,7 @@ async function setupPage(ctx: RequestContext, params: BaseRequestAPICall, browse
         overrides[key] = overrideResolvers[key](request)
       });
 
-      log.debug(overrides)
-
+      log.debug(`Overrides: ${JSON.stringify(overrides)}`)
       request.continue(overrides)
     }
 
@@ -253,7 +251,9 @@ const browserRequest = async (ctx: RequestContext, params: BaseRequestAPICall) =
     log.error(error)
     return ctx.errorResponse("Unable to process browser request. Error: " + error)
   } finally {
-    if (oneTimeSession) { sessions.destroy(sessionId) }
+    if (oneTimeSession) {
+      await sessions.destroy(sessionId)
+    }
   }
 }
 

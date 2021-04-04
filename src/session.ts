@@ -82,7 +82,7 @@ export default {
       puppeteerOptions.executablePath = path.join(path.dirname(process.execPath), 'chrome', exe)
     }
 
-    log.debug('Launching headless browser...')
+    log.debug('Launching browser...')
 
     // TODO: maybe access env variable?
     // TODO: sometimes browser instances are created and not connected to correctly.
