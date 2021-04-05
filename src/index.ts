@@ -38,17 +38,25 @@ function validateEnvironmentVariables() {
 async function testChromeInstallation() {
   log.debug("Testing Chrome installation...")
   // create a temporary file for testing
+  const fileContent = `flaresolverr_${version}`
   const filePath = path.join(os.tmpdir(), 'flaresolverr.txt')
-  fs.writeFileSync(filePath, 'flaresolverr');
+  const fileUrl = `file://${filePath}`
+  fs.writeFileSync(filePath, fileContent)
   // launch the browser
-  const url = `file://${filePath}`;
-  const session = await sessions.create(UUIDv1(), {
+  const sessionId = UUIDv1()
+  const session = await sessions.create(sessionId, {
     userAgent: null,
     oneTimeSession: true
   })
   const page = await session.browser.newPage()
-  await page.goto(url, { waitUntil: 'domcontentloaded' })
-  log.debug("Test successful.")
+  const response = await page.goto(fileUrl, { waitUntil: 'domcontentloaded' })
+  const responseBody = (await response.buffer()).toString().trim()
+  if (responseBody != fileContent) {
+    throw new Error("The response body does not match!")
+  }
+  await page.close()
+  await sessions.destroy(sessionId)
+  log.debug("Test successful")
 }
 
 function errorResponse(errorMsg: string, res: ServerResponse, startTimestamp: number) {
@@ -111,7 +119,12 @@ function validateIncomingRequest(ctx: RequestContext, params: BaseAPICall) {
 log.info(`FlareSolverr ${version}`);
 log.debug('Debug log enabled');
 validateEnvironmentVariables();
-testChromeInstallation().then(r =>
+testChromeInstallation()
+.catch(e => {
+  log.error("Error starting Chrome browser.", e);
+  process.exit(1);
+})
+.then(r =>
   createServer((req: IncomingMessage, res: ServerResponse) => {
     const startTimestamp = Date.now()
 
