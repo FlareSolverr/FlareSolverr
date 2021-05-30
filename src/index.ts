@@ -77,7 +77,7 @@ function errorResponse(errorMsg: string, res: ServerResponse, startTimestamp: nu
 
 function successResponse(successMsg: string, extendedProperties: object, res: ServerResponse, startTimestamp: number) {
   const endTimestamp = Date.now()
-  log.info(`Successful response in ${(endTimestamp - startTimestamp) / 1000} s`)
+  log.info(`Response in ${(endTimestamp - startTimestamp) / 1000} s`)
   if (successMsg) { log.info(successMsg) }
 
   const response = Object.assign({

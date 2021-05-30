@@ -8,7 +8,7 @@ import getCaptchaSolver, {CaptchaType} from "../captcha";
  *  This class contains the logic to solve protections provided by CloudFlare
 **/
 
-const CHALLENGE_SELECTORS = ['#trk_jschal_js', '.ray_id', '.attack-box'];
+const CHALLENGE_SELECTORS = ['#trk_jschal_js', '.ray_id', '.attack-box', '#cf-please-wait'];
 const TOKEN_INPUT_NAMES = ['g-recaptcha-response', 'h-captcha-response'];
 
 export default async function resolveChallenge(url: string, page: Page, response: Response): Promise<Response> {
@@ -38,16 +38,30 @@ export default async function resolveChallenge(url: string, page: Page, response
           await page.waitFor(1000)
           try {
             // catch exception timeout in waitForNavigation
-            response = await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 5000 })
+            response = await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 9000 })
           } catch (error) { }
 
           try {
             // catch Execution context was destroyed
             const cfChallengeElem = await page.$(selector)
-            if (!cfChallengeElem) { break }
+            if (!cfChallengeElem) {
+              // solved!
+              break
+            } else {
+              const displayStyle = await page.evaluate((selector) => {
+                return getComputedStyle(document.querySelector(selector)).getPropertyValue("display");
+              }, selector);
+              if (displayStyle == "none") {
+                // spinner is hidden, could be a captcha or not
+                await page.waitFor(1000)
+                break
+              }
+            }
             log.debug('Found challenge element again...')
           } catch (error)
-          { }
+          {
+            log.debug("Unexpected error: " + error);
+          }
 
           response = await page.reload({ waitUntil: 'domcontentloaded' })
           log.debug('Page reloaded.')
