@@ -226,7 +226,8 @@ Name | Default | Notes
 |--|--|--|
 LOG_LEVEL | info | Verbosity of the logging. Use `LOG_LEVEL=debug` for more information.
 LOG_HTML | false | Only for debugging. If `true` all HTML that passes through the proxy will be logged to the console in `debug` level.
-CAPTCHA_SOLVER | none | Captcha solving method. It used when a captcha is encountered. See the Captcha Solvers section.
+CAPTCHA_SOLVER | none | Captcha solving method. It is used when a captcha is encountered. See the Captcha Solvers section.
+TZ | UTC | Timezone used in the logs and the web browser. Example: `TZ=Europe/London`.
 HEADLESS | true | Only for debugging. To run the web browser in headless mode or visible.
 PORT | 8191 | Listening port. You don't need to change this if you are running on Docker.
 HOST | 0.0.0.0 | Listening interface. You don't need to change this if you are running on Docker.
