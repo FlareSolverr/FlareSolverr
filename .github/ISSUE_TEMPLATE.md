@@ -14,6 +14,7 @@ Check closed issues as well, because your issue may have already been fixed.
 * **Are you using a proxy or VPN?** [yes/no]
 * **Are you using Captcha Solver:** [yes/no]
 * **If using captcha solver, which one:**
+* **URL to test this issue:**
 
 ### Description
 
