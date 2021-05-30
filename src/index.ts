@@ -36,14 +36,14 @@ function validateEnvironmentVariables() {
 }
 
 async function testChromeInstallation() {
-  log.debug("Testing Chrome installation...")
+  const sessionId = UUIDv1()
   // create a temporary file for testing
+  log.debug("Testing Chrome installation...")
   const fileContent = `flaresolverr_${version}`
-  const filePath = path.join(os.tmpdir(), 'flaresolverr.txt')
+  const filePath = path.join(os.tmpdir(), `flaresolverr_${sessionId}.txt`)
   const fileUrl = `file://${filePath}`
   fs.writeFileSync(filePath, fileContent)
   // launch the browser
-  const sessionId = UUIDv1()
   const session = await sessions.create(sessionId, {
     userAgent: null,
     oneTimeSession: true
