@@ -11,10 +11,15 @@ import { SolverOptions } from '.'
 */
 
 export default async function solve({ url }: SolverOptions): Promise<string> {
+  throw new Error("hcaptcha-solver is not able to solve the new hCaptcha challenge. This issue is already reported #31.");
+
+/*
   try {
     return await solveCaptcha(url)
   } catch (e) {
     console.error(e)
     return null
   }
+*/
+
 }
