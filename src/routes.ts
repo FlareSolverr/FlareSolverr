@@ -137,6 +137,9 @@ async function resolveChallenge(ctx: RequestContext, { url, proxy, download, ret
     }
   }
 
+  // Add final url in result
+  payload.result.url = page.url();
+
   // make sure the page is closed because if it isn't and error will be thrown
   // when a user uses a temporary session, the browser make be quit before
   // the page is properly closed.
