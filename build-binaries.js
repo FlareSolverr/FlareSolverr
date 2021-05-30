@@ -40,7 +40,7 @@ const version = 'v' + require('./package.json').version;
   // generate executables
   console.log('Generating executables...')
   if (fs.existsSync('bin')) {
-    fs.rmdirSync('bin', { recursive: true })
+    fs.rmSync('bin', { recursive: true })
   }
   execSync('pkg -t node14-win-x64,node14-linux-x64 --out-path bin .')
   // execSync('pkg -t node14-win-x64,node14-mac-x64,node14-linux-x64 --out-path bin .')
@@ -76,6 +76,9 @@ const version = 'v' + require('./package.json').version;
     archive.file('LICENSE', { name: 'flaresolverr/' + os.fsLicenseName })
     archive.file('bin/' + os.fsExec, { name: 'flaresolverr/' + os.fsZipExec })
     archive.directory('bin/puppeteer/' + os.platform + '-' + os.version + '/' + os.chromeFolder, 'flaresolverr/chrome')
+    if (os.platform === 'linux') {
+      archive.file('flaresolverr.service', { name: 'flaresolverr/flaresolverr.service' })
+    }
 
     await archive.finalize()
   }

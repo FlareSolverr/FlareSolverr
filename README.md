@@ -67,12 +67,16 @@ This is the recommended way for Windows users.
 
 ### From source code
 
-This is the recommended way for MacOS users and for developers.
+This is the recommended way for macOS users and for developers.
 * Install [NodeJS](https://nodejs.org/)
 * Clone this repository and open a shell in that path
 * Run `npm install` command to install FlareSolverr dependencies
 * Run `npm run build` command to compile TypeScript code
 * Run `npm start` command to start FlareSolverr
+
+### Systemd service
+
+We provide an example Systemd unit file `flaresolverr.service` as reference. You have to modify the file to suit your needs: paths, user and environment variables.
 
 ## Usage
 
