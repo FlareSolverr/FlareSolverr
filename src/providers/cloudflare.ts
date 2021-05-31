@@ -35,37 +35,49 @@ export default async function resolveChallenge(url: string, page: Page, response
         log.debug('Waiting for Cloudflare challenge...')
 
         while (true) {
-          await page.waitFor(1000)
-          try {
-            // catch exception timeout in waitForNavigation
-            response = await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 9000 })
-          } catch (error) { }
-
           try {
             // catch Execution context was destroyed
             const cfChallengeElem = await page.$(selector)
             if (!cfChallengeElem) {
               // solved!
+              log.debug('Challenge element not found.')
               break
             } else {
+              // new Cloudflare Challenge #cf-please-wait
               const displayStyle = await page.evaluate((selector) => {
                 return getComputedStyle(document.querySelector(selector)).getPropertyValue("display");
               }, selector);
               if (displayStyle == "none") {
                 // spinner is hidden, could be a captcha or not
-                await page.waitFor(1000)
+                log.debug('Challenge element is hidden.')
+                // wait until redirecting disappears
+                while (true) {
+                  try {
+                    await page.waitFor(1000)
+                    const displayStyle2 = await page.evaluate(() => {
+                      return getComputedStyle(document.querySelector('#cf-spinner-redirecting')).getPropertyValue("display");
+                    });
+                    if (displayStyle2 == "none") {
+                      break // hCaptcha detected
+                    }
+                  } catch (error) {
+                    break // redirection completed
+                  }
+                }
                 break
+              } else {
+                log.debug('Challenge element is visible.')
               }
             }
-            log.debug('Found challenge element again...')
+            log.debug('Found challenge element again.')
           } catch (error)
           {
             log.debug("Unexpected error: " + error);
+            break
           }
 
-          response = await page.reload({ waitUntil: 'domcontentloaded' })
-          log.debug('Page reloaded.')
-          log.html(await page.content())
+          log.debug('Waiting for Cloudflare challenge...')
+          await page.waitFor(1000)
         }
 
         log.debug('Validating HTML code...')
@@ -171,6 +183,10 @@ export default async function resolveChallenge(url: string, page: Page, response
     if (selectorFoundCount == 0)
     {
       throw new Error('No challenge selectors found, unable to proceed')
+    } else {
+      // reload the page to make sure we get the real response
+      response = await page.reload()
+      log.info('Challenge solved.');
     }
   }
 
