@@ -8,9 +8,7 @@
 [![Donate Buy Me A Coffee](https://img.shields.io/badge/Donate-Buy%20me%20a%20coffee-yellow.svg)](https://www.buymeacoffee.com/ngosang)
 [![Donate Bitcoin](https://img.shields.io/badge/Donate-Bitcoin-orange.svg)](https://en.cryptobadges.io/donate/13Hcv77AdnFWEUZ9qUpoPBttQsUT7q9TTh)
 
-FlareSolverr is a proxy server to bypass Cloudflare protection
-
-:warning: This project is in beta state. Some things may not work and the API can change at any time.
+FlareSolverr is a proxy server to bypass Cloudflare protection.
 
 ## How it works
 
@@ -68,11 +66,12 @@ This is the recommended way for Windows users.
 ### From source code
 
 This is the recommended way for macOS users and for developers.
-* Install [NodeJS](https://nodejs.org/)
-* Clone this repository and open a shell in that path
-* Run `npm install` command to install FlareSolverr dependencies
-* Run `npm run build` command to compile TypeScript code
-* Run `npm start` command to start FlareSolverr
+* Install [NodeJS](https://nodejs.org/).
+* Clone this repository and open a shell in that path.
+* Run `npm install` command to install FlareSolverr dependencies.
+* Run `node node_modules/puppeteer/install.js` to install Chromium.
+* Run `npm run build` command to compile TypeScript code.
+* Run `npm start` command to start FlareSolverr.
 
 ### Systemd service
 
