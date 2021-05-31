@@ -186,6 +186,7 @@ export default async function resolveChallenge(url: string, page: Page, response
     } else {
       // reload the page to make sure we get the real response
       response = await page.reload()
+      await page.content()
       log.info('Challenge solved.');
     }
   }
