@@ -73,7 +73,9 @@ export default async function resolveChallenge(url: string, page: Page, response
           } catch (error)
           {
             log.debug("Unexpected error: " + error);
-            break
+            if (!error.toString().includes("Execution context was destroyed")) {
+              break
+            }
           }
 
           log.debug('Waiting for Cloudflare challenge...')
