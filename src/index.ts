@@ -1,6 +1,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const process = require('process')
 import log from './log'
 import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { RequestContext } from './types'
@@ -118,7 +119,15 @@ function validateIncomingRequest(ctx: RequestContext, params: BaseAPICall) {
 // init
 log.info(`FlareSolverr ${version}`);
 log.debug('Debug log enabled');
+
+process.on('SIGTERM', () => {
+  // Capture signal on Docker Stop #158
+  log.info("Process interrupted")
+  process.exit(0)
+})
+
 validateEnvironmentVariables();
+
 testChromeInstallation()
 .catch(e => {
   log.error("Error starting Chrome browser.", e);
