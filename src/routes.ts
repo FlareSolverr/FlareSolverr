@@ -36,8 +36,8 @@ interface BaseRequestAPICall extends BaseAPICall {
   proxy?: any, // TODO: use interface not any
   download?: boolean
   returnOnlyCookies?: boolean
+  returnRawHtml?: boolean
 }
-
 
 interface Routes {
   [key: string]: (ctx: RequestContext, params: BaseAPICall) => void | Promise<void>
@@ -86,7 +86,9 @@ async function resolveChallengeWithTimeout(ctx: RequestContext, params: BaseRequ
   }
 }
 
-async function resolveChallenge(ctx: RequestContext, { url, proxy, download, returnOnlyCookies }: BaseRequestAPICall, page: Page): Promise<ChallengeResolutionT | void> {
+async function resolveChallenge(ctx: RequestContext,
+                                { url, proxy, download, returnOnlyCookies, returnRawHtml }: BaseRequestAPICall,
+                                page: Page): Promise<ChallengeResolutionT | void> {
 
   let status = 'ok'
   let message = ''
@@ -132,6 +134,8 @@ async function resolveChallenge(ctx: RequestContext, { url, proxy, download, ret
       // fix since I am short on time
       response = await page.goto(url, { waitUntil: 'domcontentloaded' })
       payload.result.response = (await response.buffer()).toString('base64')
+    } else if (returnRawHtml) {
+      payload.result.response = await response.text()
     } else {
       payload.result.response = await page.content()
     }
