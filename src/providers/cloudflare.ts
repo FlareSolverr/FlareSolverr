@@ -169,7 +169,7 @@ export default async function resolveChallenge(url: string, page: Page, response
         }
 
         // submit captcha response
-        challengeForm.evaluate((e: HTMLFormElement) => e.submit())
+        await challengeForm.evaluate((e: HTMLFormElement) => e.submit())
         response = await page.waitForNavigation({ waitUntil: 'domcontentloaded' })
 
         if (await page.$('input[name="cf_captcha_kind"]')) {
@@ -185,7 +185,8 @@ export default async function resolveChallenge(url: string, page: Page, response
       throw new Error('No challenge selectors found, unable to proceed')
     } else {
       // reload the page to make sure we get the real response
-      response = await page.reload()
+      // do not use page.reload() to avoid #162 #143
+      response = await page.goto(url, { waitUntil: 'domcontentloaded' })
       await page.content()
       log.info('Challenge solved.');
     }
