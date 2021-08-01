@@ -197,6 +197,12 @@ async function setupPage(ctx: RequestContext, params: BaseRequestAPICall, browse
     let callbackRunOnce = false
     const callback = (request: Request) => {
 
+      // avoid loading resources to speed up page load
+      if(request.resourceType() == 'stylesheet' || request.resourceType() == 'font' || request.resourceType() == 'image') {
+        request.abort()
+        return
+      }
+
       if (callbackRunOnce || !request.isNavigationRequest()) {
         request.continue()
         return
