@@ -20,8 +20,8 @@ export default async function resolveChallenge(url: string, page: Page, response
   }
   log.info('Cloudflare detected');
 
-  if (await page.$('.cf-error-code')) {
-    throw new Error('Cloudflare has blocked this request (Code 1020 Detected).')
+  if (await page.$('span[data-translate="error"]') || (await page.content()).includes('error code: 1020')) {
+    throw new Error('Cloudflare has blocked this request. Probably your IP is banned for this site, check in your web browser.')
   }
 
   let selectorFoundCount = 0;
