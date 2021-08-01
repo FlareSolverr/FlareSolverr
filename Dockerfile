@@ -22,8 +22,8 @@ ENV PUPPETEER_PRODUCT=chrome \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 RUN npm install && \
     npm run build && \
-    rm -rf src tsconfig.json && \
-    npm prune --production
+    npm prune --production && \
+    rm -rf /home/node/.npm
 
 EXPOSE 8191
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
