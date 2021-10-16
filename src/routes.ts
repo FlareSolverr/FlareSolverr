@@ -38,7 +38,7 @@ interface BaseRequestAPICall extends BaseAPICall {
 }
 
 interface Routes {
-  [key: string]: (ctx: RequestContext, params: BaseAPICall) => void | Promise<void>
+  [key: string]: (ctx: RequestContext, params: BaseAPICall, webBrowserUserAgent: string) => void | Promise<void>
 }
 
 interface ChallengeResolutionResultT {
@@ -158,11 +158,15 @@ function mergeSessionWithParams({ defaults }: SessionsCacheItem, params: BaseReq
   return copy
 }
 
-async function setupPage(ctx: RequestContext, params: BaseRequestAPICall, browser: Browser): Promise<Page> {
+async function setupPage(ctx: RequestContext, params: BaseRequestAPICall, browser: Browser,
+                         webBrowserUserAgent: string): Promise<Page> {
   const page = await browser.newPage()
 
   // merge session defaults with params
   const { method, postData, headers, cookies } = params
+
+  // the user-agent is changed just for linux arm build
+  await page.setUserAgent(webBrowserUserAgent)
 
   // todo: redo all functionality
 
@@ -223,7 +227,7 @@ async function setupPage(ctx: RequestContext, params: BaseRequestAPICall, browse
   return page
 }
 
-const browserRequest = async (ctx: RequestContext, params: BaseRequestAPICall) => {
+const browserRequest = async (ctx: RequestContext, params: BaseRequestAPICall, webBrowserUserAgent: string) => {
   const oneTimeSession = params.session === undefined
   const sessionId = params.session || UUIDv1()
   const session = oneTimeSession
@@ -239,7 +243,7 @@ const browserRequest = async (ctx: RequestContext, params: BaseRequestAPICall) =
   params = mergeSessionWithParams(session, params)
 
   try {
-    const page = await setupPage(ctx, params, session.browser)
+    const page = await setupPage(ctx, params, session.browser, webBrowserUserAgent)
     const data = await resolveChallengeWithTimeout(ctx, params, page)
 
     if (data) {
@@ -274,7 +278,7 @@ export const routes: Routes = {
     if (await sessions.destroy(session)) { return ctx.successResponse('The session has been removed.') }
     ctx.errorResponse('This session does not exist.')
   },
-  'request.get': async (ctx, params: BaseRequestAPICall) => {
+  'request.get': async (ctx, params: BaseRequestAPICall, webBrowserUserAgent: string) => {
     params.method = 'GET'
     if (params.userAgent) {
       log.warn('Request parameter "userAgent" was removed in FlareSolverr v2.')
@@ -282,9 +286,9 @@ export const routes: Routes = {
     if (params.postData) {
       return ctx.errorResponse('Cannot use "postBody" when sending a GET request.')
     }
-    await browserRequest(ctx, params)
+    await browserRequest(ctx, params, webBrowserUserAgent)
   },
-  'request.post': async (ctx, params: BaseRequestAPICall) => {
+  'request.post': async (ctx, params: BaseRequestAPICall, webBrowserUserAgent: string) => {
     params.method = 'POST'
     if (params.userAgent) {
       log.warn('Request parameter "userAgent" was removed in FlareSolverr v2.')
@@ -292,12 +296,12 @@ export const routes: Routes = {
     if (!params.postData) {
       return ctx.errorResponse('Must send param "postBody" when sending a POST request.')
     }
-    await browserRequest(ctx, params)
+    await browserRequest(ctx, params, webBrowserUserAgent)
   },
 }
 
-export default async function Router(ctx: RequestContext, params: BaseAPICall): Promise<void> {
+export default async function Router(ctx: RequestContext, params: BaseAPICall, webBrowserUserAgent: string): Promise<void> {
   const route = routes[params.cmd]
-  if (route) { return await route(ctx, params) }
+  if (route) { return await route(ctx, params, webBrowserUserAgent) }
   return ctx.errorResponse(`The command '${params.cmd}' is invalid.`)
 }

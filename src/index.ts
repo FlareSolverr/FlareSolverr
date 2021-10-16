@@ -46,6 +46,12 @@ async function testWebBrowserInstallation() {
   const page = await session.browser.newPage()
   await page.goto("https://www.google.com")
   webBrowserUserAgent = await page.evaluate(() => navigator.userAgent)
+
+  // replace Linux ARM user-agent because it's detected
+  if (webBrowserUserAgent.toLocaleLowerCase().includes('linux arm')) {
+    webBrowserUserAgent = webBrowserUserAgent.replace(/linux arm[^;]+;/i, 'Linux x86_64;')
+  }
+
   log.info("FlareSolverr User-Agent: " + webBrowserUserAgent)
   await page.close()
   await sessions.destroy(sessionId)
@@ -177,7 +183,7 @@ testWebBrowserInstallation()
       if (!validateIncomingRequest(ctx, params)) { return }
 
       // process request
-      Router(ctx, params).catch(e => {
+      Router(ctx, params, webBrowserUserAgent).catch(e => {
         console.error(e)
         ctx.errorResponse(e.message)
       })
