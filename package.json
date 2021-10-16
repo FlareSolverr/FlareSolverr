@@ -9,21 +9,10 @@
     "package": "node build-binaries.js"
   },
   "author": "Diego Heras (ngosang)",
-  "contributors": [
-    {
-      "name": "Noah Cardoza",
-      "url": "https://github.com/NoahCardoza/CloudProxy.git"
-    }
-  ],
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/ngosang/FlareSolverr"
-  },
-  "pkg": {
-    "assets": [
-      "node_modules/puppeteer-extra-plugin-stealth/**/*.*"
-    ]
   },
   "bin": {
     "flaresolverr": "dist/index.js"
@@ -34,8 +23,6 @@
     "got": "^11.5.1",
     "hcaptcha-solver": "^1.0.2",
     "puppeteer": "^3.3.0",
-    "puppeteer-extra": "^3.1.15",
-    "puppeteer-extra-plugin-stealth": "^2.6.5",
     "uuid": "^8.2.0"
   },
   "devDependencies": {

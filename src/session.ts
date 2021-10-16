@@ -2,12 +2,10 @@ import * as os from 'os'
 import * as path from 'path'
 import * as fs from 'fs'
 
-import puppeteer from 'puppeteer-extra'
-import { LaunchOptions, Headers, SetCookie } from 'puppeteer'
-
 import log from './log'
 import { deleteFolderRecursive, sleep, removeEmptyFields } from './utils'
-import * as Puppeteer from "puppeteer-extra/dist/puppeteer";
+import {LaunchOptions, Headers, SetCookie, Browser} from 'puppeteer'
+const puppeteer = require('puppeteer');
 
 interface SessionPageDefaults {
   headers?: Headers
@@ -15,7 +13,7 @@ interface SessionPageDefaults {
 }
 
 export interface SessionsCacheItem {
-  browser: Puppeteer.Browser
+  browser: Browser
   userDataDir?: string
   defaults: SessionPageDefaults
 }
@@ -34,10 +32,6 @@ interface SessionCreateOptions {
 }
 
 const sessionCache: SessionsCache = {}
-
-// setting "user-agent-override" evasion is not working for us because it can't be changed
-// in each request. we set the user-agent in the browser args instead
-puppeteer.use(require('puppeteer-extra-plugin-stealth')())
 
 function userDataDirFromId(id: string): string {
   return path.join(os.tmpdir(), `/puppeteer_chrome_profile_${id}`)
@@ -88,7 +82,7 @@ export default {
     // TODO: sometimes browser instances are created and not connected to correctly.
     //       how do we handle/quit those instances inside Docker?
     let launchTries = 3
-    let browser: Puppeteer.Browser;
+    let browser: Browser;
 
     while (0 <= launchTries--) {
       try {

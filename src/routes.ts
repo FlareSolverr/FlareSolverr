@@ -1,6 +1,5 @@
 import { v1 as UUIDv1 } from 'uuid'
-import { SetCookie, Request, Response, Headers, HttpMethod, Overrides } from 'puppeteer'
-import { Page, Browser } from "puppeteer-extra/dist/puppeteer";
+import {SetCookie, Request, Response, Headers, HttpMethod, Overrides, Page, Browser} from 'puppeteer'
 const Timeout = require('await-timeout');
 
 import log from './log'
