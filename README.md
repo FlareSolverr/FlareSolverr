@@ -86,7 +86,6 @@ curl -L -X POST 'http://localhost:8191/v1' \
 --data-raw '{
   "cmd": "request.get",
   "url":"http://www.google.com/",
-  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleW...",
   "maxTimeout": 60000,
   "headers": {
     "X-Test": "Testing 123..."
@@ -107,7 +106,6 @@ This also speeds up the requests since it won't have to launch a new browser ins
 Parameter | Notes
 |--|--|
 session | Optional. The session ID that you want to be assigned to the instance. If isn't set a random UUID will be assigned.
-userAgent | Optional. Will be used by the headless browser.
 
 #### + `sessions.list`
 

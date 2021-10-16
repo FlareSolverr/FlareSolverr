@@ -9,7 +9,6 @@ const puppeteer = require('puppeteer');
 
 interface SessionPageDefaults {
   headers?: Headers
-  userAgent?: string
 }
 
 export interface SessionsCacheItem {
@@ -24,7 +23,6 @@ interface SessionsCache {
 
 interface SessionCreateOptions {
   oneTimeSession?: boolean
-  userAgent?: string
   cookies?: SetCookie[]
   headers?: Headers,
   maxTimeout?: number
@@ -49,7 +47,7 @@ function prepareBrowserProfile(id: string): string {
 }
 
 export default {
-  create: async (id: string, { cookies, oneTimeSession, userAgent, headers, maxTimeout, proxy }: SessionCreateOptions): Promise<SessionsCacheItem> => {
+  create: async (id: string, { cookies, oneTimeSession, headers, maxTimeout, proxy }: SessionCreateOptions): Promise<SessionsCacheItem> => {
     let args = [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -106,7 +104,6 @@ export default {
       browser: browser,
       userDataDir: puppeteerOptions.userDataDir,
       defaults: removeEmptyFields({
-        userAgent,
         headers,
         maxTimeout
       })

@@ -46,7 +46,6 @@ async function testChromeInstallation() {
   fs.writeFileSync(filePath, fileContent)
   // launch the browser
   const session = await sessions.create(sessionId, {
-    userAgent: null,
     oneTimeSession: true
   })
   const page = await session.browser.newPage()

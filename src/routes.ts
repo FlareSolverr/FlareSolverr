@@ -16,7 +16,6 @@ interface BaseSessionsAPICall extends BaseAPICall {
 }
 
 interface SessionsCreateAPICall extends BaseSessionsAPICall {
-  userAgent?: string,
   cookies?: SetCookie[],
   headers?: Headers
   maxTimeout?: number
@@ -28,7 +27,7 @@ interface BaseRequestAPICall extends BaseAPICall {
   method?: HttpMethod
   postData?: string
   session?: string
-  userAgent?: string
+  userAgent?: string // deprecated, not used
   maxTimeout?: number
   cookies?: SetCookie[],
   headers?: Headers
@@ -67,9 +66,6 @@ type OverridesProps =
   'method' |
   'postData' |
   'headers'
-
-// We always set a Windows User-Agent because ARM builds are detected by Cloudflare
-const DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36"
 
 async function resolveChallengeWithTimeout(ctx: RequestContext, params: BaseRequestAPICall, page: Page) {
   const maxTimeout = params.maxTimeout || 60000
@@ -164,7 +160,7 @@ async function setupPage(ctx: RequestContext, params: BaseRequestAPICall, browse
   const page = await browser.newPage()
 
   // merge session defaults with params
-  const { method, postData, userAgent, headers, cookies } = params
+  const { method, postData, headers, cookies } = params
 
   let overrideResolvers: OverrideResolvers = {}
 
@@ -176,13 +172,6 @@ async function setupPage(ctx: RequestContext, params: BaseRequestAPICall, browse
   if (postData) {
     log.debug(`Setting body data to ${postData}`)
     overrideResolvers.postData = request => postData
-  }
-
-  if (userAgent) {
-    log.debug(`Using custom UA: ${userAgent}`)
-    await page.setUserAgent(userAgent)
-  } else {
-    await page.setUserAgent(DEFAULT_USER_AGENT)
   }
 
   if (headers) {
@@ -235,7 +224,6 @@ const browserRequest = async (ctx: RequestContext, params: BaseRequestAPICall) =
   const sessionId = params.session || UUIDv1()
   const session = oneTimeSession
     ? await sessions.create(sessionId, {
-      userAgent: params.userAgent,
       oneTimeSession
     })
     : sessions.get(sessionId)
@@ -284,6 +272,9 @@ export const routes: Routes = {
   },
   'request.get': async (ctx, params: BaseRequestAPICall) => {
     params.method = 'GET'
+    if (params.userAgent) {
+      log.warn('Request parameter "userAgent" was removed in FlareSolverr v2.')
+    }
     if (params.postData) {
       return ctx.errorResponse('Cannot use "postBody" when sending a GET request.')
     }
@@ -291,11 +282,12 @@ export const routes: Routes = {
   },
   'request.post': async (ctx, params: BaseRequestAPICall) => {
     params.method = 'POST'
-
+    if (params.userAgent) {
+      log.warn('Request parameter "userAgent" was removed in FlareSolverr v2.')
+    }
     if (!params.postData) {
       return ctx.errorResponse('Must send param "postBody" when sending a POST request.')
     }
-
     await browserRequest(ctx, params)
   },
 }
