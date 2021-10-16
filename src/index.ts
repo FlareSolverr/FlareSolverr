@@ -13,6 +13,7 @@ import {v1 as UUIDv1} from "uuid";
 const version: string = "v" + require('../package.json').version
 const serverPort: number = Number(process.env.PORT) || 8191
 const serverHost: string = process.env.HOST || '0.0.0.0'
+let webBrowserUserAgent: string = ""
 
 function validateEnvironmentVariables() {
   // ip and port variables are validated by nodejs
@@ -36,24 +37,16 @@ function validateEnvironmentVariables() {
   }
 }
 
-async function testChromeInstallation() {
+async function testWebBrowserInstallation() {
   const sessionId = UUIDv1()
-  // create a temporary file for testing
-  log.debug("Testing Chrome installation...")
-  const fileContent = `flaresolverr_${version}`
-  const filePath = path.join(os.tmpdir(), `flaresolverr_${sessionId}.txt`)
-  const fileUrl = `file://${filePath}`
-  fs.writeFileSync(filePath, fileContent)
-  // launch the browser
+  log.debug("Testing web browser installation...")
   const session = await sessions.create(sessionId, {
     oneTimeSession: true
   })
   const page = await session.browser.newPage()
-  const response = await page.goto(fileUrl, { waitUntil: 'domcontentloaded' })
-  const responseBody = (await response.buffer()).toString().trim()
-  if (responseBody != fileContent) {
-    throw new Error("The response body does not match!")
-  }
+  await page.goto("https://www.google.com")
+  webBrowserUserAgent = await page.evaluate(() => navigator.userAgent)
+  log.info("FlareSolverr User-Agent: " + webBrowserUserAgent)
   await page.close()
   await sessions.destroy(sessionId)
   log.debug("Test successful")
@@ -127,9 +120,9 @@ process.on('SIGTERM', () => {
 
 validateEnvironmentVariables();
 
-testChromeInstallation()
+testWebBrowserInstallation()
 .catch(e => {
-  log.error("Error starting Chrome browser.", e);
+  log.error("Error starting web browser.", e);
   process.exit(1);
 })
 .then(r =>
@@ -152,7 +145,8 @@ testChromeInstallation()
 
     // show welcome message
     if (req.url == '/') {
-      successResponse("FlareSolverr is ready!", null, res, startTimestamp);
+      const extendedProperties = {"userAgent": webBrowserUserAgent};
+      successResponse("FlareSolverr is ready!", extendedProperties, res, startTimestamp);
       return;
     }
 

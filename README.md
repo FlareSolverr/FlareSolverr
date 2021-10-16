@@ -15,7 +15,7 @@ FlareSolverr is a proxy server to bypass Cloudflare protection.
 FlareSolverr starts a proxy server and it waits for user requests in an idle state using few resources.
 When some request arrives, it uses [puppeteer](https://github.com/puppeteer/puppeteer) with the
 [stealth plugin](https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth)
-to create a headless browser (Chrome). It opens the URL with user parameters and waits until the Cloudflare challenge
+to create a headless browser (Firefox). It opens the URL with user parameters and waits until the Cloudflare challenge
 is solved (or timeout). The HTML code and the cookies are sent back to the user, and those cookies can be used to
 bypass Cloudflare using other HTTP clients.
 
@@ -60,7 +60,7 @@ docker run -d \
 
 This is the recommended way for Windows users.
 * Download the [FlareSolverr zip](https://github.com/FlareSolverr/FlareSolverr/releases) from the release's assets. It is available for Windows and Linux.
-* Extract the zip file. FlareSolverr executable and chrome folder must be in the same directory.
+* Extract the zip file. FlareSolverr executable and firefox folder must be in the same directory.
 * Execute FlareSolverr binary. In the environment variables section you can find how to change the configuration.
 
 ### From source code
@@ -68,8 +68,8 @@ This is the recommended way for Windows users.
 This is the recommended way for macOS users and for developers.
 * Install [NodeJS](https://nodejs.org/).
 * Clone this repository and open a shell in that path.
-* Run `npm install` command to install FlareSolverr dependencies.
-* Run `node node_modules/puppeteer/install.js` to install Chromium.
+* Run `PUPPETEER_PRODUCT=firefox npm install` command to install FlareSolverr dependencies.
+* Run `node node_modules/puppeteer/install.js` to install Firefox.
 * Run `npm run build` command to compile TypeScript code.
 * Run `npm start` command to start FlareSolverr.
 

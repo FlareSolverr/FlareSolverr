@@ -129,8 +129,10 @@ async function resolveChallenge(ctx: RequestContext,
       // fix since I am short on time
       response = await page.goto(url, { waitUntil: 'domcontentloaded' })
       payload.result.response = (await response.buffer()).toString('base64')
-    } else if (returnRawHtml) {
-      payload.result.response = await response.text()
+
+    // todo: review this functionality
+    // } else if (returnRawHtml) {
+    //   payload.result.response = await response.text()
     } else {
       payload.result.response = await page.content()
     }
@@ -162,59 +164,61 @@ async function setupPage(ctx: RequestContext, params: BaseRequestAPICall, browse
   // merge session defaults with params
   const { method, postData, headers, cookies } = params
 
-  let overrideResolvers: OverrideResolvers = {}
+  // todo: redo all functionality
 
-  if (method !== 'GET') {
-    log.debug(`Setting method to ${method}`)
-    overrideResolvers.method = request => method
-  }
-
-  if (postData) {
-    log.debug(`Setting body data to ${postData}`)
-    overrideResolvers.postData = request => postData
-  }
-
-  if (headers) {
-    log.debug(`Adding custom headers: ${JSON.stringify(headers)}`)
-    overrideResolvers.headers = request => Object.assign(request.headers(), headers)
-  }
-
-  if (cookies) {
-    log.debug(`Setting custom cookies: ${JSON.stringify(cookies)}`)
-    await page.setCookie(...cookies)
-  }
-
-  // if any keys have been set on the object
-  if (Object.keys(overrideResolvers).length > 0) {
-    let callbackRunOnce = false
-    const callback = (request: Request) => {
-
-      // avoid loading resources to speed up page load
-      if(request.resourceType() == 'stylesheet' || request.resourceType() == 'font' || request.resourceType() == 'image') {
-        request.abort()
-        return
-      }
-
-      if (callbackRunOnce || !request.isNavigationRequest()) {
-        request.continue()
-        return
-      }
-
-      callbackRunOnce = true
-      const overrides: Overrides = {}
-
-      Object.keys(overrideResolvers).forEach((key: OverridesProps) => {
-        // @ts-ignore
-        overrides[key] = overrideResolvers[key](request)
-      });
-
-      log.debug(`Overrides: ${JSON.stringify(overrides)}`)
-      request.continue(overrides)
-    }
-
-    await page.setRequestInterception(true)
-    page.on('request', callback)
-  }
+  // let overrideResolvers: OverrideResolvers = {}
+  //
+  // if (method !== 'GET') {
+  //   log.debug(`Setting method to ${method}`)
+  //   overrideResolvers.method = request => method
+  // }
+  //
+  // if (postData) {
+  //   log.debug(`Setting body data to ${postData}`)
+  //   overrideResolvers.postData = request => postData
+  // }
+  //
+  // if (headers) {
+  //   log.debug(`Adding custom headers: ${JSON.stringify(headers)}`)
+  //   overrideResolvers.headers = request => Object.assign(request.headers(), headers)
+  // }
+  //
+  // if (cookies) {
+  //   log.debug(`Setting custom cookies: ${JSON.stringify(cookies)}`)
+  //   await page.setCookie(...cookies)
+  // }
+  //
+  // // if any keys have been set on the object
+  // if (Object.keys(overrideResolvers).length > 0) {
+  //   let callbackRunOnce = false
+  //   const callback = (request: Request) => {
+  //
+  //     // avoid loading resources to speed up page load
+  //     if(request.resourceType() == 'stylesheet' || request.resourceType() == 'font' || request.resourceType() == 'image') {
+  //       request.abort()
+  //       return
+  //     }
+  //
+  //     if (callbackRunOnce || !request.isNavigationRequest()) {
+  //       request.continue()
+  //       return
+  //     }
+  //
+  //     callbackRunOnce = true
+  //     const overrides: Overrides = {}
+  //
+  //     Object.keys(overrideResolvers).forEach((key: OverridesProps) => {
+  //       // @ts-ignore
+  //       overrides[key] = overrideResolvers[key](request)
+  //     });
+  //
+  //     log.debug(`Overrides: ${JSON.stringify(overrides)}`)
+  //     request.continue(overrides)
+  //   }
+  //
+  //   await page.setRequestInterception(true)
+  //   page.on('request', callback)
+  // }
 
   return page
 }

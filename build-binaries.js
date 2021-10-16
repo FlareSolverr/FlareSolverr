@@ -5,6 +5,7 @@ const archiver = require('archiver')
 const puppeteer = require('puppeteer')
 const version = 'v' + require('./package.json').version;
 
+// todo: package firefox
 (async () => {
   const builds = [
     {

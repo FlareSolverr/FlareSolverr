@@ -32,7 +32,7 @@ interface SessionCreateOptions {
 const sessionCache: SessionsCache = {}
 
 function userDataDirFromId(id: string): string {
-  return path.join(os.tmpdir(), `/puppeteer_chrome_profile_${id}`)
+  return path.join(os.tmpdir(), `/puppeteer_profile_${id}`)
 }
 
 function prepareBrowserProfile(id: string): string {
@@ -58,7 +58,7 @@ export default {
     }
 
     const puppeteerOptions: LaunchOptions = {
-      product: 'chrome',
+      product: 'firefox',
       headless: process.env.HEADLESS !== 'false',
       args
     }
@@ -68,7 +68,8 @@ export default {
       puppeteerOptions.userDataDir = prepareBrowserProfile(id)
     }
 
-    // if we are running inside executable binary, change chrome path
+    // todo: fix native package with firefox
+    // if we are running inside executable binary, change browser path
     if (typeof (process as any).pkg !== 'undefined') {
       const exe = process.platform === "win32" ? 'chrome.exe' : 'chrome';
       puppeteerOptions.executablePath = path.join(path.dirname(process.execPath), 'chrome', exe)
