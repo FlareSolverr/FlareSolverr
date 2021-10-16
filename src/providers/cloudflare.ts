@@ -4,7 +4,7 @@ import {Page, Response} from 'puppeteer'
 
 /**
  *  This class contains the logic to solve protections provided by CloudFlare
-**/
+ **/
 
 const CHALLENGE_SELECTORS = ['#trk_jschal_js', '.ray_id', '.attack-box', '#cf-please-wait'];
 const TOKEN_INPUT_NAMES = ['g-recaptcha-response', 'h-captcha-response'];
@@ -18,79 +18,80 @@ export default async function resolveChallenge(url: string, page: Page, response
   }
   log.info('Cloudflare detected');
 
-  if (await page.$('span[data-translate="error"]') || (await page.content()).includes('error code: 1020')) {
+  if (await page.$('span[data-translate="error"]')) {
     throw new Error('Cloudflare has blocked this request. Probably your IP is banned for this site, check in your web browser.')
   }
 
-  let selectorFoundCount = 0;
+  let selectorFound = false;
   if (response.status() > 400) {
-    // detect cloudflare wait 5s
-    for (const selector of CHALLENGE_SELECTORS) {
-      const cfChallengeElem = await page.$(selector)
-      if (cfChallengeElem) {
-        selectorFoundCount++
-        log.debug(`Javascript challenge element '${selector}' detected.`)
-        log.debug('Waiting for Cloudflare challenge...')
 
-        while (true) {
-          try {
-            // catch Execution context was destroyed
-            const cfChallengeElem = await page.$(selector)
-            if (!cfChallengeElem) {
-              // solved!
-              log.debug('Challenge element not found.')
+    // find Cloudflare selectors
+    let selector: string = await findAnySelector(page, CHALLENGE_SELECTORS)
+    if (selector) {
+      selectorFound = true;
+      log.debug(`Javascript challenge element '${selector}' detected.`)
+      log.debug('Waiting for Cloudflare challenge...')
+
+      while (true) {
+        try {
+
+          selector = await findAnySelector(page, CHALLENGE_SELECTORS)
+          if (!selector) {
+            // solved!
+            log.debug('Challenge element not found.')
+            break
+          } else {
+            log.debug(`Javascript challenge element '${selector}' detected.`)
+
+            // new Cloudflare Challenge #cf-please-wait
+            const displayStyle = await page.evaluate((selector) => {
+              return getComputedStyle(document.querySelector(selector)).getPropertyValue("display");
+            }, selector);
+            if (displayStyle == "none") {
+              // spinner is hidden, could be a captcha or not
+              log.debug('Challenge element is hidden.')
+              // wait until redirecting disappears
+              while (true) {
+                try {
+                  await page.waitFor(1000)
+                  const displayStyle2 = await page.evaluate(() => {
+                    return getComputedStyle(document.querySelector('#cf-spinner-redirecting')).getPropertyValue("display");
+                  });
+                  if (displayStyle2 == "none") {
+                    break // hCaptcha detected
+                  }
+                } catch (error) {
+                  break // redirection completed
+                }
+              }
               break
             } else {
-              // new Cloudflare Challenge #cf-please-wait
-              const displayStyle = await page.evaluate((selector) => {
-                return getComputedStyle(document.querySelector(selector)).getPropertyValue("display");
-              }, selector);
-              if (displayStyle == "none") {
-                // spinner is hidden, could be a captcha or not
-                log.debug('Challenge element is hidden.')
-                // wait until redirecting disappears
-                while (true) {
-                  try {
-                    await page.waitFor(1000)
-                    const displayStyle2 = await page.evaluate(() => {
-                      return getComputedStyle(document.querySelector('#cf-spinner-redirecting')).getPropertyValue("display");
-                    });
-                    if (displayStyle2 == "none") {
-                      break // hCaptcha detected
-                    }
-                  } catch (error) {
-                    break // redirection completed
-                  }
-                }
-                break
-              } else {
-                log.debug('Challenge element is visible.')
-              }
-            }
-            log.debug('Found challenge element again.')
-          } catch (error)
-          {
-            log.debug("Unexpected error: " + error);
-            if (!error.toString().includes("Execution context was destroyed")) {
-              break
+              log.debug('Challenge element is visible.')
             }
           }
+          log.debug('Found challenge element again.')
 
-          log.debug('Waiting for Cloudflare challenge...')
-          await page.waitFor(1000)
+        } catch (error)
+        {
+          log.debug("Unexpected error: " + error);
+          if (!error.toString().includes("Execution context was destroyed")) {
+            break
+          }
         }
 
-        log.debug('Validating HTML code...')
-        break
-      } else {
-        log.debug(`No '${selector}' challenge element detected.`)
+        log.debug('Waiting for Cloudflare challenge...')
+        await page.waitFor(1000)
       }
+
+      log.debug('Validating HTML code...')
+    } else {
+      log.debug(`No challenge element detected.`)
     }
-    log.debug("Javascript challenge selectors found: " + selectorFoundCount + ", total selectors: " + CHALLENGE_SELECTORS.length)
+
   } else {
     // some sites use cloudflare but there is no challenge
     log.debug(`Javascript challenge not detected. Status code: ${response.status()}`);
-    selectorFoundCount = 1;
+    selectorFound = true;
   }
 
   // it seems some captcha pages return 200 sometimes
@@ -180,17 +181,33 @@ export default async function resolveChallenge(url: string, page: Page, response
       throw new Error('Captcha detected but no automatic solver is configured.');
     }
   } else {
-    if (selectorFoundCount == 0)
+    if (!selectorFound)
     {
       throw new Error('No challenge selectors found, unable to proceed')
     } else {
       // reload the page to make sure we get the real response
       // do not use page.reload() to avoid #162 #143
       response = await page.goto(url, { waitUntil: 'domcontentloaded' })
+
       await page.content()
+      // log.info(response.headers())
+      // while (response.headers() == null) {
+      //   await page.waitFor(1000)
+      // }
+
       log.info('Challenge solved.');
     }
   }
 
   return response;
+}
+
+async function findAnySelector(page: Page, selectors: string[]) {
+  for (const selector of selectors) {
+    const cfChallengeElem = await page.$(selector)
+    if (cfChallengeElem) {
+      return selector;
+    }
+  }
+  return null;
 }
