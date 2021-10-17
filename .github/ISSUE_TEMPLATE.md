@@ -11,6 +11,7 @@ Check closed issues as well, because your issue may have already been fixed.
 * **Last working FlareSolverr version**:
 * **Operating system**:
 * **Are you using Docker**: [yes/no]
+* **FlareSolverr User-Agent (see log traces or / endpoint)**:
 * **Are you using a proxy or VPN?** [yes/no]
 * **Are you using Captcha Solver:** [yes/no]
 * **If using captcha solver, which one:**

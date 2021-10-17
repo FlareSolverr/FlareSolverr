@@ -102,7 +102,7 @@ export default async function resolveChallenge(url: string, page: Page, response
 
     // const captchaSolver = getCaptchaSolver()
     // if (captchaSolver) {
-    //     // todo: get the params
+    //     // to-do: get the params
     //     log.info('Waiting to receive captcha token to bypass challenge...')
     //     const token = await captchaSolver({
     //       url,
@@ -110,7 +110,7 @@ export default async function resolveChallenge(url: string, page: Page, response
     //       type: captchaType
     //     })
     //     log.debug(`Token received: ${token}`);
-    //     // todo: send the token
+    //     // to-do: send the token
     //   }
     // } else {
     //   throw new Error('Captcha detected but no automatic solver is configured.');

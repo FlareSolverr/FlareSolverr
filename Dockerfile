@@ -1,13 +1,14 @@
-FROM --platform=${TARGETPLATFORM:-linux/amd64} node:14-alpine3.14
+FROM --platform=${TARGETPLATFORM:-linux/amd64} node:16-alpine3.14
 
 # Print build information
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 RUN printf "I am running on ${BUILDPLATFORM:-linux/amd64}, building for ${TARGETPLATFORM:-linux/amd64}\n$(uname -a)\n"
 
-# Install the web browser
+# Install the web browser (package firefox-esr is available too)
 RUN apk update && \
-    apk add --no-cache firefox-esr dumb-init
+    apk add --no-cache firefox dumb-init && \
+    rm -Rf /var/cache
 
 # Copy FlareSolverr code
 USER node
@@ -28,3 +29,6 @@ RUN npm install && \
 EXPOSE 8191
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["npm", "start"]
+
+# docker build -t flaresolverr:custom .
+# docker run -p 8191:8191 -e LOG_LEVEL=debug flaresolverr:custom

@@ -24,7 +24,7 @@ export interface SessionCreateOptions {
   oneTimeSession: boolean
   cookies?: SetCookie[],
   maxTimeout?: number
-  proxy?: any// TODO: use interface not any
+  proxy?: Proxy
 }
 
 const sessionCache: SessionsCache = {}
@@ -120,12 +120,9 @@ export async function create(session: string, options: SessionCreateOptions): Pr
 
   log.debug('Launching web browser...')
 
-  // TODO: maybe access env variable?
-  // TODO: sometimes browser instances are created and not connected to correctly.
-  //       how do we handle/quit those instances inside Docker?
+  // todo: the retries are required?
   let launchTries = 3
   let browser: Browser;
-
   while (0 <= launchTries--) {
     try {
       browser = await puppeteer.launch(puppeteerOptions)
@@ -153,8 +150,6 @@ export async function create(session: string, options: SessionCreateOptions): Pr
 export function list(): string[] {
   return Object.keys(sessionCache)
 }
-
-// todo: create a sessions.close that doesn't rm the userDataDir
 
 export async function destroy(id: string): Promise<boolean>{
   if (id && sessionCache.hasOwnProperty(id)) {
