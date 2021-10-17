@@ -2,22 +2,17 @@ import {v1 as UUIDv1} from 'uuid'
 import * as os from 'os'
 import * as path from 'path'
 import * as fs from 'fs'
-import {LaunchOptions, Headers, SetCookie, Browser} from 'puppeteer'
+import {LaunchOptions, SetCookie, Browser} from 'puppeteer'
 
 import log from './log'
-import {deleteFolderRecursive, sleep, removeEmptyFields} from './utils'
+import {deleteFolderRecursive, sleep} from './utils'
 
 const puppeteer = require('puppeteer');
-
-interface SessionPageDefaults {
-  headers?: Headers
-}
 
 export interface SessionsCacheItem {
   sessionId: string
   browser: Browser
   userDataDir?: string
-  defaults: SessionPageDefaults
 }
 
 interface SessionsCache {
@@ -27,7 +22,6 @@ interface SessionsCache {
 export interface SessionCreateOptions {
   oneTimeSession: boolean
   cookies?: SetCookie[],
-  headers?: Headers
   maxTimeout?: number
   proxy?: any// TODO: use interface not any
 }
@@ -79,6 +73,8 @@ export async function testWebBrowserInstallation(): Promise<void> {
 export async function create(session: string, options: SessionCreateOptions): Promise<SessionsCacheItem> {
   const sessionId = session || UUIDv1()
 
+  // todo: cookies can't be set in the session, you need to open the page first
+
   // todo: these args are only supported in chrome
   let args = [
     '--no-sandbox',
@@ -126,18 +122,14 @@ export async function create(session: string, options: SessionCreateOptions): Pr
     }
   }
 
-  if (!browser) { throw Error(`Failed to launch browser 3 times in a row.`) }
-
-  if (options.cookies) {
-    const page = await browser.newPage()
-    await page.setCookie(...options.cookies)
+  if (!browser) {
+    throw Error(`Failed to launch browser 3 times in a row.`)
   }
 
   sessionCache[sessionId] = {
     sessionId: sessionId,
     browser: browser,
-    userDataDir: puppeteerOptions.userDataDir,
-    defaults: removeEmptyFields(options) // todo: review
+    userDataDir: puppeteerOptions.userDataDir
   }
 
   return sessionCache[sessionId]

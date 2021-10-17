@@ -7,6 +7,7 @@ import {testWebBrowserInstallation} from "../services/sessions";
 const request = require("supertest");
 const app = require("../app");
 const version: string = require('../../package.json').version
+
 const googleUrl = "https://www.google.com";
 const cfUrl = "https://pirateiro.com/torrents/?search=s";
 const cfCaptchaUrl = "https://idope.se"
@@ -134,6 +135,60 @@ describe("Test '/v1' path", () => {
         expect(apiResponse.version).toBe(version);
         // solution is filled but not useful
         expect(apiResponse.solution.url).toContain(cfCaptchaUrl)
+    });
+
+    test("Cmd 'request.get' should return OK with 'cookies' param", async () => {
+        const payload = {
+            "cmd": "request.get",
+            "url": googleUrl,
+            "cookies": [
+                {
+                    "name": "testcookie1",
+                    "value": "testvalue1"
+                },
+                {
+                    "name": "testcookie2",
+                    "value": "testvalue2"
+                }
+            ]
+        }
+        const response: Response = await request(app).post("/v1").send(payload);
+        expect(response.statusCode).toBe(200);
+
+        const apiResponse: V1ResponseSolution = response.body;
+        expect(apiResponse.status).toBe("ok");
+
+        const solution = apiResponse.solution;
+        expect(solution.url).toContain(googleUrl)
+        expect(Object.keys(solution.cookies).length).toBeGreaterThan(1)
+        const cookie1: string = (solution.cookies as any[]).filter(function(cookie) {
+            return cookie.name == "testcookie1";
+        })[0].value
+        expect(cookie1).toBe("testvalue1")
+        const cookie2: string = (solution.cookies as any[]).filter(function(cookie) {
+            return cookie.name == "testcookie2";
+        })[0].value
+        expect(cookie2).toBe("testvalue2")
+    });
+
+    test("Cmd 'request.get' should return OK with 'returnOnlyCookies' param", async () => {
+        const payload = {
+            "cmd": "request.get",
+            "url": googleUrl,
+            "returnOnlyCookies": true
+        }
+        const response: Response = await request(app).post("/v1").send(payload);
+        expect(response.statusCode).toBe(200);
+
+        const apiResponse: V1ResponseSolution = response.body;
+
+        const solution = apiResponse.solution;
+        expect(solution.url).toContain(googleUrl)
+        expect(solution.status).toBe(200);
+        expect(solution.headers).toBe(null)
+        expect(solution.response).toBe(null)
+        expect(Object.keys(solution.cookies).length).toBeGreaterThan(0)
+        expect(solution.userAgent).toBe(null)
     });
 
     test("Cmd 'request.get' should return timeout", async () => {
@@ -306,4 +361,5 @@ describe("Test '/v1' path", () => {
         expect(cfCookie2.length).toBeGreaterThan(30)
         expect(cfCookie2).toBe(cfCookie)
     });
+
 });

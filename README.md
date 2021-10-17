@@ -86,10 +86,7 @@ curl -L -X POST 'http://localhost:8191/v1' \
 --data-raw '{
   "cmd": "request.get",
   "url":"http://www.google.com/",
-  "maxTimeout": 60000,
-  "headers": {
-    "X-Test": "Testing 123..."
-  }
+  "maxTimeout": 60000
 }'
 ```
 
@@ -140,11 +137,9 @@ Parameter | Notes
 |--|--|
 url | Mandatory
 session | Optional. Will send the request from and existing browser instance. If one is not sent it will create a temporary instance that will be destroyed immediately after the request is completed.
-headers | Optional. To specify user headers.
 maxTimeout | Optional, default value 60000. Max timeout to solve the challenge in milliseconds.
 cookies | Optional. Will be used by the headless browser. Follow [this](https://github.com/puppeteer/puppeteer/blob/v3.3.0/docs/api.md#pagesetcookiecookies) format.
 returnOnlyCookies | Optional, default false. Only returns the cookies. Response data, headers and other parts of the response are removed.
-returnRawHtml | Optional, default false. The response data will be returned without JS processing. This is useful for JSON or plain text content.
 
 Example response from running the `curl` above:
 
@@ -211,16 +206,7 @@ This is the same as `request.get` but it takes one more param:
 
 Parameter | Notes
 |--|--|
-postData | Must be a string. If you want to POST a form, don't forget to set the `Content-Type` header to `application/x-www-form-urlencoded` or the server might not understand your request.
-
-### Download small files
-
-If you need to access an image/pdf or small file, you should pass the `download` parameter to `request.get` setting it
-to `true`. Rather than access the html and return text it will return the buffer **base64** encoded which you will be
-able to decode and save the image/pdf.
-
-This method isn't recommended for videos or anything larger. As that should be streamed back to the client and at the
-moment there is nothing setup to do so. If this is something you need feel free to create an issue and/or submit a PR.
+postData | Must be a string. If you want to POST a form with format `application/x-www-form-urlencoded`.
 
 ## Environment variables
 

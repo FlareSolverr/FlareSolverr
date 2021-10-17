@@ -15,11 +15,11 @@ interface V1Routes {
 export interface V1RequestBase {
   cmd: string
   cookies?: SetCookie[],
-  headers?: Headers
   maxTimeout?: number
   proxy?: any// TODO: use interface not any
   session: string
-  userAgent?: string // deprecated, not used
+  headers?: Headers // deprecated v2, not used
+  userAgent?: string // deprecated v2, not used
 }
 
 interface V1RequestSession extends V1RequestBase {
@@ -29,9 +29,9 @@ export interface V1Request extends V1RequestBase {
   url: string
   method?: HttpMethod
   postData?: string
-  download?: boolean
   returnOnlyCookies?: boolean
-  returnRawHtml?: boolean
+  download?: boolean // deprecated v2, not used
+  returnRawHtml?: boolean // deprecated v2, not used
 }
 
 export interface V1ResponseBase {
@@ -59,7 +59,6 @@ export const routes: V1Routes = {
     const options: SessionCreateOptions = {
       oneTimeSession: false,
       cookies: params.cookies,
-      headers: params.headers,
       maxTimeout: params.maxTimeout,
       proxy: params.proxy
     }
@@ -87,11 +86,14 @@ export const routes: V1Routes = {
   },
   'request.get': async (params: V1Request, response: V1ResponseSolution): Promise<void> => {
     params.method = 'GET'
-    if (params.userAgent) {
-      log.warn('Request parameter "userAgent" was removed in FlareSolverr v2.')
-    }
     if (params.postData) {
       throw Error('Cannot use "postBody" when sending a GET request.')
+    }
+    if (params.returnRawHtml) {
+      log.warn("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
+    }
+    if (params.download) {
+      log.warn("Request parameter 'download' was removed in FlareSolverr v2.")
     }
     const result: ChallengeResolutionT = await browserRequest(params)
 
@@ -104,11 +106,14 @@ export const routes: V1Routes = {
   },
   'request.post': async (params: V1Request, response: V1ResponseSolution): Promise<void> => {
     params.method = 'POST'
-    if (params.userAgent) {
-      log.warn('Request parameter "userAgent" was removed in FlareSolverr v2.')
-    }
     if (!params.postData) {
       throw Error('Must send param "postBody" when sending a POST request.')
+    }
+    if (params.returnRawHtml) {
+      log.warn("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
+    }
+    if (params.download) {
+      log.warn("Request parameter 'download' was removed in FlareSolverr v2.")
     }
     const result: ChallengeResolutionT = await browserRequest(params)
 
@@ -133,8 +138,15 @@ export async function controllerV1(req: Request, res: Response): Promise<void> {
   try {
     const params: V1RequestBase = req.body
     if (!params.cmd) {
-      throw Error("Parameter 'cmd' is mandatory.")
+      throw Error("Request parameter 'cmd' is mandatory.")
     }
+    if (params.headers) {
+      log.warn("Request parameter 'headers' was removed in FlareSolverr v2.")
+    }
+    if (params.userAgent) {
+      log.warn("Request parameter 'userAgent' was removed in FlareSolverr v2.")
+    }
+
     const route = routes[params.cmd]
     if (route) {
       await route(params, response)

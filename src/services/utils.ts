@@ -19,13 +19,3 @@ export function deleteFolderRecursive(path: string) {
     fs.rmdirSync(path)
   }
 }
-
-export const removeEmptyFields = (o: Record<string, any>): typeof o => {
-  const r: typeof o = {}
-  for (const k in o) {
-    if (o[k] !== undefined) {
-      r[k] = o[k]
-    }
-  }
-  return r
-}
