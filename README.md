@@ -140,6 +140,7 @@ session | Optional. Will send the request from and existing browser instance. If
 maxTimeout | Optional, default value 60000. Max timeout to solve the challenge in milliseconds.
 cookies | Optional. Will be used by the headless browser. Follow [this](https://github.com/puppeteer/puppeteer/blob/v3.3.0/docs/api.md#pagesetcookiecookies) format.
 returnOnlyCookies | Optional, default false. Only returns the cookies. Response data, headers and other parts of the response are removed.
+proxy | Optional, default disabled. Eg: `"proxy": {"url": "http://127.0.0.1:8888"}`. Authorization (username/password) is not supported.
 
 Example response from running the `curl` above:
 

@@ -6,6 +6,7 @@ import {LaunchOptions, SetCookie, Browser} from 'puppeteer'
 
 import log from './log'
 import {deleteFolderRecursive, sleep} from './utils'
+import {Proxy} from "../controllers/v1";
 
 const puppeteer = require('puppeteer');
 
@@ -34,12 +35,37 @@ function userDataDirFromId(id: string): string {
   return path.join(os.tmpdir(), `/puppeteer_profile_${id}`)
 }
 
-function prepareBrowserProfile(id: string): string {
-  // TODO: maybe pass SessionCreateOptions for loading later?
+function prepareBrowserProfile(id: string, proxy: Proxy): string {
   const userDataDir = userDataDirFromId(id)
 
   if (!fs.existsSync(userDataDir)) {
     fs.mkdirSync(userDataDir, { recursive: true })
+  }
+
+  // proxy.url format => http://<host>:<port>
+  if (proxy && proxy.url) {
+    let [host, port] = proxy.url.replace(/https?:\/\//g, '').split(':');
+
+    let prefs = `
+    user_pref("browser.newtabpage.enabled", false);
+    user_pref("browser.startup.homepage", "about:blank");
+    user_pref("browser.tabs.warnOnClose", false);
+    user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
+    user_pref("trailhead.firstrun.branches", "nofirstrun-empty");
+    user_pref("browser.aboutwelcome.enabled", false);
+    user_pref("network.proxy.ftp", "${host}");
+    user_pref("network.proxy.ftp_port", ${port});
+    user_pref("network.proxy.http", "${host}");
+    user_pref("network.proxy.http_port", ${port});
+    user_pref("network.proxy.share_proxy_settings", true);
+    user_pref("network.proxy.socks", "${host}");
+    user_pref("network.proxy.socks_port", ${port});
+    user_pref("network.proxy.ssl", "${host}");
+    user_pref("network.proxy.ssl_port", ${port});
+    user_pref("network.proxy.type", 1);
+    `
+
+    fs.writeFileSync(path.join(userDataDir, './prefs.js'), prefs);
   }
 
   return userDataDir
@@ -75,26 +101,15 @@ export async function create(session: string, options: SessionCreateOptions): Pr
 
   // todo: cookies can't be set in the session, you need to open the page first
 
-  // todo: these args are only supported in chrome
-  let args = [
-    '--no-sandbox',
-    '--disable-setuid-sandbox',
-    '--disable-dev-shm-usage' // issue #45
-  ];
-  if (options.proxy && options.proxy.url) {
-    args.push(`--proxy-server=${options.proxy.url}`);
-  }
-
+  const args: string[] = [];
   const puppeteerOptions: LaunchOptions = {
     product: 'firefox',
     headless: process.env.HEADLESS !== 'false',
     args
   }
 
-  if (!options.oneTimeSession) {
-    log.debug('Creating userDataDir for session.')
-    puppeteerOptions.userDataDir = prepareBrowserProfile(sessionId)
-  }
+  log.debug('Creating userDataDir for session.')
+  puppeteerOptions.userDataDir = prepareBrowserProfile(sessionId, options.proxy)
 
   // todo: fix native package with firefox
   // if we are running inside executable binary, change browser path
@@ -151,7 +166,7 @@ export async function destroy(id: string): Promise<boolean>{
         const userDataDirPath = userDataDirFromId(id)
         try {
           // for some reason this keeps an error from being thrown in Windows, figures
-          await sleep(5000)
+          await sleep(100)
           deleteFolderRecursive(userDataDirPath)
         } catch (e) {
           console.error(e)

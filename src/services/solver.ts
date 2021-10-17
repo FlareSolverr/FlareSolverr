@@ -47,17 +47,19 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
         // the user-agent is changed just for linux arm build
         await page.setUserAgent(sessions.getUserAgent())
 
-        // todo: review
+        // set the proxy
         if (params.proxy) {
-            log.debug("Apply proxy");
-            if (params.proxy.username) {
-                await page.authenticate({
-                    username: params.proxy.username,
-                    password: params.proxy.password
-                });
-            }
+            log.debug(`Using proxy: ${params.proxy.url}`);
+            // todo: credentials are not working
+            // if (params.proxy.username) {
+            //     await page.authenticate({
+            //         username: params.proxy.username,
+            //         password: params.proxy.password
+            //     });
+            // }
         }
 
+        // go to the page
         log.debug(`Navigating to... ${params.url}`)
         let response: Response = await gotoPage(params, page);
 

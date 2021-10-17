@@ -12,11 +12,17 @@ interface V1Routes {
   [key: string]: (params: V1RequestBase, response: V1ResponseBase) => Promise<void>
 }
 
+export interface Proxy {
+  url?: string
+  username?: string
+  password?: string
+}
+
 export interface V1RequestBase {
   cmd: string
   cookies?: SetCookie[],
   maxTimeout?: number
-  proxy?: any// TODO: use interface not any
+  proxy?: Proxy
   session: string
   headers?: Headers // deprecated v2, not used
   userAgent?: string // deprecated v2, not used

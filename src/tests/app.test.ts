@@ -194,7 +194,81 @@ describe("Test '/v1' path", () => {
         expect(solution.userAgent).toBe(null)
     });
 
-    test("Cmd 'request.get' should return timeout", async () => {
+    test("Cmd 'request.get' should return OK with 'proxy' param", async () => {
+        /*
+        To configure TinyProxy in local:
+           * sudo vim /etc/tinyproxy/tinyproxy.conf
+              * edit => LogFile "/tmp/tinyproxy.log"
+              * edit => Syslog Off
+           * sudo tinyproxy -d
+           * sudo tail -f /tmp/tinyproxy.log
+         */
+        const payload = {
+            "cmd": "request.get",
+            "url": googleUrl,
+            "proxy": {
+                "url": "http://127.0.0.1:8888"
+            }
+        }
+        const response: Response = await request(app).post("/v1").send(payload);
+        expect(response.statusCode).toBe(200);
+
+        const apiResponse: V1ResponseSolution = response.body;
+        expect(apiResponse.status).toBe("ok");
+
+        const solution = apiResponse.solution;
+        expect(solution.url).toContain(googleUrl)
+        expect(solution.status).toBe(200);
+    });
+
+    // todo: credentials are not working
+    // test("Cmd 'request.get' should return OK with 'proxy' param with credentials", async () => {
+    //     /*
+    //     To configure TinyProxy in local:
+    //        * sudo vim /etc/tinyproxy/tinyproxy.conf
+    //           * edit => LogFile "/tmp/tinyproxy.log"
+    //           * edit => Syslog Off
+    //           * add => BasicAuth testuser testpass
+    //        * sudo tinyproxy -d
+    //        * sudo tail -f /tmp/tinyproxy.log
+    //      */
+    //     const payload = {
+    //         "cmd": "request.get",
+    //         "url": googleUrl,
+    //         "proxy": {
+    //             "url": "http://127.0.0.1:8888",
+    //             "username": "testuser",
+    //             "password": "testpass"
+    //         }
+    //     }
+    //     const response: Response = await request(app).post("/v1").send(payload);
+    //     expect(response.statusCode).toBe(200);
+    //
+    //     const apiResponse: V1ResponseSolution = response.body;
+    //     expect(apiResponse.status).toBe("ok");
+    //
+    //     const solution = apiResponse.solution;
+    //     expect(solution.url).toContain(googleUrl)
+    //     expect(solution.status).toContain(200)
+    // });
+
+    test("Cmd 'request.get' should fail with wrong 'proxy' param", async () => {
+        const payload = {
+            "cmd": "request.get",
+            "url": googleUrl,
+            "proxy": {
+                "url": "http://127.0.0.1:43210"
+            }
+        }
+        const response: Response = await request(app).post("/v1").send(payload);
+        expect(response.statusCode).toBe(500);
+
+        const apiResponse: V1ResponseSolution = response.body;
+        expect(apiResponse.status).toBe("error");
+        expect(apiResponse.message).toBe("Error: Unable to process browser request. Error: Error: NS_ERROR_PROXY_CONNECTION_REFUSED at https://www.google.com");
+    });
+
+    test("Cmd 'request.get' should return fail with timeout", async () => {
         const payload = {
             "cmd": "request.get",
             "url": googleUrl,
@@ -209,6 +283,19 @@ describe("Test '/v1' path", () => {
         expect(apiResponse.startTimestamp).toBeGreaterThan(1000);
         expect(apiResponse.endTimestamp).toBeGreaterThan(apiResponse.startTimestamp);
         expect(apiResponse.version).toBe(version);
+    });
+
+    test("Cmd 'request.get' should return fail with bad domain", async () => {
+        const payload = {
+            "cmd": "request.get",
+            "url": "https://www.google.combad",
+        }
+        const response: Response = await request(app).post("/v1").send(payload);
+        expect(response.statusCode).toBe(500);
+
+        const apiResponse: V1ResponseBase = response.body;
+        expect(apiResponse.status).toBe("error");
+        expect(apiResponse.message).toBe("Error: Unable to process browser request. Error: Error: NS_ERROR_UNKNOWN_HOST at https://www.google.combad");
     });
 
     test("Cmd 'request.get' should accept deprecated params", async () => {
