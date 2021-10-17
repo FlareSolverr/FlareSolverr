@@ -26,7 +26,7 @@ const version = 'v' + require('./package.json').version;
       fsZipName: 'windows-x64',
       fsLicenseName: 'LICENSE.txt'
     }
-    // TODO: this is working but changes are required in session.ts to find chrome path
+    // TODO: this is working but changes are required in sessions.ts to find chrome path
     // {
     //   platform: 'mac',
     //   version: 756035,

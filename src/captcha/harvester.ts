@@ -1,5 +1,5 @@
 import got from 'got'
-import { sleep } from '../utils'
+import { sleep } from '../services/utils'
 
 /*
     This method uses the captcha-harvester project:

@@ -1,4 +1,4 @@
-import log from "../log";
+import log from "../services/log";
 
 export enum CaptchaType {
   re = 'reCaptcha',

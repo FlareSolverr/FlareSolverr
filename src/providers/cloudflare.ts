@@ -1,6 +1,7 @@
-import log from "../log";
-import getCaptchaSolver, {CaptchaType} from "../captcha";
 import {Page, Response} from 'puppeteer'
+
+import log from "../services/log";
+import getCaptchaSolver, {CaptchaType} from "../captcha";
 
 /**
  *  This class contains the logic to solve protections provided by CloudFlare
