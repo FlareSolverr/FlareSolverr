@@ -24,7 +24,6 @@
     "console-log-level": "^1.4.1",
     "express": "^4.17.1",
     "got": "^11.8.2",
-    "hcaptcha-solver": "^1.0.2",
     "puppeteer": "^3.3.0",
     "uuid": "^8.3.2"
   },

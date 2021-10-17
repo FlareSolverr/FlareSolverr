@@ -1,14 +1,14 @@
 import {Page, Response} from 'puppeteer'
 
 import log from "../services/log";
-import getCaptchaSolver, {CaptchaType} from "../captcha";
 
 /**
  *  This class contains the logic to solve protections provided by CloudFlare
  **/
 
+const BAN_SELECTORS = ['span[data-translate="error"]'];
 const CHALLENGE_SELECTORS = ['#trk_jschal_js', '.ray_id', '.attack-box', '#cf-please-wait'];
-const TOKEN_INPUT_NAMES = ['g-recaptcha-response', 'h-captcha-response'];
+const CAPTCHA_SELECTORS = ['input[name="cf_captcha_kind"]'];
 
 export default async function resolveChallenge(url: string, page: Page, response: Response): Promise<Response> {
 
@@ -19,7 +19,7 @@ export default async function resolveChallenge(url: string, page: Page, response
   }
   log.info('Cloudflare detected');
 
-  if (await page.$('span[data-translate="error"]')) {
+  if (await findAnySelector(page, BAN_SELECTORS)) {
     throw new Error('Cloudflare has blocked this request. Probably your IP is banned for this site, check in your web browser.')
   }
 
@@ -95,96 +95,30 @@ export default async function resolveChallenge(url: string, page: Page, response
     selectorFound = true;
   }
 
-  // it seems some captcha pages return 200 sometimes
-  if (await page.$('input[name="cf_captcha_kind"]')) {
-    log.info('Captcha challenge detected.');
-    const captchaSolver = getCaptchaSolver()
-    if (captchaSolver) {
-      const captchaStartTimestamp = Date.now()
-      const challengeForm = await page.$('#challenge-form')
-      if (challengeForm) {
-        const captchaTypeElm = await page.$('input[name="cf_captcha_kind"]')
-        const cfCaptchaType: string = await captchaTypeElm.evaluate((e: any) => e.value)
-        const captchaType: CaptchaType = (CaptchaType as any)[cfCaptchaType]
-        if (!captchaType) {
-          throw new Error('Unknown captcha type!');
-        }
+  // check for CAPTCHA challenge
+  if (await findAnySelector(page, CAPTCHA_SELECTORS)) {
+    log.info('CAPTCHA challenge detected.');
+    throw new Error('FlareSolverr can not resolve CAPTCHA challenges. Since the captcha doesn\'t always appear, you may have better luck with the next request.');
 
-        let sitekey = null
-        if (captchaType != 'hCaptcha' && process.env.CAPTCHA_SOLVER != 'hcaptcha-solver') {
-          const sitekeyElem = await page.$('*[data-sitekey]')
-          if (!sitekeyElem) {
-            throw new Error('Could not find sitekey!');
-          }
-          sitekey = await sitekeyElem.evaluate((e) => e.getAttribute('data-sitekey'))
-        }
-
-        log.info('Waiting to receive captcha token to bypass challenge...')
-        const token = await captchaSolver({
-          url,
-          sitekey,
-          type: captchaType
-        })
-        log.debug(`Token received: ${token}`);
-        if (!token) {
-          throw new Error('Token solver failed to return a token.')
-        }
-
-        let responseFieldsFoundCount = 0;
-        for (const name of TOKEN_INPUT_NAMES) {
-          const input = await page.$(`textarea[name="${name}"]`)
-          if (input) {
-            responseFieldsFoundCount ++;
-            log.debug(`Challenge response field '${name}' found in challenge form.`);
-            await input.evaluate((e: HTMLTextAreaElement, token) => { e.value = token }, token);
-          }
-        }
-        if (responseFieldsFoundCount == 0) {
-          throw new Error('Challenge response field not found in challenge form.');
-        }
-
-        // ignore preset event listeners on the form
-        await page.evaluate(() => {
-          window.addEventListener('submit', (e) => { e.stopPropagation() }, true)
-        })
-
-        // it seems some sites obfuscate their challenge forms
-        // TODO: look into how they do it and come up with a more solid solution
-        try {
-          // this element is added with js and we want to wait for all the js to load before submitting
-          await page.waitForSelector('#challenge-form', { timeout: 10000 })
-        } catch (err) {
-          throw new Error("No '#challenge-form' element detected.");
-        }
-
-        // calculates the time it took to solve the captcha
-        const captchaSolveTotalTime = Date.now() - captchaStartTimestamp
-
-        // generates a random wait time
-        const randomWaitTime = (Math.floor(Math.random() * 10) + 10) * 1000
-
-        // waits, if any, time remaining to appear human but stay as fast as possible
-        const timeLeft = randomWaitTime - captchaSolveTotalTime
-        if (timeLeft > 0) {
-          log.debug(`Waiting for '${timeLeft}' milliseconds.`);
-          await page.waitFor(timeLeft);
-        }
-
-        // submit captcha response
-        await challengeForm.evaluate((e: HTMLFormElement) => e.submit())
-        response = await page.waitForNavigation({ waitUntil: 'domcontentloaded' })
-
-        if (await page.$('input[name="cf_captcha_kind"]')) {
-          throw new Error('Captcha service failed to solve the challenge.');
-        }
-      }
-    } else {
-      throw new Error('Captcha detected but no automatic solver is configured.');
-    }
+    // const captchaSolver = getCaptchaSolver()
+    // if (captchaSolver) {
+    //     // todo: get the params
+    //     log.info('Waiting to receive captcha token to bypass challenge...')
+    //     const token = await captchaSolver({
+    //       url,
+    //       sitekey,
+    //       type: captchaType
+    //     })
+    //     log.debug(`Token received: ${token}`);
+    //     // todo: send the token
+    //   }
+    // } else {
+    //   throw new Error('Captcha detected but no automatic solver is configured.');
+    // }
   } else {
     if (!selectorFound)
     {
-      throw new Error('No challenge selectors found, unable to proceed')
+      throw new Error('No challenge selectors found, unable to proceed.')
     } else {
       // reload the page to make sure we get the real response
       // do not use page.reload() to avoid #162 #143

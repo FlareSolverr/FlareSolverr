@@ -9,6 +9,7 @@ const app = require("../app");
 const version: string = require('../../package.json').version
 const googleUrl = "https://www.google.com";
 const cfUrl = "https://pirateiro.com/torrents/?search=s";
+const cfCaptchaUrl = "https://idope.se"
 
 describe("Test '/' path", () => {
     test("GET method should return OK ", async () => {
@@ -88,7 +89,7 @@ describe("Test '/v1' path", () => {
         expect(solution.userAgent).toContain("Firefox/")
     });
 
-    test("Cmd 'request.get' should return OK with Cloudflare", async () => {
+    test("Cmd 'request.get' should return OK with Cloudflare JS", async () => {
         const payload = {
             "cmd": "request.get",
             "url": cfUrl
@@ -115,6 +116,24 @@ describe("Test '/v1' path", () => {
             return cookie.name == "cf_clearance";
         })[0].value
         expect(cfCookie.length).toBeGreaterThan(30)
+    });
+
+    test("Cmd 'request.get' should return fail with Cloudflare CAPTCHA", async () => {
+        const payload = {
+            "cmd": "request.get",
+            "url": cfCaptchaUrl
+        }
+        const response: Response = await request(app).post("/v1").send(payload);
+        expect(response.statusCode).toBe(200);
+
+        const apiResponse: V1ResponseSolution = response.body;
+        expect(apiResponse.status).toBe("error");
+        expect(apiResponse.message).toBe("Cloudflare Error: FlareSolverr can not resolve CAPTCHA challenges. Since the captcha doesn't always appear, you may have better luck with the next request.");
+        expect(apiResponse.startTimestamp).toBeGreaterThan(1000);
+        expect(apiResponse.endTimestamp).toBeGreaterThan(apiResponse.startTimestamp);
+        expect(apiResponse.version).toBe(version);
+        // solution is filled but not useful
+        expect(apiResponse.solution.url).toContain(cfCaptchaUrl)
     });
 
     test("Cmd 'request.get' should return timeout", async () => {

@@ -250,37 +250,6 @@ If this is the case, FlareSolverr will return the error `Captcha detected but no
 FlareSolverr can be customized to solve the captchas automatically by setting the environment variable `CAPTCHA_SOLVER`
 to the file name of one of the adapters inside the [/captcha](src/captcha) directory.
 
-### hcaptcha-solver
-
-This method makes use of the [hcaptcha-solver](https://github.com/JimmyLaurent/hcaptcha-solver) project.
-
-NOTE: This solver works picking random images so it will fail in a lot of requests and it's hard to know if it is
-working or not. In a real use case with Sonarr/Radarr + Jackett it is still useful because those apps make a new request
-each 15 minutes. Eventually one of the requests is going to work and Jackett saves the cookie forever (until it stops
-working).
-
-To use this solver you must set the environment variable:
-
-```bash
-CAPTCHA_SOLVER=hcaptcha-solver
-```
-
-### CaptchaHarvester
-
-This method makes use of the [CaptchaHarvester](https://github.com/NoahCardoza/CaptchaHarvester) project which allows
-users to collect their own tokens from ReCaptcha V2/V3 and hCaptcha for free.
-
-To use this method you must set these environment variables:
-
-```bash
-CAPTCHA_SOLVER=harvester
-HARVESTER_ENDPOINT=https://127.0.0.1:5000/token
-```
-
-**Note**: above I set `HARVESTER_ENDPOINT` to the default configuration of the captcha harvester's server, but that
-could change if you customize the command line flags. Simply put, `HARVESTER_ENDPOINT` should be set to the URI of the
-route that returns a token in plain text when called.
-
 ## Related projects
 
 * C# implementation => https://github.com/FlareSolverr/FlareSolverrSharp
