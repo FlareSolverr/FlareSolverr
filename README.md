@@ -142,6 +142,8 @@ cookies | Optional. Will be used by the headless browser. Follow [this](https://
 returnOnlyCookies | Optional, default false. Only returns the cookies. Response data, headers and other parts of the response are removed.
 proxy | Optional, default disabled. Eg: `"proxy": {"url": "http://127.0.0.1:8888"}`. Authorization (username/password) is not supported.
 
+:warning: If you want to use Cloudflare clearance cookie in your scripts, make sure you use the FlareSolverr User-Agent too. If they don't match you will see the challenge.
+
 Example response from running the `curl` above:
 
 ```json
