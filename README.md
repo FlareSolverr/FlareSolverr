@@ -206,7 +206,7 @@ This is the same as `request.get` but it takes one more param:
 
 Parameter | Notes
 |--|--|
-postData | Must be a string. If you want to POST a form with format `application/x-www-form-urlencoded`.
+postData | Must be a string with `application/x-www-form-urlencoded`. Eg: `postData": "a=b&c=d"`
 
 ## Environment variables
 

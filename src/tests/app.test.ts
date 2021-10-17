@@ -9,14 +9,17 @@ const app = require("../app");
 const version: string = require('../../package.json').version
 
 const googleUrl = "https://www.google.com";
-const cfUrl = "https://pirateiro.com/torrents/?search=s";
+const postUrl = "https://ptsv2.com/t/qv4j3-1634496523";
+const cfUrl = "https://pirateiro.com/torrents/?search=harry";
 const cfCaptchaUrl = "https://idope.se"
+
+beforeAll(async () => {
+    // Init session
+    await testWebBrowserInstallation();
+});
 
 describe("Test '/' path", () => {
     test("GET method should return OK ", async () => {
-        // Init session
-        await testWebBrowserInstallation();
-
         const response: Response = await request(app).get("/");
         expect(response.statusCode).toBe(200);
         expect(response.body.msg).toBe("FlareSolverr is ready!");
@@ -62,7 +65,7 @@ describe("Test '/v1' path", () => {
         expect(apiResponse.status).toBe("error");
         expect(apiResponse.message).toBe("Error: The command 'request.bad' is invalid.");
         expect(apiResponse.startTimestamp).toBeGreaterThan(1000);
-        expect(apiResponse.endTimestamp).toBeGreaterThan(apiResponse.startTimestamp);
+        expect(apiResponse.endTimestamp).toBeGreaterThanOrEqual(apiResponse.startTimestamp);
         expect(apiResponse.version).toBe(version);
     });
 
@@ -224,6 +227,62 @@ describe("Test '/v1' path", () => {
         expect(solution.url).toContain(googleUrl)
         expect(solution.status).toBe(200);
         expect(solution.userAgent).toContain("Firefox/")
+    });
+
+    test("Cmd 'request.post' should return OK with no Cloudflare", async () => {
+        const payload = {
+            "cmd": "request.post",
+            "url": postUrl + '/post',
+            "postData": "param1=value1&param2=value2"
+        }
+        const response: Response = await request(app).post("/v1").send(payload);
+        expect(response.statusCode).toBe(200);
+
+        const apiResponse: V1ResponseSolution = response.body;
+        expect(apiResponse.status).toBe("ok");
+        expect(apiResponse.message).toBe("");
+        expect(apiResponse.startTimestamp).toBeGreaterThan(1000);
+        expect(apiResponse.endTimestamp).toBeGreaterThan(apiResponse.startTimestamp);
+        expect(apiResponse.version).toBe(version);
+
+        const solution = apiResponse.solution;
+        expect(solution.url).toContain(postUrl)
+        expect(solution.status).toBe(200);
+        expect(Object.keys(solution.headers).length).toBeGreaterThan(0)
+        expect(solution.response).toContain(" I hope you have a lovely day!")
+        expect(Object.keys(solution.cookies).length).toBe(0)
+        expect(solution.userAgent).toContain("Firefox/")
+
+        // check that we sent the date
+        const payload2 = {
+            "cmd": "request.get",
+            "url": postUrl
+        }
+        const response2: Response = await request(app).post("/v1").send(payload2);
+        expect(response2.statusCode).toBe(200);
+
+        const apiResponse2: V1ResponseSolution = response2.body;
+        expect(apiResponse2.status).toBe("ok");
+
+        const solution2 = apiResponse2.solution;
+        expect(solution2.status).toBe(200);
+        expect(solution2.response).toContain(new Date().toISOString().split(':')[0].replace('T', ' '))
+    });
+
+    test("Cmd 'request.post' should fail without 'postData' param", async () => {
+        const payload = {
+            "cmd": "request.post",
+            "url": googleUrl
+        }
+        const response: Response = await request(app).post("/v1").send(payload);
+        expect(response.statusCode).toBe(500);
+
+        const apiResponse: V1ResponseBase = response.body;
+        expect(apiResponse.status).toBe("error");
+        expect(apiResponse.message).toBe("Error: Must send param \"postBody\" when sending a POST request.");
+        expect(apiResponse.startTimestamp).toBeGreaterThan(1000);
+        expect(apiResponse.endTimestamp).toBeGreaterThanOrEqual(apiResponse.startTimestamp);
+        expect(apiResponse.version).toBe(version);
     });
 
     test("Cmd 'sessions.create' should return OK", async () => {

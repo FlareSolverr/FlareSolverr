@@ -59,7 +59,7 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
         }
 
         log.debug(`Navigating to... ${params.url}`)
-        let response: Response = await page.goto(params.url, { waitUntil: 'domcontentloaded' })
+        let response: Response = await gotoPage(params, page);
 
         // set cookies
         if (params.cookies) {
@@ -71,19 +71,22 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
                 })
             }
             // reload the page
-            response = await page.goto(params.url, { waitUntil: 'domcontentloaded' })
+            response = await gotoPage(params, page);
         }
 
         // log html in debug mode
         log.html(await page.content())
 
-        // Detect protection services and solve challenges
+        // detect protection services and solve challenges
         try {
             response = await cloudflareProvider(params.url, page, response);
         } catch (e) {
             status = "error";
             message = "Cloudflare " + e.toString();
         }
+
+        // reload the page to be sure we get the real page
+        response = await gotoPage(params, page);
 
         const payload: ChallengeResolutionT = {
             status,
@@ -117,6 +120,55 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
     }
 }
 
+async function gotoPage(params: V1Request, page: Page): Promise<Response> {
+    const response = await page.goto(params.url, { waitUntil: 'domcontentloaded' });
+    if (params.method == 'POST') {
+        // post hack
+        await page.setContent(
+            `
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+
+  function parseQuery(queryString) {
+    var query = {};
+    var pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&');
+    for (var i = 0; i < pairs.length; i++) {
+        var pair = pairs[i].split('=');
+        query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+    }
+    return query;
+  }
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '${params.url}';
+
+  const params = parseQuery('${params.postData}');
+  for (const key in params) {
+    if (params.hasOwnProperty(key)) {
+      const hiddenField = document.createElement('input');
+      hiddenField.type = 'hidden';
+      hiddenField.name = key;
+      hiddenField.value = params[key];
+      form.appendChild(hiddenField);
+    }
+  }
+
+  document.body.appendChild(form);
+  form.submit();
+    
+</script>
+</body>
+</html> 
+            `
+        );
+        await page.waitFor(2000);
+    }
+    return response
+}
+
 export async function browserRequest(params: V1Request): Promise<ChallengeResolutionT> {
     const oneTimeSession = params.session === undefined;
 
@@ -136,7 +188,6 @@ export async function browserRequest(params: V1Request): Promise<ChallengeResolu
     }
 
     try {
-        // const page = await setupPage(params, session.browser)
         return  await resolveChallengeWithTimeout(params, session)
     } catch (error) {
         throw Error("Unable to process browser request. Error: " + error)

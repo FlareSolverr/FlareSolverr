@@ -120,16 +120,6 @@ export default async function resolveChallenge(url: string, page: Page, response
     {
       throw new Error('No challenge selectors found, unable to proceed.')
     } else {
-      // reload the page to make sure we get the real response
-      // do not use page.reload() to avoid #162 #143
-      response = await page.goto(url, { waitUntil: 'domcontentloaded' })
-
-      await page.content()
-      // log.info(response.headers())
-      // while (response.headers() == null) {
-      //   await page.waitFor(1000)
-      // }
-
       log.info('Challenge solved.');
     }
   }
