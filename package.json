@@ -16,7 +16,7 @@
     "url": "https://github.com/ngosang/FlareSolverr"
   },
   "bin": {
-    "flaresolverr": "dist/index.js"
+    "flaresolverr": "dist/server.js"
   },
   "dependencies": {
     "await-timeout": "^1.1.1",
