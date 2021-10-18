@@ -1,5 +1,5 @@
 import log from './services/log'
-import {Request, Response} from 'express';
+import {NextFunction, Request, Response} from 'express';
 import {getUserAgent} from "./services/sessions";
 import {controllerV1} from "./controllers/v1";
 
@@ -16,12 +16,31 @@ app.use(bodyParser.json({
     }
 }));
 
+// Access log
+app.use(function(req: Request, res: Response, next: NextFunction) {
+    if (req.url != '/health') {
+        // count the request for the log prefix
+        log.incRequests()
+        // build access message
+        let body = "";
+        if (req.method == 'POST' && req.body) {
+            body += " body: "
+            try {
+                body += JSON.stringify(req.body)
+            } catch(e) {
+                body += req.body
+            }
+        }
+        log.info(`Incoming request => ${req.method} ${req.url}${body}`);
+    }
+    next();
+});
+
 // *********************************************************************************************************************
 // Routes
 
-// show welcome message
+// Show welcome message
 app.get("/", ( req: Request, res: Response ) => {
-    log.info(`Incoming request: /`);
     res.send({
         "msg": "FlareSolverr is ready!",
         "version": version,
@@ -29,20 +48,15 @@ app.get("/", ( req: Request, res: Response ) => {
     });
 });
 
-// health endpoint. this endpoint is special because it doesn't print traces
+// Health endpoint. this endpoint is special because it doesn't print traces
 app.get("/health", ( req: Request, res: Response ) => {
     res.send({
         "status": "ok"
     });
 });
 
-// controller v1
+// Controller v1
 app.post("/v1", async( req: Request, res: Response ) => {
-    // count the request for the log prefix
-    log.incRequests()
-
-    const params = req.body;
-    log.info(`Incoming request: /v1 Params: ${JSON.stringify(params)}`);
     await controllerV1(req, res);
 });
 
@@ -50,7 +64,20 @@ app.post("/v1", async( req: Request, res: Response ) => {
 
 // Unknown paths or verbs
 app.use(function (req : Request, res : Response) {
-    res.status(404).send({"error": "Unknown resource or HTTP verb"})
+    res.status(404)
+        .send({"error": "Unknown resource or HTTP verb"})
+})
+
+// Errors
+app.use(function (err: any, req: Request, res: Response, next: NextFunction) {
+    if (err) {
+        let msg = 'Invalid request: ' + err;
+        msg = msg.replace("\n", "").replace("\r", "")
+        log.error(msg)
+        res.send({"error": msg})
+    } else {
+        next()
+    }
 })
 
 module.exports = app;

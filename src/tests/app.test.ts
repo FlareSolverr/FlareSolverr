@@ -2,20 +2,29 @@
 
 import {Response} from "superagent";
 import {V1ResponseBase, V1ResponseSession, V1ResponseSessions, V1ResponseSolution} from "../controllers/v1"
-import {testWebBrowserInstallation} from "../services/sessions";
 
 const request = require("supertest");
 const app = require("../app");
+const sessions = require('../services/sessions');
 const version: string = require('../../package.json').version
 
 const googleUrl = "https://www.google.com";
 const postUrl = "https://ptsv2.com/t/qv4j3-1634496523";
 const cfUrl = "https://pirateiro.com/torrents/?search=harry";
 const cfCaptchaUrl = "https://idope.se"
+const proxyUrl = "http://127.0.0.1:8888"
 
 beforeAll(async () => {
     // Init session
-    await testWebBrowserInstallation();
+    await sessions.testWebBrowserInstallation();
+});
+
+afterEach(async () => {
+    // Clean sessions
+    const sessionList = sessions.list();
+    for (const session of sessionList) {
+        await sessions.destroy(session);
+    }
 });
 
 describe("Test '/' path", () => {
@@ -51,8 +60,6 @@ describe("Test '/wrong' path", () => {
 });
 
 describe("Test '/v1' path", () => {
-    jest.setTimeout(70000);
-
     test("Cmd 'request.bad' should fail", async () => {
         const payload = {
             "cmd": "request.bad",
@@ -207,7 +214,7 @@ describe("Test '/v1' path", () => {
             "cmd": "request.get",
             "url": googleUrl,
             "proxy": {
-                "url": "http://127.0.0.1:8888"
+                "url": proxyUrl
             }
         }
         const response: Response = await request(app).post("/v1").send(payload);
@@ -222,35 +229,35 @@ describe("Test '/v1' path", () => {
     });
 
     // todo: credentials are not working
-    // test("Cmd 'request.get' should return OK with 'proxy' param with credentials", async () => {
-    //     /*
-    //     To configure TinyProxy in local:
-    //        * sudo vim /etc/tinyproxy/tinyproxy.conf
-    //           * edit => LogFile "/tmp/tinyproxy.log"
-    //           * edit => Syslog Off
-    //           * add => BasicAuth testuser testpass
-    //        * sudo tinyproxy -d
-    //        * sudo tail -f /tmp/tinyproxy.log
-    //      */
-    //     const payload = {
-    //         "cmd": "request.get",
-    //         "url": googleUrl,
-    //         "proxy": {
-    //             "url": "http://127.0.0.1:8888",
-    //             "username": "testuser",
-    //             "password": "testpass"
-    //         }
-    //     }
-    //     const response: Response = await request(app).post("/v1").send(payload);
-    //     expect(response.statusCode).toBe(200);
-    //
-    //     const apiResponse: V1ResponseSolution = response.body;
-    //     expect(apiResponse.status).toBe("ok");
-    //
-    //     const solution = apiResponse.solution;
-    //     expect(solution.url).toContain(googleUrl)
-    //     expect(solution.status).toContain(200)
-    // });
+    test.skip("Cmd 'request.get' should return OK with 'proxy' param with credentials", async () => {
+        /*
+        To configure TinyProxy in local:
+           * sudo vim /etc/tinyproxy/tinyproxy.conf
+              * edit => LogFile "/tmp/tinyproxy.log"
+              * edit => Syslog Off
+              * add => BasicAuth testuser testpass
+           * sudo tinyproxy -d
+           * sudo tail -f /tmp/tinyproxy.log
+         */
+        const payload = {
+            "cmd": "request.get",
+            "url": googleUrl,
+            "proxy": {
+                "url": proxyUrl,
+                "username": "testuser",
+                "password": "testpass"
+            }
+        }
+        const response: Response = await request(app).post("/v1").send(payload);
+        expect(response.statusCode).toBe(200);
+
+        const apiResponse: V1ResponseSolution = response.body;
+        expect(apiResponse.status).toBe("ok");
+
+        const solution = apiResponse.solution;
+        expect(solution.url).toContain(googleUrl)
+        expect(solution.status).toContain(200)
+    });
 
     test("Cmd 'request.get' should fail with wrong 'proxy' param", async () => {
         const payload = {
@@ -288,7 +295,7 @@ describe("Test '/v1' path", () => {
     test("Cmd 'request.get' should return fail with bad domain", async () => {
         const payload = {
             "cmd": "request.get",
-            "url": "https://www.google.combad",
+            "url": "https://www.google.combad"
         }
         const response: Response = await request(app).post("/v1").send(payload);
         expect(response.statusCode).toBe(500);
@@ -449,7 +456,7 @@ describe("Test '/v1' path", () => {
         expect(apiResponse.status).toBe("ok");
         expect(apiResponse.message).toBe("The session has been removed.");
         expect(apiResponse.startTimestamp).toBeGreaterThan(1000);
-        expect(apiResponse.endTimestamp).toBeGreaterThan(apiResponse.startTimestamp);
+        expect(apiResponse.endTimestamp).toBeGreaterThanOrEqual(apiResponse.startTimestamp);
         expect(apiResponse.version).toBe(version);
     });
 

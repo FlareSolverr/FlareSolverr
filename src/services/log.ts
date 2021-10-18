@@ -22,10 +22,13 @@ function toIsoString(date: Date) {
 }
 
 export default {
-  incRequests: () => { requests++ },
+  incRequests: () => {
+      requests++
+  },
   html(html: string) {
-    if (LOG_HTML)
-      this.debug(html)
+    if (LOG_HTML) {
+        this.debug(html)
+    }
   },
   ...require('console-log-level')(
     {level: process.env.LOG_LEVEL || 'info',
