@@ -39,7 +39,7 @@ export default async function resolveChallenge(url: string, page: Page, response
           selector = await findAnySelector(page, CHALLENGE_SELECTORS)
           if (!selector) {
             // solved!
-            log.debug('Challenge element not found.')
+            log.debug('Challenge element not found')
             break
           } else {
             log.debug(`Javascript challenge element '${selector}' detected.`)
@@ -50,7 +50,7 @@ export default async function resolveChallenge(url: string, page: Page, response
             }, selector);
             if (displayStyle == "none") {
               // spinner is hidden, could be a captcha or not
-              log.debug('Challenge element is hidden.')
+              log.debug('Challenge element is hidden')
               // wait until redirecting disappears
               while (true) {
                 try {
@@ -67,10 +67,10 @@ export default async function resolveChallenge(url: string, page: Page, response
               }
               break
             } else {
-              log.debug('Challenge element is visible.')
+              log.debug('Challenge element is visible')
             }
           }
-          log.debug('Found challenge element again.')
+          log.debug('Found challenge element again')
 
         } catch (error)
         {
@@ -97,7 +97,7 @@ export default async function resolveChallenge(url: string, page: Page, response
 
   // check for CAPTCHA challenge
   if (await findAnySelector(page, CAPTCHA_SELECTORS)) {
-    log.info('CAPTCHA challenge detected.');
+    log.info('CAPTCHA challenge detected');
     throw new Error('FlareSolverr can not resolve CAPTCHA challenges. Since the captcha doesn\'t always appear, you may have better luck with the next request.');
 
     // const captchaSolver = getCaptchaSolver()
@@ -120,7 +120,7 @@ export default async function resolveChallenge(url: string, page: Page, response
     {
       throw new Error('No challenge selectors found, unable to proceed.')
     } else {
-      log.info('Challenge solved.');
+      log.info('Challenge solved');
     }
   }
 

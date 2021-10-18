@@ -88,6 +88,7 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
         }
 
         // reload the page to be sure we get the real page
+        log.debug("Reloading the page")
         response = await gotoPage(params, page);
 
         const payload: ChallengeResolutionT = {

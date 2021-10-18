@@ -32,7 +32,7 @@ let webBrowserUserAgent: string;
 
 
 function userDataDirFromId(id: string): string {
-  return path.join(os.tmpdir(), `/puppeteer_profile_${id}`)
+  return path.join(os.tmpdir(), `/puppeteer_cprofile_${id}`)
 }
 
 function prepareBrowserProfile(id: string, proxy: Proxy): string {
@@ -42,31 +42,49 @@ function prepareBrowserProfile(id: string, proxy: Proxy): string {
     fs.mkdirSync(userDataDir, { recursive: true })
   }
 
+  // Some parameters to configure Firefox
+  // https://github.com/puppeteer/puppeteer/blob/943477cc1eb4b129870142873b3554737d5ef252/experimental/puppeteer-firefox/misc/puppeteer.cfg
+  let prefs = `// Any comment. You must start the file with a comment!
+
+// Disable newtabpage
+user_pref("browser.newtabpage.enabled", false);
+user_pref("browser.startup.homepage", "about:blank");
+
+// Do not warn when closing all open tabs
+user_pref("browser.tabs.warnOnClose", false);
+
+// Disable telemetry
+user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
+
+// Disable first-run welcome page
+user_pref("startup.homepage_welcome_url", "about:blank");
+user_pref("startup.homepage_welcome_url.additional", "");
+
+// Disable images to speed up load
+user_pref("permissions.default.image", 2);
+
+`
+
   // proxy.url format => http://<host>:<port>
   if (proxy && proxy.url) {
     let [host, port] = proxy.url.replace(/https?:\/\//g, '').split(':');
+    prefs += `
 
-    let prefs = `
-    user_pref("browser.newtabpage.enabled", false);
-    user_pref("browser.startup.homepage", "about:blank");
-    user_pref("browser.tabs.warnOnClose", false);
-    user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
-    user_pref("trailhead.firstrun.branches", "nofirstrun-empty");
-    user_pref("browser.aboutwelcome.enabled", false);
-    user_pref("network.proxy.ftp", "${host}");
-    user_pref("network.proxy.ftp_port", ${port});
-    user_pref("network.proxy.http", "${host}");
-    user_pref("network.proxy.http_port", ${port});
-    user_pref("network.proxy.share_proxy_settings", true);
-    user_pref("network.proxy.socks", "${host}");
-    user_pref("network.proxy.socks_port", ${port});
-    user_pref("network.proxy.ssl", "${host}");
-    user_pref("network.proxy.ssl_port", ${port});
-    user_pref("network.proxy.type", 1);
-    `
+// Proxy configuration
+user_pref("network.proxy.ftp", "${host}");
+user_pref("network.proxy.ftp_port", ${port});
+user_pref("network.proxy.http", "${host}");
+user_pref("network.proxy.http_port", ${port});
+user_pref("network.proxy.share_proxy_settings", true);
+user_pref("network.proxy.socks", "${host}");
+user_pref("network.proxy.socks_port", ${port});
+user_pref("network.proxy.ssl", "${host}");
+user_pref("network.proxy.ssl_port", ${port});
+user_pref("network.proxy.type", 1);
 
-    fs.writeFileSync(path.join(userDataDir, './prefs.js'), prefs);
+`
   }
+  fs.writeFileSync(path.join(userDataDir, './prefs.js'), prefs);
 
   return userDataDir
 }
@@ -118,23 +136,9 @@ export async function create(session: string, options: SessionCreateOptions): Pr
   }
 
   log.debug('Launching web browser...')
-
-  // todo: the retries are required?
-  let launchTries = 3
-  let browser: Browser;
-  while (0 <= launchTries--) {
-    try {
-      browser = await puppeteer.launch(puppeteerOptions)
-      break
-    } catch (e) {
-      if (e.message !== 'Failed to launch the browser process!')
-        throw e
-      log.warn('Failed to open browser, trying again...')
-    }
-  }
-
+  let browser: Browser = await puppeteer.launch(puppeteerOptions)
   if (!browser) {
-    throw Error(`Failed to launch browser 3 times in a row.`)
+    throw Error(`Failed to launch web browser.`)
   }
 
   sessionCache[sessionId] = {

@@ -23,7 +23,6 @@
     "body-parser": "^1.19.0",
     "console-log-level": "^1.4.1",
     "express": "^4.17.1",
-    "got": "^11.8.2",
     "puppeteer": "^3.3.0",
     "uuid": "^8.3.2"
   },
