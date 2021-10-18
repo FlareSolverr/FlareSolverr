@@ -119,15 +119,14 @@ export async function create(session: string, options: SessionCreateOptions): Pr
 
   // todo: cookies can't be set in the session, you need to open the page first
 
-  const args: string[] = [];
   const puppeteerOptions: LaunchOptions = {
     product: 'firefox',
     headless: process.env.HEADLESS !== 'false',
-    args
   }
 
-  log.debug('Creating userDataDir for session.')
-  puppeteerOptions.userDataDir = prepareBrowserProfile(sessionId, options.proxy)
+  log.debug('Creating UserDataDir for session')
+  // note: puppeteerOptions.userDataDir only works in recent firefox versions
+  puppeteerOptions.args = ['--profile ' + prepareBrowserProfile(sessionId, options.proxy)];
 
   // if we are running inside executable binary, change browser path
   if (typeof (process as any).pkg !== 'undefined') {
