@@ -209,7 +209,7 @@ describe("Test '/v1' path", () => {
               * edit => Syslog Off
            * sudo tinyproxy -d
            * sudo tail -f /tmp/tinyproxy.log
-         */
+        */
         const payload = {
             "cmd": "request.get",
             "url": googleUrl,
@@ -238,7 +238,7 @@ describe("Test '/v1' path", () => {
               * add => BasicAuth testuser testpass
            * sudo tinyproxy -d
            * sudo tail -f /tmp/tinyproxy.log
-         */
+        */
         const payload = {
             "cmd": "request.get",
             "url": googleUrl,
@@ -272,7 +272,7 @@ describe("Test '/v1' path", () => {
 
         const apiResponse: V1ResponseSolution = response.body;
         expect(apiResponse.status).toBe("error");
-        expect(apiResponse.message).toBe("Error: Unable to process browser request. Error: Error: NS_ERROR_PROXY_CONNECTION_REFUSED at https://www.google.com");
+        expect(apiResponse.message).toBe("Error: Unable to process browser request. Error: NS_ERROR_PROXY_CONNECTION_REFUSED at https://www.google.com");
     });
 
     test("Cmd 'request.get' should return fail with timeout", async () => {
@@ -286,7 +286,7 @@ describe("Test '/v1' path", () => {
 
         const apiResponse: V1ResponseBase = response.body;
         expect(apiResponse.status).toBe("error");
-        expect(apiResponse.message).toBe("Error: Unable to process browser request. Error: Error: Maximum timeout reached. maxTimeout=10 (ms)");
+        expect(apiResponse.message).toBe("Error: Unable to process browser request. Error: Maximum timeout reached. maxTimeout=10 (ms)");
         expect(apiResponse.startTimestamp).toBeGreaterThan(1000);
         expect(apiResponse.endTimestamp).toBeGreaterThan(apiResponse.startTimestamp);
         expect(apiResponse.version).toBe(version);
@@ -302,7 +302,7 @@ describe("Test '/v1' path", () => {
 
         const apiResponse: V1ResponseBase = response.body;
         expect(apiResponse.status).toBe("error");
-        expect(apiResponse.message).toBe("Error: Unable to process browser request. Error: Error: NS_ERROR_UNKNOWN_HOST at https://www.google.combad");
+        expect(apiResponse.message).toBe("Error: Unable to process browser request. Error: NS_ERROR_UNKNOWN_HOST at https://www.google.combad");
     });
 
     test("Cmd 'request.get' should accept deprecated params", async () => {

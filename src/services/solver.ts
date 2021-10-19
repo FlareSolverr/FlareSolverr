@@ -124,9 +124,14 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
 }
 
 async function gotoPage(params: V1Request, page: Page): Promise<Response> {
-    const response = await page.goto(params.url, { waitUntil: 'domcontentloaded' });
-    if (params.method == 'POST') {
+    let response: Response;
+    if (params.method != 'POST') {
+        response = await page.goto(params.url, {waitUntil: 'domcontentloaded'});
+
+    } else {
         // post hack
+        // first request a page without cloudflare
+        response = await page.goto("https://www.google.com", {waitUntil: 'domcontentloaded'});
         await page.setContent(
             `
 <!DOCTYPE html>
@@ -167,7 +172,11 @@ async function gotoPage(params: V1Request, page: Page): Promise<Response> {
 </html> 
             `
         );
-        await page.waitFor(2000);
+        await page.waitFor(2000)
+        try {
+            await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 2000})
+        } catch (e) {}
+
     }
     return response
 }
@@ -193,7 +202,7 @@ export async function browserRequest(params: V1Request): Promise<ChallengeResolu
     try {
         return  await resolveChallengeWithTimeout(params, session)
     } catch (error) {
-        throw Error("Unable to process browser request. Error: " + error)
+        throw Error("Unable to process browser request. " + error)
     } finally {
         if (oneTimeSession) {
             await sessions.destroy(session.sessionId)
