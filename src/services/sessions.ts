@@ -1,11 +1,8 @@
 import {v1 as UUIDv1} from 'uuid'
-import * as os from 'os'
 import * as path from 'path'
-import * as fs from 'fs'
-import {LaunchOptions, SetCookie, Browser} from 'puppeteer'
+import {SetCookie, Browser} from 'puppeteer'
 
 import log from './log'
-import {deleteFolderRecursive, sleep} from './utils'
 import {Proxy} from "../controllers/v1";
 
 const puppeteer = require('puppeteer');
@@ -13,7 +10,6 @@ const puppeteer = require('puppeteer');
 export interface SessionsCacheItem {
   sessionId: string
   browser: Browser
-  userDataDir?: string
 }
 
 interface SessionsCache {
@@ -30,63 +26,52 @@ export interface SessionCreateOptions {
 const sessionCache: SessionsCache = {}
 let webBrowserUserAgent: string;
 
+function buildExtraPrefsFirefox(proxy: Proxy): object {
+  // Default configurations are defined here
+  // https://github.com/puppeteer/puppeteer/blob/v3.3.0/src/Launcher.ts#L481
+  const extraPrefsFirefox = {
+    // Disable newtabpage
+    "browser.newtabpage.enabled": false,
+    "browser.startup.homepage": "about:blank",
 
-function userDataDirFromId(id: string): string {
-  return path.join(os.tmpdir(), `/puppeteer_cprofile_${id}`)
-}
+    // Do not warn when closing all open tabs
+    "browser.tabs.warnOnClose": false,
 
-function prepareBrowserProfile(id: string, proxy: Proxy): string {
-  const userDataDir = userDataDirFromId(id)
+    // Disable telemetry
+    "toolkit.telemetry.reportingpolicy.firstRun": false,
 
-  if (!fs.existsSync(userDataDir)) {
-    fs.mkdirSync(userDataDir, { recursive: true })
+    // Disable first-run welcome page
+    "startup.homepage_welcome_url": "about:blank",
+    "startup.homepage_welcome_url.additional": "",
+
+    // Disable images to speed up load
+    "permissions.default.image": 2
   }
-
-  // Some parameters to configure Firefox
-  // https://github.com/puppeteer/puppeteer/blob/943477cc1eb4b129870142873b3554737d5ef252/experimental/puppeteer-firefox/misc/puppeteer.cfg
-  let prefs = `// Any comment. You must start the file with a comment!
-
-// Disable newtabpage
-user_pref("browser.newtabpage.enabled", false);
-user_pref("browser.startup.homepage", "about:blank");
-
-// Do not warn when closing all open tabs
-user_pref("browser.tabs.warnOnClose", false);
-
-// Disable telemetry
-user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
-
-// Disable first-run welcome page
-user_pref("startup.homepage_welcome_url", "about:blank");
-user_pref("startup.homepage_welcome_url.additional", "");
-
-// Disable images to speed up load
-user_pref("permissions.default.image", 2);
-
-`
 
   // proxy.url format => http://<host>:<port>
   if (proxy && proxy.url) {
-    let [host, port] = proxy.url.replace(/https?:\/\//g, '').split(':');
-    prefs += `
+    const [host, portStr] = proxy.url.replace(/https?:\/\//g, '').split(':');
+    const port = parseInt(portStr);
 
-// Proxy configuration
-user_pref("network.proxy.ftp", "${host}");
-user_pref("network.proxy.ftp_port", ${port});
-user_pref("network.proxy.http", "${host}");
-user_pref("network.proxy.http_port", ${port});
-user_pref("network.proxy.share_proxy_settings", true);
-user_pref("network.proxy.socks", "${host}");
-user_pref("network.proxy.socks_port", ${port});
-user_pref("network.proxy.ssl", "${host}");
-user_pref("network.proxy.ssl_port", ${port});
-user_pref("network.proxy.type", 1);
+    const proxyPrefs = {
+      // Proxy configuration
+      "network.proxy.ftp": host,
+      "network.proxy.ftp_port": port,
+      "network.proxy.http": host,
+      "network.proxy.http_port": port,
+      "network.proxy.share_proxy_settings": true,
+      "network.proxy.socks": host,
+      "network.proxy.socks_port": port,
+      "network.proxy.ssl": host,
+      "network.proxy.ssl_port": port,
+      "network.proxy.type": 1
+    }
 
-`
+    // merge objects
+    Object.assign(extraPrefsFirefox, proxyPrefs);
   }
-  fs.writeFileSync(path.join(userDataDir, './prefs.js'), prefs);
 
-  return userDataDir
+  return extraPrefsFirefox;
 }
 
 export function getUserAgent() {
@@ -117,16 +102,14 @@ export async function testWebBrowserInstallation(): Promise<void> {
 export async function create(session: string, options: SessionCreateOptions): Promise<SessionsCacheItem> {
   const sessionId = session || UUIDv1()
 
-  // todo: cookies can't be set in the session, you need to open the page first
+  // NOTE: cookies can't be set in the session, you need to open the page first
 
-  const puppeteerOptions: LaunchOptions = {
+  const puppeteerOptions: any = {
     product: 'firefox',
     headless: process.env.HEADLESS !== 'false',
   }
 
-  log.debug('Creating UserDataDir for session')
-  // note: puppeteerOptions.userDataDir only works in recent firefox versions
-  puppeteerOptions.args = ['--profile ' + prepareBrowserProfile(sessionId, options.proxy)];
+  puppeteerOptions.extraPrefsFirefox = buildExtraPrefsFirefox(options.proxy)
 
   // if we are running inside executable binary, change browser path
   if (typeof (process as any).pkg !== 'undefined') {
@@ -142,8 +125,7 @@ export async function create(session: string, options: SessionCreateOptions): Pr
 
   sessionCache[sessionId] = {
     sessionId: sessionId,
-    browser: browser,
-    userDataDir: puppeteerOptions.userDataDir
+    browser: browser
   }
 
   return sessionCache[sessionId]
@@ -155,21 +137,10 @@ export function list(): string[] {
 
 export async function destroy(id: string): Promise<boolean>{
   if (id && sessionCache.hasOwnProperty(id)) {
-    const { browser, userDataDir } = sessionCache[id]
+    const { browser } = sessionCache[id]
     if (browser) {
       await browser.close()
       delete sessionCache[id]
-      if (userDataDir) {
-        const userDataDirPath = userDataDirFromId(id)
-        try {
-          // for some reason this keeps an error from being thrown in Windows, figures
-          await sleep(100)
-          deleteFolderRecursive(userDataDirPath)
-        } catch (e) {
-          console.error(e)
-          throw Error(`Error deleting browser session folder. ${e.message}`)
-        }
-      }
       return true
     }
   }
