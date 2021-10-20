@@ -143,6 +143,7 @@ export async function controllerV1(req: Request, res: Response): Promise<void> {
 
   try {
     const params: V1RequestBase = req.body
+    // do some validations
     if (!params.cmd) {
       throw Error("Request parameter 'cmd' is mandatory.")
     }
@@ -153,10 +154,15 @@ export async function controllerV1(req: Request, res: Response): Promise<void> {
       log.warn("Request parameter 'userAgent' was removed in FlareSolverr v2.")
     }
 
+    // set default values
+    if (!params.maxTimeout || params.maxTimeout < 1) {
+      params.maxTimeout = 60000;
+    }
+
+    // execute the command
     const route = routes[params.cmd]
     if (route) {
       await route(params, response)
-
     } else {
       throw Error(`The command '${params.cmd}' is invalid.`)
     }

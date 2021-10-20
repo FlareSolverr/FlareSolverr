@@ -24,13 +24,12 @@ export interface ChallengeResolutionT {
 }
 
 async function resolveChallengeWithTimeout(params: V1Request, session: SessionsCacheItem) {
-    const maxTimeout = params.maxTimeout || 60000
     const timer = new Timeout();
     try {
         const promise = resolveChallenge(params, session);
         return await Promise.race([
             promise,
-            timer.set(maxTimeout, `Maximum timeout reached. maxTimeout=${maxTimeout} (ms)`)
+            timer.set(params.maxTimeout, `Maximum timeout reached. maxTimeout=${params.maxTimeout} (ms)`)
         ]);
     } finally {
         timer.clear();
@@ -43,6 +42,10 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
         let message = ''
 
         const page: Page = await session.browser.newPage()
+
+        // the Puppeter timeout should be half the maxTimeout because we reload the page and wait for challenge
+        // the user can set a really high maxTimeout if he wants to
+        await page.setDefaultNavigationTimeout(params.maxTimeout / 2)
 
         // the user-agent is changed just for linux arm build
         await page.setUserAgent(sessions.getUserAgent())
