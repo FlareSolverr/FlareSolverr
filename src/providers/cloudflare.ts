@@ -13,11 +13,13 @@ const CAPTCHA_SELECTORS = ['input[name="cf_captcha_kind"]'];
 export default async function resolveChallenge(url: string, page: Page, response: Response): Promise<Response> {
 
   // look for challenge and return fast if not detected
-  if (!response.headers().server.startsWith('cloudflare')) {
+  if (response.headers().server.startsWith('cloudflare') &&
+      (response.status() == 403 || response.status() == 503)) {
+    log.info('Cloudflare detected');
+  } else {
     log.info('Cloudflare not detected');
     return response;
   }
-  log.info('Cloudflare detected');
 
   if (await findAnySelector(page, BAN_SELECTORS)) {
     throw new Error('Cloudflare has blocked this request. Probably your IP is banned for this site, check in your web browser.')
