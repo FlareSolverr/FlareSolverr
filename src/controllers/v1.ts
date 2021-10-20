@@ -6,7 +6,7 @@ import log from '../services/log'
 import {browserRequest, ChallengeResolutionResultT, ChallengeResolutionT} from "../services/solver";
 import {SessionCreateOptions} from "../services/sessions";
 const sessions = require('../services/sessions')
-const version: string = require('../../package.json').version
+const version: string = 'v' + require('../../package.json').version
 
 interface V1Routes {
   [key: string]: (params: V1RequestBase, response: V1ResponseBase) => Promise<void>

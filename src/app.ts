@@ -6,7 +6,7 @@ import {controllerV1} from "./controllers/v1";
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const version: string = require('../package.json').version
+const version: string = 'v' + require('../package.json').version
 
 // Convert request objects to JSON
 app.use(bodyParser.json({

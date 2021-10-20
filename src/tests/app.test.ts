@@ -6,7 +6,7 @@ import {V1ResponseBase, V1ResponseSession, V1ResponseSessions, V1ResponseSolutio
 const request = require("supertest");
 const app = require("../app");
 const sessions = require('../services/sessions');
-const version: string = require('../../package.json').version
+const version: string = 'v' + require('../../package.json').version
 
 const googleUrl = "https://www.google.com";
 const postUrl = "https://ptsv2.com/t/qv4j3-1634496523";

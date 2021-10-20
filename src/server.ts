@@ -2,7 +2,7 @@ import log from './services/log'
 import {testWebBrowserInstallation} from "./services/sessions";
 
 const app = require("./app");
-const version: string = require('../package.json').version
+const version: string = 'v' + require('../package.json').version
 const serverPort: number = Number(process.env.PORT) || 8191
 const serverHost: string = process.env.HOST || '0.0.0.0'
 
@@ -44,6 +44,6 @@ validateEnvironmentVariables();
 testWebBrowserInstallation().then(() => {
   // Start server
   app.listen(serverPort, serverHost, () => {
-    log.info(`FlareSolverr v${version} listening on http://${serverHost}:${serverPort}`);
+    log.info(`Listening on http://${serverHost}:${serverPort}`);
   })
 })
