@@ -82,14 +82,16 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
         // detect protection services and solve challenges
         try {
             response = await cloudflareProvider(params.url, page, response);
+
+            // is response is ok
+            // reload the page to be sure we get the real page
+            log.debug("Reloading the page")
+            response = await gotoPage(params, page);
+
         } catch (e) {
             status = "error";
             message = "Cloudflare " + e.toString();
         }
-
-        // reload the page to be sure we get the real page
-        log.debug("Reloading the page")
-        response = await gotoPage(params, page);
 
         const payload: ChallengeResolutionT = {
             status,
@@ -131,7 +133,7 @@ async function gotoPage(params: V1Request, page: Page): Promise<Response> {
     } else {
         // post hack
         // first request a page without cloudflare
-        response = await page.goto("https://www.google.com", {waitUntil: 'domcontentloaded'});
+        response = await page.goto(params.url, {waitUntil: 'domcontentloaded'});
         await page.setContent(
             `
 <!DOCTYPE html>
