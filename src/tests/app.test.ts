@@ -8,11 +8,12 @@ const app = require("../app");
 const sessions = require('../services/sessions');
 const version: string = 'v' + require('../../package.json').version
 
+const proxyUrl = "http://127.0.0.1:8888"
 const googleUrl = "https://www.google.com";
 const postUrl = "https://ptsv2.com/t/qv4j3-1634496523";
 const cfUrl = "https://pirateiro.com/torrents/?search=harry";
 const cfCaptchaUrl = "https://idope.se"
-const proxyUrl = "http://127.0.0.1:8888"
+const cfBlockedUrl = "https://www.torrentmafya.org/table.php"
 
 beforeAll(async () => {
     // Init session
@@ -145,6 +146,25 @@ describe("Test '/v1' path", () => {
         expect(apiResponse.version).toBe(version);
         // solution is filled but not useful
         expect(apiResponse.solution.url).toContain(cfCaptchaUrl)
+    });
+
+    test("Cmd 'request.post' should return fail with Cloudflare Blocked", async () => {
+        const payload = {
+            "cmd": "request.post",
+            "url": cfBlockedUrl,
+            "postData": "test1=test2"
+        }
+        const response: Response = await request(app).post("/v1").send(payload);
+        expect(response.statusCode).toBe(200);
+
+        const apiResponse: V1ResponseSolution = response.body;
+        expect(apiResponse.status).toBe("error");
+        expect(apiResponse.message).toBe("Cloudflare Error: Cloudflare has blocked this request. Probably your IP is banned for this site, check in your web browser.");
+        expect(apiResponse.startTimestamp).toBeGreaterThan(1000);
+        expect(apiResponse.endTimestamp).toBeGreaterThan(apiResponse.startTimestamp);
+        expect(apiResponse.version).toBe(version);
+        // solution is filled but not useful
+        expect(apiResponse.solution.url).toContain(cfBlockedUrl)
     });
 
     test("Cmd 'request.get' should return OK with 'cookies' param", async () => {
