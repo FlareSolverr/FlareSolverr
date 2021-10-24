@@ -5,6 +5,8 @@ import {SetCookie, Browser} from 'puppeteer'
 import log from './log'
 import {Proxy} from "../controllers/v1";
 
+const os = require('os');
+const fs = require('fs');
 const puppeteer = require('puppeteer');
 
 export interface SessionsCacheItem {
@@ -80,6 +82,13 @@ export function getUserAgent() {
 
 export async function testWebBrowserInstallation(): Promise<void> {
   log.info("Testing web browser installation...")
+
+  // check user home dir. this dir will be used by Firefox
+  const homeDir = os.homedir();
+  fs.accessSync(homeDir, fs.constants.F_OK | fs.constants.R_OK | fs.constants.W_OK | fs.constants.X_OK);
+  log.debug("FlareSolverr user home directory is OK: " + homeDir)
+
+  // test web browser
   const session = await create(null, {
     oneTimeSession: true
   })
