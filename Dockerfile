@@ -5,9 +5,9 @@ ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 RUN printf "I am running on ${BUILDPLATFORM:-linux/amd64}, building for ${TARGETPLATFORM:-linux/amd64}\n$(uname -a)\n"
 
-# Install the web browser (package firefox is available too)
+# Install the web browser (package firefox-esr is available too)
 RUN apk update && \
-    apk add --no-cache firefox-esr dumb-init && \
+    apk add --no-cache firefox dumb-init && \
     rm -Rf /var/cache
 
 # Copy FlareSolverr code
