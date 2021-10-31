@@ -46,4 +46,13 @@ testWebBrowserInstallation().then(() => {
   app.listen(serverPort, serverHost, () => {
     log.info(`Listening on http://${serverHost}:${serverPort}`);
   })
+}).catch(function(e) {
+  log.error(e);
+  const msg: string = "" + e;
+  if (msg.includes('while trying to connect to the browser!')) {
+    log.error(`It seems that the system is too slow to run FlareSolverr. 
+    If you are running with Docker, try to remove CPU limits in the container. 
+    If not, try setting the 'BROWSER_TIMEOUT' environment variable and the 'maxTimeout' parameter to higher values.`);
+  }
+  process.exit(1);
 })
