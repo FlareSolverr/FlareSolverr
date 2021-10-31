@@ -221,6 +221,7 @@ LOG_HTML | false | Only for debugging. If `true` all HTML that passes through th
 CAPTCHA_SOLVER | none | Captcha solving method. It is used when a captcha is encountered. See the Captcha Solvers section.
 TZ | UTC | Timezone used in the logs and the web browser. Example: `TZ=Europe/London`.
 HEADLESS | true | Only for debugging. To run the web browser in headless mode or visible.
+BROWSER_TIMEOUT | 30000 | If you are experiencing errors/timeouts because your system is slow, you can try to increase this value. Remember to increase the `maxTimeout` parameter too.
 PORT | 8191 | Listening port. You don't need to change this if you are running on Docker.
 HOST | 0.0.0.0 | Listening interface. You don't need to change this if you are running on Docker.
 

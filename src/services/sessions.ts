@@ -47,7 +47,10 @@ function buildExtraPrefsFirefox(proxy: Proxy): object {
     "startup.homepage_welcome_url.additional": "",
 
     // Disable images to speed up load
-    "permissions.default.image": 2
+    "permissions.default.image": 2,
+
+    // Limit content processes to 1
+    "dom.ipc.processCount": 1
   }
 
   // proxy.url format => http://<host>:<port>
@@ -116,6 +119,7 @@ export async function create(session: string, options: SessionCreateOptions): Pr
   const puppeteerOptions: any = {
     product: 'firefox',
     headless: process.env.HEADLESS !== 'false',
+    timeout: process.env.BROWSER_TIMEOUT || 30000
   }
 
   puppeteerOptions.extraPrefsFirefox = buildExtraPrefsFirefox(options.proxy)
