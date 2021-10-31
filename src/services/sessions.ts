@@ -55,7 +55,7 @@ function buildExtraPrefsFirefox(proxy: Proxy): object {
 
   // proxy.url format => http://<host>:<port>
   if (proxy && proxy.url) {
-    const [host, portStr] = proxy.url.replace(/https?:\/\//g, '').split(':');
+    const [host, portStr] = proxy.url.replace(/.+:\/\//g, '').split(':');
     const port = parseInt(portStr);
 
     const proxyPrefs = {
@@ -67,6 +67,7 @@ function buildExtraPrefsFirefox(proxy: Proxy): object {
       "network.proxy.share_proxy_settings": true,
       "network.proxy.socks": host,
       "network.proxy.socks_port": port,
+      "network.proxy.socks_remote_dns": true,
       "network.proxy.ssl": host,
       "network.proxy.ssl_port": port,
       "network.proxy.type": 1
