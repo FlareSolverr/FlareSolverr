@@ -94,11 +94,13 @@ export async function testWebBrowserInstallation(): Promise<void> {
   log.debug("FlareSolverr user home directory is OK: " + homeDir)
 
   // test web browser
+  const testUrl = process.env.TEST_URL || "https://www.google.com";
+  log.debug("Test URL: " + testUrl)
   const session = await create(null, {
     oneTimeSession: true
   })
   const page = await session.browser.newPage()
-  await page.goto("https://www.google.com")
+  await page.goto(testUrl)
   webBrowserUserAgent = await page.evaluate(() => navigator.userAgent)
 
   // replace Linux ARM user-agent because it's detected
