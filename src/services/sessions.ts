@@ -46,8 +46,9 @@ function buildExtraPrefsFirefox(proxy: Proxy): object {
     "startup.homepage_welcome_url": "about:blank",
     "startup.homepage_welcome_url.additional": "",
 
-    // Disable images to speed up load
-    "permissions.default.image": 2,
+    // Detected !
+    // // Disable images to speed up load
+    // "permissions.default.image": 2,
 
     // Limit content processes to 1
     "dom.ipc.processCount": 1

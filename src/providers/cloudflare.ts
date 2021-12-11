@@ -6,7 +6,7 @@ import log from "../services/log";
  *  This class contains the logic to solve protections provided by CloudFlare
  **/
 
-const BAN_SELECTORS = ['span[data-translate="error"]'];
+const BAN_SELECTORS = ['.text-gray-600'];
 const CHALLENGE_SELECTORS = ['#trk_jschal_js', '.ray_id', '.attack-box', '#cf-please-wait'];
 const CAPTCHA_SELECTORS = ['input[name="cf_captcha_kind"]'];
 
