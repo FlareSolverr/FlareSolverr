@@ -9,6 +9,7 @@ const sessions = require('../services/sessions');
 const version: string = 'v' + require('../../package.json').version
 
 const proxyUrl = "http://127.0.0.1:8888"
+const proxySocksUrl = "socks5://127.0.0.1:1080"
 const googleUrl = "https://www.google.com";
 const postUrl = "https://ptsv2.com/t/qv4j3-1634496523";
 const cfUrl = "https://pirateiro.com/torrents/?search=harry";
@@ -221,7 +222,7 @@ describe("Test '/v1' path", () => {
         expect(solution.userAgent).toBe(null)
     });
 
-    test("Cmd 'request.get' should return OK with 'proxy' param", async () => {
+    test("Cmd 'request.get' should return OK with HTTP 'proxy' param", async () => {
         /*
         To configure TinyProxy in local:
            * sudo vim /etc/tinyproxy/tinyproxy.conf
@@ -249,7 +250,7 @@ describe("Test '/v1' path", () => {
     });
 
     // todo: credentials are not working
-    test.skip("Cmd 'request.get' should return OK with 'proxy' param with credentials", async () => {
+    test.skip("Cmd 'request.get' should return OK with HTTP 'proxy' param with credentials", async () => {
         /*
         To configure TinyProxy in local:
            * sudo vim /etc/tinyproxy/tinyproxy.conf
@@ -277,6 +278,32 @@ describe("Test '/v1' path", () => {
         const solution = apiResponse.solution;
         expect(solution.url).toContain(googleUrl)
         expect(solution.status).toContain(200)
+    });
+
+    test("Cmd 'request.get' should return OK with SOCKSv5 'proxy' param", async () => {
+        /*
+        To configure Dante in local:
+           * https://linuxhint.com/set-up-a-socks5-proxy-on-ubuntu-with-dante/
+           * sudo vim /etc/sockd.conf
+           * sudo systemctl restart sockd.service
+           * curl --socks5 socks5://127.0.0.1:1080 https://www.google.com
+        */
+        const payload = {
+            "cmd": "request.get",
+            "url": googleUrl,
+            "proxy": {
+                "url": proxySocksUrl
+            }
+        }
+        const response: Response = await request(app).post("/v1").send(payload);
+        expect(response.statusCode).toBe(200);
+
+        const apiResponse: V1ResponseSolution = response.body;
+        expect(apiResponse.status).toBe("ok");
+
+        const solution = apiResponse.solution;
+        expect(solution.url).toContain(googleUrl)
+        expect(solution.status).toBe(200);
     });
 
     test("Cmd 'request.get' should fail with wrong 'proxy' param", async () => {

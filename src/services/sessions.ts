@@ -60,18 +60,35 @@ function buildExtraPrefsFirefox(proxy: Proxy): object {
     const port = parseInt(portStr);
 
     const proxyPrefs = {
-      // Proxy configuration
-      "network.proxy.ftp": host,
-      "network.proxy.ftp_port": port,
-      "network.proxy.http": host,
-      "network.proxy.http_port": port,
-      "network.proxy.share_proxy_settings": true,
-      "network.proxy.socks": host,
-      "network.proxy.socks_port": port,
-      "network.proxy.socks_remote_dns": true,
-      "network.proxy.ssl": host,
-      "network.proxy.ssl_port": port,
-      "network.proxy.type": 1
+      "network.proxy.type": 1,
+      "network.proxy.share_proxy_settings": true
+    }
+    if (proxy.url.indexOf("socks") != -1) {
+      // SOCKSv4 & SOCKSv5
+      Object.assign(proxyPrefs, {
+        "network.proxy.socks": host,
+        "network.proxy.socks_port": port,
+        "network.proxy.socks_remote_dns": true
+      });
+      if (proxy.url.indexOf("socks4") != -1) {
+        Object.assign(proxyPrefs, {
+          "network.proxy.socks_version": 4
+        });
+      } else {
+        Object.assign(proxyPrefs, {
+          "network.proxy.socks_version": 5
+        });
+      }
+    } else {
+      // HTTP
+      Object.assign(proxyPrefs, {
+        "network.proxy.ftp": host,
+        "network.proxy.ftp_port": port,
+        "network.proxy.http": host,
+        "network.proxy.http_port": port,
+        "network.proxy.ssl": host,
+        "network.proxy.ssl_port": port
+      });
     }
 
     // merge objects
