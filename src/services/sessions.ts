@@ -121,8 +121,8 @@ export async function testWebBrowserInstallation(): Promise<void> {
   webBrowserUserAgent = await page.evaluate(() => navigator.userAgent)
 
   // replace Linux ARM user-agent because it's detected
-  if (webBrowserUserAgent.toLocaleLowerCase().includes('linux arm')) {
-    webBrowserUserAgent = webBrowserUserAgent.replace(/linux arm[^;]+;/i, 'Linux x86_64;')
+  if (["arm", "aarch64"].some(arch => webBrowserUserAgent.toLocaleLowerCase().includes('linux ' + arch))) {
+    webBrowserUserAgent = webBrowserUserAgent.replace(/linux \w+;/i, 'Linux x86_64;')
   }
 
   log.info("FlareSolverr User-Agent: " + webBrowserUserAgent)
