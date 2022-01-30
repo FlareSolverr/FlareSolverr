@@ -6,7 +6,7 @@
     "start": "tsc && node ./dist/server.js",
     "build": "tsc",
     "dev": "nodemon -e ts --exec ts-node src/server.ts",
-    "package": "node build-binaries.js",
+    "package": "tsc && node build-binaries.js",
     "test": "jest --runInBand"
   },
   "author": "Diego Heras (ngosang)",
@@ -37,7 +37,7 @@
     "@types/uuid": "^8.3.1",
     "archiver": "^5.3.0",
     "nodemon": "^2.0.13",
-    "pkg": "^4.4.9",
+    "pkg": "^5.5.2",
     "supertest": "^6.1.6",
     "ts-jest": "^27.0.7",
     "ts-node": "^10.3.0",

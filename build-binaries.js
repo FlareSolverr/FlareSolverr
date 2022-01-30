@@ -64,8 +64,8 @@ function getFirefoxNightlyVersion() {
   if (fs.existsSync('bin')) {
     fs.rmSync('bin', { recursive: true })
   }
-  execSync('./node_modules/.bin/pkg -t node14-win-x64,node14-linux-x64 --out-path bin .')
-  // execSync('./node_modules/.bin/pkg -t node14-win-x64,node14-mac-x64,node14-linux-x64 --out-path bin .')
+  execSync('./node_modules/.bin/pkg -t node16-win-x64,node16-linux-x64 --out-path bin .')
+  // execSync('./node_modules/.bin/pkg -t node16-win-x64,node16-mac-x64,node16-linux-x64 --out-path bin .')
 
   // get firefox revision
   const revision = await getFirefoxNightlyVersion();
