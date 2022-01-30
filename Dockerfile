@@ -1,4 +1,4 @@
-FROM --platform=${TARGETPLATFORM:-linux/amd64} node:16-alpine3.14
+FROM --platform=${TARGETPLATFORM:-linux/amd64} node:16-alpine3.15
 
 # Print build information
 ARG TARGETPLATFORM
