@@ -9,16 +9,27 @@ import log from "../services/log";
 const BAN_SELECTORS = ['.text-gray-600'];
 const CHALLENGE_SELECTORS = [
     '#trk_jschal_js', '.ray_id', '.attack-box', '#cf-please-wait', // CloudFlare
-    '#link-ddg' // DDoS-GUARD
+    '#link-ddg', // DDoS-GUARD
+    'td.info #js_info' // Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
 ];
 const CAPTCHA_SELECTORS = ['input[name="cf_captcha_kind"]'];
 
 export default async function resolveChallenge(url: string, page: Page, response: Response): Promise<Response> {
 
   // look for challenge and return fast if not detected
-  if (response.headers().server &&
-      response.headers().server.startsWith('cloudflare') &&
-      (response.status() == 403 || response.status() == 503)) {
+  let cfDetected = response.headers().server && response.headers().server.startsWith('cloudflare');
+  if (cfDetected) {
+    if (response.status() == 403 || response.status() == 503) {
+      cfDetected = true; // Defected CloudFlare and DDoS-GUARD
+    } else if (response.headers().vary && response.headers().vary.trim() == 'Accept-Encoding,User-Agent' &&
+        response.headers()['content-encoding'] && response.headers()['content-encoding'].trim() == 'br') {
+      cfDetected = true; // Detected Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
+    } else {
+      cfDetected = false;
+    }
+  }
+
+  if (cfDetected) {
     log.info('Cloudflare detected');
   } else {
     log.info('Cloudflare not detected');
@@ -29,76 +40,68 @@ export default async function resolveChallenge(url: string, page: Page, response
     throw new Error('Cloudflare has blocked this request. Probably your IP is banned for this site, check in your web browser.')
   }
 
+  // find Cloudflare selectors
   let selectorFound = false;
-  if (response.status() > 400) {
+  let selector: string = await findAnySelector(page, CHALLENGE_SELECTORS)
+  if (selector) {
+    selectorFound = true;
+    log.debug(`Javascript challenge element '${selector}' detected.`)
+    log.debug('Waiting for Cloudflare challenge...')
 
-    // find Cloudflare selectors
-    let selector: string = await findAnySelector(page, CHALLENGE_SELECTORS)
-    if (selector) {
-      selectorFound = true;
-      log.debug(`Javascript challenge element '${selector}' detected.`)
-      log.debug('Waiting for Cloudflare challenge...')
+    while (true) {
+      try {
 
-      while (true) {
-        try {
+        selector = await findAnySelector(page, CHALLENGE_SELECTORS)
+        if (!selector) {
+          // solved!
+          log.debug('Challenge element not found')
+          break
+        } else {
+          log.debug(`Javascript challenge element '${selector}' detected.`)
 
-          selector = await findAnySelector(page, CHALLENGE_SELECTORS)
-          if (!selector) {
-            // solved!
-            log.debug('Challenge element not found')
+          // new Cloudflare Challenge #cf-please-wait
+          const displayStyle = await page.evaluate((selector) => {
+            return getComputedStyle(document.querySelector(selector)).getPropertyValue("display");
+          }, selector);
+          if (displayStyle == "none") {
+            // spinner is hidden, could be a captcha or not
+            log.debug('Challenge element is hidden')
+            // wait until redirecting disappears
+            while (true) {
+              try {
+                await page.waitFor(1000)
+                const displayStyle2 = await page.evaluate(() => {
+                  return getComputedStyle(document.querySelector('#cf-spinner-redirecting')).getPropertyValue("display");
+                });
+                if (displayStyle2 == "none") {
+                  break // hCaptcha detected
+                }
+              } catch (error) {
+                break // redirection completed
+              }
+            }
             break
           } else {
-            log.debug(`Javascript challenge element '${selector}' detected.`)
-
-            // new Cloudflare Challenge #cf-please-wait
-            const displayStyle = await page.evaluate((selector) => {
-              return getComputedStyle(document.querySelector(selector)).getPropertyValue("display");
-            }, selector);
-            if (displayStyle == "none") {
-              // spinner is hidden, could be a captcha or not
-              log.debug('Challenge element is hidden')
-              // wait until redirecting disappears
-              while (true) {
-                try {
-                  await page.waitFor(1000)
-                  const displayStyle2 = await page.evaluate(() => {
-                    return getComputedStyle(document.querySelector('#cf-spinner-redirecting')).getPropertyValue("display");
-                  });
-                  if (displayStyle2 == "none") {
-                    break // hCaptcha detected
-                  }
-                } catch (error) {
-                  break // redirection completed
-                }
-              }
-              break
-            } else {
-              log.debug('Challenge element is visible')
-            }
-          }
-          log.debug('Found challenge element again')
-
-        } catch (error)
-        {
-          log.debug("Unexpected error: " + error);
-          if (!error.toString().includes("Execution context was destroyed")) {
-            break
+            log.debug('Challenge element is visible')
           }
         }
+        log.debug('Found challenge element again')
 
-        log.debug('Waiting for Cloudflare challenge...')
-        await page.waitFor(1000)
+      } catch (error)
+      {
+        log.debug("Unexpected error: " + error);
+        if (!error.toString().includes("Execution context was destroyed")) {
+          break
+        }
       }
 
-      log.debug('Validating HTML code...')
-    } else {
-      log.debug(`No challenge element detected.`)
+      log.debug('Waiting for Cloudflare challenge...')
+      await page.waitFor(1000)
     }
 
+    log.debug('Validating HTML code...')
   } else {
-    // some sites use cloudflare but there is no challenge
-    log.debug(`Javascript challenge not detected. Status code: ${response.status()}`);
-    selectorFound = true;
+    log.debug(`No challenge element detected.`)
   }
 
   // check for CAPTCHA challenge

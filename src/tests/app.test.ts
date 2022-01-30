@@ -16,6 +16,7 @@ const cfUrl = "https://pirateiro.com/torrents/?search=harry";
 const cfCaptchaUrl = "https://idope.se"
 const cfBlockedUrl = "https://www.torrentmafya.org/table.php"
 const ddgUrl = "https://www.erai-raws.info/feed/?type=magnet";
+const ccfUrl = "https://www.muziekfabriek.org";
 
 beforeAll(async () => {
     // Init session
@@ -194,6 +195,35 @@ describe("Test '/v1' path", () => {
 
         const cfCookie: string = (solution.cookies as any[]).filter(function(cookie) {
             return cookie.name == "__ddg1";
+        })[0].value
+        expect(cfCookie.length).toBeGreaterThan(10)
+    });
+
+    test("Cmd 'request.get' should return OK with Custom CloudFlare JS", async () => {
+        const payload = {
+            "cmd": "request.get",
+            "url": ccfUrl
+        }
+        const response: Response = await request(app).post("/v1").send(payload);
+        expect(response.statusCode).toBe(200);
+
+        const apiResponse: V1ResponseSolution = response.body;
+        expect(apiResponse.status).toBe("ok");
+        expect(apiResponse.message).toBe("");
+        expect(apiResponse.startTimestamp).toBeGreaterThan(1000);
+        expect(apiResponse.endTimestamp).toBeGreaterThan(apiResponse.startTimestamp);
+        expect(apiResponse.version).toBe(version);
+
+        const solution = apiResponse.solution;
+        expect(solution.url).toContain(ccfUrl)
+        expect(solution.status).toBe(200);
+        expect(Object.keys(solution.headers).length).toBeGreaterThan(0)
+        expect(solution.response).toContain("<html><head>")
+        expect(Object.keys(solution.cookies).length).toBeGreaterThan(0)
+        expect(solution.userAgent).toContain("Firefox/")
+
+        const cfCookie: string = (solution.cookies as any[]).filter(function(cookie) {
+            return cookie.name == "ct_anti_ddos_key";
         })[0].value
         expect(cfCookie.length).toBeGreaterThan(10)
     });
