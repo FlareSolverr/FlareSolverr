@@ -69,7 +69,7 @@ export default async function resolveChallenge(url: string, page: Page, response
             // wait until redirecting disappears
             while (true) {
               try {
-                await page.waitFor(1000)
+                await page.waitForTimeout(1000)
                 const displayStyle2 = await page.evaluate(() => {
                   return getComputedStyle(document.querySelector('#cf-spinner-redirecting')).getPropertyValue("display");
                 });
@@ -96,7 +96,7 @@ export default async function resolveChallenge(url: string, page: Page, response
       }
 
       log.debug('Waiting for Cloudflare challenge...')
-      await page.waitFor(1000)
+      await page.waitForTimeout(1000)
     }
 
     log.debug('Validating HTML code...')

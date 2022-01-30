@@ -177,7 +177,7 @@ async function gotoPage(params: V1Request, page: Page): Promise<HTTPResponse> {
 </html> 
             `
         );
-        await page.waitFor(2000)
+        await page.waitForTimeout(2000)
         try {
             await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 2000})
         } catch (e) {}
