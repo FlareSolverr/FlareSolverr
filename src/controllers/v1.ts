@@ -1,6 +1,5 @@
-// todo: avoid puppeter objects
-import {SetCookie, Headers, HttpMethod} from 'puppeteer'
 import {Request, Response} from 'express';
+import {Protocol} from "devtools-protocol";
 
 import log from '../services/log'
 import {browserRequest, ChallengeResolutionResultT, ChallengeResolutionT} from "../services/solver";
@@ -20,11 +19,11 @@ export interface Proxy {
 
 export interface V1RequestBase {
   cmd: string
-  cookies?: SetCookie[],
+  cookies?: Protocol.Network.CookieParam[],
   maxTimeout?: number
   proxy?: Proxy
   session: string
-  headers?: Headers // deprecated v2, not used
+  headers?: Record<string, string> // deprecated v2, not used
   userAgent?: string // deprecated v2, not used
 }
 
@@ -33,7 +32,7 @@ interface V1RequestSession extends V1RequestBase {
 
 export interface V1Request extends V1RequestBase {
   url: string
-  method?: HttpMethod
+  method?: string
   postData?: string
   returnOnlyCookies?: boolean
   download?: boolean // deprecated v2, not used

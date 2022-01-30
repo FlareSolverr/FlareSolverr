@@ -1,4 +1,4 @@
-import {Response, Headers, Page} from 'puppeteer'
+import {Page, HTTPResponse} from 'puppeteer'
 const Timeout = require('await-timeout');
 
 import log from './log'
@@ -11,7 +11,7 @@ const sessions = require('./sessions')
 export interface ChallengeResolutionResultT {
     url: string
     status: number,
-    headers?: Headers,
+    headers?: Record<string, string>,
     response: string,
     cookies: object[]
     userAgent: string
@@ -64,7 +64,7 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
 
         // go to the page
         log.debug(`Navigating to... ${params.url}`)
-        let response: Response = await gotoPage(params, page);
+        let response: HTTPResponse = await gotoPage(params, page);
 
         // set cookies
         if (params.cookies) {
@@ -128,8 +128,8 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
     }
 }
 
-async function gotoPage(params: V1Request, page: Page): Promise<Response> {
-    let response: Response;
+async function gotoPage(params: V1Request, page: Page): Promise<HTTPResponse> {
+    let response: HTTPResponse;
     if (params.method != 'POST') {
         response = await page.goto(params.url, {waitUntil: 'domcontentloaded'});
 

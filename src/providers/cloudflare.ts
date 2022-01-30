@@ -1,4 +1,4 @@
-import {Page, Response} from 'puppeteer'
+import {Page, HTTPResponse} from 'puppeteer'
 
 import log from "../services/log";
 
@@ -14,7 +14,7 @@ const CHALLENGE_SELECTORS = [
 ];
 const CAPTCHA_SELECTORS = ['input[name="cf_captcha_kind"]'];
 
-export default async function resolveChallenge(url: string, page: Page, response: Response): Promise<Response> {
+export default async function resolveChallenge(url: string, page: Page, response: HTTPResponse): Promise<HTTPResponse> {
 
   // look for challenge and return fast if not detected
   let cfDetected = response.headers().server && response.headers().server.startsWith('cloudflare');

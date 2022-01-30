@@ -1,6 +1,7 @@
 import {v1 as UUIDv1} from 'uuid'
 import * as path from 'path'
-import {SetCookie, Browser} from 'puppeteer'
+import {Browser} from 'puppeteer'
+import {Protocol} from "devtools-protocol";
 
 import log from './log'
 import {Proxy} from "../controllers/v1";
@@ -20,7 +21,7 @@ interface SessionsCache {
 
 export interface SessionCreateOptions {
   oneTimeSession: boolean
-  cookies?: SetCookie[],
+  cookies?: Protocol.Network.CookieParam[],
   maxTimeout?: number
   proxy?: Proxy
 }

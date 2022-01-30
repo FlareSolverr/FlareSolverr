@@ -71,8 +71,7 @@ This is the recommended way for macOS users and for developers.
 * Run `export PUPPETEER_PRODUCT=firefox` (Linux/macOS) or `set PUPPETEER_PRODUCT=firefox` (Windows).
 * Run `npm install` command to install FlareSolverr dependencies.
 * Run `node node_modules/puppeteer/install.js` to install Firefox.
-* Run `npm run build` command to compile TypeScript code.
-* Run `npm start` command to start FlareSolverr.
+* Run `npm start` command to compile TypeScript code and start FlareSolverr.
 
 ### Systemd service
 
