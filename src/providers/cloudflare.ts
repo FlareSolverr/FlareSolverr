@@ -7,7 +7,10 @@ import log from "../services/log";
  **/
 
 const BAN_SELECTORS = ['.text-gray-600'];
-const CHALLENGE_SELECTORS = ['#trk_jschal_js', '.ray_id', '.attack-box', '#cf-please-wait'];
+const CHALLENGE_SELECTORS = [
+    '#trk_jschal_js', '.ray_id', '.attack-box', '#cf-please-wait', // CloudFlare
+    '#link-ddg' // DDoS-GUARD
+];
 const CAPTCHA_SELECTORS = ['input[name="cf_captcha_kind"]'];
 
 export default async function resolveChallenge(url: string, page: Page, response: Response): Promise<Response> {

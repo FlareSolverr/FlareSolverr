@@ -15,6 +15,7 @@ const postUrl = "https://ptsv2.com/t/qv4j3-1634496523";
 const cfUrl = "https://pirateiro.com/torrents/?search=harry";
 const cfCaptchaUrl = "https://idope.se"
 const cfBlockedUrl = "https://www.torrentmafya.org/table.php"
+const ddgUrl = "https://www.erai-raws.info/feed/?type=magnet";
 
 beforeAll(async () => {
     // Init session
@@ -166,6 +167,35 @@ describe("Test '/v1' path", () => {
         expect(apiResponse.version).toBe(version);
         // solution is filled but not useful
         expect(apiResponse.solution.url).toContain(cfBlockedUrl)
+    });
+
+    test("Cmd 'request.get' should return OK with DDoS-GUARD JS", async () => {
+        const payload = {
+            "cmd": "request.get",
+            "url": ddgUrl
+        }
+        const response: Response = await request(app).post("/v1").send(payload);
+        expect(response.statusCode).toBe(200);
+
+        const apiResponse: V1ResponseSolution = response.body;
+        expect(apiResponse.status).toBe("ok");
+        expect(apiResponse.message).toBe("");
+        expect(apiResponse.startTimestamp).toBeGreaterThan(1000);
+        expect(apiResponse.endTimestamp).toBeGreaterThan(apiResponse.startTimestamp);
+        expect(apiResponse.version).toBe(version);
+
+        const solution = apiResponse.solution;
+        expect(solution.url).toContain(ddgUrl)
+        expect(solution.status).toBe(200);
+        expect(Object.keys(solution.headers).length).toBeGreaterThan(0)
+        expect(solution.response).toContain("<rss version")
+        expect(Object.keys(solution.cookies).length).toBeGreaterThan(0)
+        expect(solution.userAgent).toContain("Firefox/")
+
+        const cfCookie: string = (solution.cookies as any[]).filter(function(cookie) {
+            return cookie.name == "__ddg1";
+        })[0].value
+        expect(cfCookie.length).toBeGreaterThan(10)
     });
 
     test("Cmd 'request.get' should return OK with 'cookies' param", async () => {
