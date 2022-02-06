@@ -39,6 +39,11 @@ process.on('SIGTERM', () => {
   process.exit(0)
 })
 
+process.on('uncaughtException', function(err) {
+  // Avoid crashing in NodeJS 17 due to UnhandledPromiseRejectionWarning: Unhandled promise rejection.
+  log.error(err)
+})
+
 validateEnvironmentVariables();
 
 testWebBrowserInstallation().then(() => {
