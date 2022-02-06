@@ -89,7 +89,11 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
             // is response is ok
             // reload the page to be sure we get the real page
             log.debug("Reloading the page")
-            response = await gotoPage(params, page);
+            try {
+                response = await gotoPage(params, page);
+            } catch (e) {
+                log.warn("Page not reloaded (do not report!): Cause: " + e.toString())
+            }
 
         } catch (e) {
             status = "error";
@@ -129,14 +133,17 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
 }
 
 async function gotoPage(params: V1Request, page: Page): Promise<HTTPResponse> {
-    let response: HTTPResponse;
-    if (params.method != 'POST') {
-        response = await page.goto(params.url, {waitUntil: 'domcontentloaded'});
+    let pageTimeout = params.maxTimeout / 3;
+    let response: HTTPResponse
+    try {
+        response = await page.goto(params.url, {waitUntil: 'domcontentloaded', timeout: pageTimeout});
+    } catch (e) {
+        // retry
+        response = await page.goto(params.url, {waitUntil: 'domcontentloaded', timeout: 2000});
+    }
 
-    } else {
+    if (params.method == 'POST') {
         // post hack
-        // first request a page without cloudflare
-        response = await page.goto(params.url, {waitUntil: 'domcontentloaded'});
         await page.setContent(
             `
 <!DOCTYPE html>

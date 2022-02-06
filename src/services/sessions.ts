@@ -122,7 +122,8 @@ export async function testWebBrowserInstallation(): Promise<void> {
     oneTimeSession: true
   })
   const page = await session.browser.newPage()
-  await page.goto(testUrl)
+  const pageTimeout = Number(process.env.BROWSER_TIMEOUT) || 40000
+  await page.goto(testUrl, {waitUntil: 'domcontentloaded', timeout: pageTimeout})
   webBrowserUserAgent = await page.evaluate(() => navigator.userAgent)
 
   // replace Linux ARM user-agent because it's detected
@@ -147,7 +148,7 @@ export async function create(session: string, options: SessionCreateOptions): Pr
   const puppeteerOptions: any = {
     product: 'firefox',
     headless: process.env.HEADLESS !== 'false',
-    timeout: process.env.BROWSER_TIMEOUT || 40000
+    timeout: Number(process.env.BROWSER_TIMEOUT) || 40000
   }
 
   puppeteerOptions.extraPrefsFirefox = buildExtraPrefsFirefox(options.proxy)
