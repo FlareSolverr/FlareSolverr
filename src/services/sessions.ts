@@ -57,8 +57,12 @@ function buildExtraPrefsFirefox(proxy: Proxy): object {
 
   // proxy.url format => http://<host>:<port>
   if (proxy && proxy.url) {
+    log.debug(`Using proxy: ${proxy.url}`)
     const [host, portStr] = proxy.url.replace(/.+:\/\//g, '').split(':');
     const port = parseInt(portStr);
+    if (!host || !portStr || !port) {
+      throw new Error("Proxy configuration is invalid! Use the format: protocol://ip:port")
+    }
 
     const proxyPrefs = {
       "network.proxy.type": 1,
@@ -134,6 +138,8 @@ export async function testWebBrowserInstallation(): Promise<void> {
 }
 
 export async function create(session: string, options: SessionCreateOptions): Promise<SessionsCacheItem> {
+  log.debug('Creating new session...')
+
   const sessionId = session || UUIDv1()
 
   // NOTE: cookies can't be set in the session, you need to open the page first
