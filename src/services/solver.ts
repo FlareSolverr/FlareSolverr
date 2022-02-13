@@ -139,7 +139,7 @@ async function gotoPage(params: V1Request, page: Page): Promise<HTTPResponse> {
         response = await page.goto(params.url, {waitUntil: 'domcontentloaded', timeout: pageTimeout});
     } catch (e) {
         // retry
-        response = await page.goto(params.url, {waitUntil: 'domcontentloaded', timeout: 2000});
+        response = await page.goto(params.url, {waitUntil: 'domcontentloaded', timeout: pageTimeout});
     }
 
     if (params.method == 'POST') {
@@ -184,9 +184,9 @@ async function gotoPage(params: V1Request, page: Page): Promise<HTTPResponse> {
 </html> 
             `
         );
-        await page.waitForTimeout(2000)
+        await page.waitForTimeout(pageTimeout)
         try {
-            await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 2000})
+            await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: pageTimeout})
         } catch (e) {}
 
     }
