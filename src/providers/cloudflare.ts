@@ -37,7 +37,13 @@ export default async function resolveChallenge(url: string, page: Page, response
   }
 
   if (await findAnySelector(page, BAN_SELECTORS)) {
-    throw new Error('Cloudflare has blocked this request. Probably your IP is banned for this site, check in your web browser.')
+    const errorCodeElem = await page.$(BAN_SELECTORS[0]);
+    if (errorCodeElem) {
+      let displayCSSProperty = await errorCodeElem.evaluate(el => (<HTMLElement>el).style.display);
+      if (displayCSSProperty !== 'none') {
+        throw new Error('Cloudflare has blocked this request. Probably your IP is banned for this site, check in your web browser.');
+      }
+    }
   }
 
   // find Cloudflare selectors
