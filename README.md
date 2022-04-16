@@ -56,6 +56,10 @@ docker run -d \
   ghcr.io/flaresolverr/flaresolverr:latest
 ```
 
+If your host OS is Debian, make sure `libseccomp2` version is 2.5.x. You can check the version with `sudo apt-cache policy libseccomp2` 
+and update the package with `sudo apt install libseccomp2=2.5.1-1~bpo10+1` or `sudo apt install libseccomp2=2.5.1-1+deb11u1`.
+Remember to restart the Docker daemon and the container after the update.
+
 ### Precompiled binaries
 
 This is the recommended way for Windows users.
