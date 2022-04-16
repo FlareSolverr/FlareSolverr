@@ -6,13 +6,17 @@ import log from "../services/log";
  *  This class contains the logic to solve protections provided by CloudFlare
  **/
 
-const BAN_SELECTORS = ['.text-gray-600'];
-const CHALLENGE_SELECTORS = [
+// the selector '.text-gray-600' is not working well because it can be hidden
+// <span style="display: none;" class="text-gray-600" data-translate="error">error code: 1020</span>
+const BAN_SELECTORS: string[] = [];
+const CHALLENGE_SELECTORS: string[] = [
     '#trk_jschal_js', '.ray_id', '.attack-box', '#cf-please-wait', // CloudFlare
     '#link-ddg', // DDoS-GUARD
     'td.info #js_info' // Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
 ];
-const CAPTCHA_SELECTORS = ['input[name="cf_captcha_kind"]'];
+const CAPTCHA_SELECTORS: string[] = [
+    'input[name="cf_captcha_kind"]'
+];
 
 export default async function resolveChallenge(url: string, page: Page, response: HTTPResponse): Promise<HTTPResponse> {
 
@@ -37,13 +41,7 @@ export default async function resolveChallenge(url: string, page: Page, response
   }
 
   if (await findAnySelector(page, BAN_SELECTORS)) {
-    const errorCodeElem = await page.$(BAN_SELECTORS[0]);
-    if (errorCodeElem) {
-      let displayCSSProperty = await errorCodeElem.evaluate(el => (<HTMLElement>el).style.display);
-      if (displayCSSProperty !== 'none') {
-        throw new Error('Cloudflare has blocked this request. Probably your IP is banned for this site, check in your web browser.');
-      }
-    }
+    throw new Error('Cloudflare has blocked this request. Probably your IP is banned for this site, check in your web browser.');
   }
 
   // find Cloudflare selectors
