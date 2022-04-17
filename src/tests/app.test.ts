@@ -15,7 +15,7 @@ const postUrl = "https://ptsv2.com/t/qv4j3-1634496523";
 const cfUrl = "https://pirateiro.com/torrents/?search=harry";
 const cfCaptchaUrl = "https://idope.se"
 const cfBlockedUrl = "https://www.torrentmafya.org/table.php"
-const ddgUrl = "https://www.erai-raws.info/feed/?type=magnet";
+const ddgUrl = "https://anidex.info/";
 const ccfUrl = "https://www.muziekfabriek.org";
 
 beforeAll(async () => {
@@ -189,12 +189,12 @@ describe("Test '/v1' path", () => {
         expect(solution.url).toContain(ddgUrl)
         expect(solution.status).toBe(200);
         expect(Object.keys(solution.headers).length).toBeGreaterThan(0)
-        expect(solution.response).toContain("<rss version")
+        expect(solution.response).toContain("<!DOCTYPE html>")
         expect(Object.keys(solution.cookies).length).toBeGreaterThan(0)
         expect(solution.userAgent).toContain("Firefox/")
 
         const cfCookie: string = (solution.cookies as any[]).filter(function(cookie) {
-            return cookie.name == "__ddg1";
+            return cookie.name == "__ddg1_";
         })[0].value
         expect(cfCookie.length).toBeGreaterThan(10)
     });

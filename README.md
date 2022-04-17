@@ -8,11 +8,11 @@
 [![Donate Bitcoin](https://en.cryptobadges.io/badge/micro/13Hcv77AdnFWEUZ9qUpoPBttQsUT7q9TTh)](https://en.cryptobadges.io/donate/13Hcv77AdnFWEUZ9qUpoPBttQsUT7q9TTh)
 [![Donate Ethereum](https://en.cryptobadges.io/badge/micro/0x0D1549BbB00926BF3D92c1A8A58695e982f1BE2E)](https://en.cryptobadges.io/donate/0x0D1549BbB00926BF3D92c1A8A58695e982f1BE2E)
 
-FlareSolverr is a proxy server to bypass Cloudflare protection.
+FlareSolverr is a proxy server to bypass Cloudflare and DDoS-GUARD protection.
 
 ## How it works
 
-FlareSolverr starts a proxy server and it waits for user requests in an idle state using few resources.
+FlareSolverr starts a proxy server, and it waits for user requests in an idle state using few resources.
 When some request arrives, it uses [puppeteer](https://github.com/puppeteer/puppeteer) with the
 [stealth plugin](https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth)
 to create a headless browser (Firefox). It opens the URL with user parameters and waits until the Cloudflare challenge

@@ -21,7 +21,8 @@ const CAPTCHA_SELECTORS: string[] = [
 export default async function resolveChallenge(url: string, page: Page, response: HTTPResponse): Promise<HTTPResponse> {
 
   // look for challenge and return fast if not detected
-  let cfDetected = response.headers().server && response.headers().server.startsWith('cloudflare');
+  let cfDetected = response.headers().server &&
+      (response.headers().server.startsWith('cloudflare') || response.headers().server.startsWith('ddos-guard'));
   if (cfDetected) {
     if (response.status() == 403 || response.status() == 503) {
       cfDetected = true; // Defected CloudFlare and DDoS-GUARD
