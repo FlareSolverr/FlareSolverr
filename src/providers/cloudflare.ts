@@ -6,16 +6,16 @@ import log from "../services/log";
  *  This class contains the logic to solve protections provided by CloudFlare
  **/
 
-// the selector '.text-gray-600' is not working well because it can be hidden
-// <span style="display: none;" class="text-gray-600" data-translate="error">error code: 1020</span>
 const BAN_SELECTORS: string[] = [];
 const CHALLENGE_SELECTORS: string[] = [
-    '#trk_jschal_js', '.ray_id', '.attack-box', '#cf-please-wait', // CloudFlare
+    // todo: deprecate  '#trk_jschal_js', '#cf-please-wait'
+    '#cf-challenge-running', '#trk_jschal_js', '#cf-please-wait', // CloudFlare
     '#link-ddg', // DDoS-GUARD
     'td.info #js_info' // Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
 ];
 const CAPTCHA_SELECTORS: string[] = [
-    'input[name="cf_captcha_kind"]'
+    // todo: deprecate 'input[name="cf_captcha_kind"]'
+    '#cf-challenge-hcaptcha-wrapper', '#cf-norobot-container', 'input[name="cf_captcha_kind"]'
 ];
 
 export default async function resolveChallenge(url: string, page: Page, response: HTTPResponse): Promise<HTTPResponse> {
@@ -61,8 +61,15 @@ export default async function resolveChallenge(url: string, page: Page, response
           // solved!
           log.debug('Challenge element not found')
           break
+
         } else {
           log.debug(`Javascript challenge element '${selector}' detected.`)
+
+          // check for CAPTCHA challenge
+          if (await findAnySelector(page, CAPTCHA_SELECTORS)) {
+            // captcha detected
+            break
+          }
 
           // new Cloudflare Challenge #cf-please-wait
           const displayStyle = await page.evaluate((selector) => {

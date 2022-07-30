@@ -12,7 +12,7 @@ const proxyUrl = "http://127.0.0.1:8888"
 const proxySocksUrl = "socks5://127.0.0.1:1080"
 const googleUrl = "https://www.google.com";
 const postUrl = "https://ptsv2.com/t/qv4j3-1634496523";
-const cfUrl = "https://pirateiro.com/torrents/?search=harry";
+const cfUrl = "https://nowsecure.nl";
 const cfCaptchaUrl = "https://idope.se"
 const cfBlockedUrl = "https://www.torrentmafya.org/table.php"
 const ddgUrl = "https://anidex.info/";
