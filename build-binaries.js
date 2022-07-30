@@ -6,30 +6,6 @@ const https = require('https')
 const puppeteer = require('puppeteer')
 const version = 'v' + require('./package.json').version;
 
-function getFirefoxNightlyVersion() {
-  const firefoxVersions = 'https://product-details.mozilla.org/1.0/firefox_versions.json';
-  return new Promise((resolve, reject) => {
-    let data = '';
-    https
-      .get(firefoxVersions, (r) => {
-        if (r.statusCode >= 400)
-          return reject(new Error(`Got status code ${r.statusCode}`));
-        r.on('data', (chunk) => {
-          data += chunk;
-        });
-        r.on('end', () => {
-          try {
-            const versions = JSON.parse(data);
-            return resolve(versions.FIREFOX_NIGHTLY);
-          } catch {
-            return reject(new Error('Firefox version not found'));
-          }
-        });
-      })
-      .on('error', reject);
-  });
-}
-
 (async () => {
   const builds = [
     {
@@ -67,8 +43,10 @@ function getFirefoxNightlyVersion() {
   execSync('./node_modules/.bin/pkg -t node16-win-x64,node16-linux-x64 --out-path bin .')
   // execSync('./node_modules/.bin/pkg -t node16-win-x64,node16-mac-x64,node16-linux-x64 --out-path bin .')
 
-  // get firefox revision
-  const revision = await getFirefoxNightlyVersion();
+  // Puppeteer does not allow to download Firefox revisions, just the last Nightly
+  // We this script we can download any version
+  const revision = '94.0a1';
+  const downloadHost = 'https://archive.mozilla.org/pub/firefox/nightly/2021/10/2021-10-01-09-33-23-mozilla-central';
 
   // download firefox and zip together
   for (const os of builds) {
@@ -79,6 +57,7 @@ function getFirefoxNightlyVersion() {
     const f = puppeteer.createBrowserFetcher({
       product: 'firefox',
       platform: os.platform,
+      host: downloadHost,
       path: path.join(__dirname, 'bin', 'puppeteer')
     })
     await f.download(revision)

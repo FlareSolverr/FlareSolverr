@@ -3,6 +3,7 @@
   "version": "2.2.4",
   "description": "Proxy server to bypass Cloudflare protection.",
   "scripts": {
+    "install": "node install.js",
     "start": "tsc && node ./dist/server.js",
     "build": "tsc",
     "dev": "nodemon -e ts --exec ts-node src/server.ts",
