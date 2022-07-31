@@ -90,7 +90,7 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
             // reload the page to be sure we get the real page
             log.debug("Reloading the page")
             try {
-                response = await gotoPage(params, page);
+                response = await gotoPage(params, page, params.method);
             } catch (e) {
                 log.warn("Page not reloaded (do not report!): Cause: " + e.toString())
             }
@@ -132,9 +132,10 @@ async function resolveChallenge(params: V1Request, session: SessionsCacheItem): 
     }
 }
 
-async function gotoPage(params: V1Request, page: Page): Promise<HTTPResponse> {
+async function gotoPage(params: V1Request, page: Page, method: string = 'GET'): Promise<HTTPResponse> {
     let pageTimeout = params.maxTimeout / 3;
     let response: HTTPResponse
+
     try {
         response = await page.goto(params.url, {waitUntil: 'domcontentloaded', timeout: pageTimeout});
     } catch (e) {
@@ -142,47 +143,29 @@ async function gotoPage(params: V1Request, page: Page): Promise<HTTPResponse> {
         response = await page.goto(params.url, {waitUntil: 'domcontentloaded', timeout: pageTimeout});
     }
 
-    if (params.method == 'POST') {
-        // post hack
-        await page.setContent(
-            `
-<!DOCTYPE html>
-<html>
-<body>
-<script>
+    if (method == 'POST') {
+        // post hack, it only works with utf-8 encoding
 
-  function parseQuery(queryString) {
-    var query = {};
-    var pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&');
-    for (var i = 0; i < pairs.length; i++) {
-        var pair = pairs[i].split('=');
-        query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
-    }
-    return query;
-  }
+        let postForm = `<form id="hackForm" action="${params.url}" method="POST">`;
+        let queryString = params.postData;
+        let pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&');
+        for (let i = 0; i < pairs.length; i++) {
+            let pair = pairs[i].split('=');
+            let name; try { name = decodeURIComponent(pair[0]) } catch { name = pair[0] }
+            if (name == 'submit') continue;
+            let value; try { value = decodeURIComponent(pair[1] || '') } catch { value = pair[1] || '' }
+            postForm += `<input type="text" name="${name}" value="${value}"><br>`;
+        }
+        postForm += `</form>`;
 
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = '${params.url}';
-
-  const params = parseQuery('${params.postData}');
-  for (const key in params) {
-    if (params.hasOwnProperty(key)) {
-      const hiddenField = document.createElement('input');
-      hiddenField.type = 'hidden';
-      hiddenField.name = key;
-      hiddenField.value = params[key];
-      form.appendChild(hiddenField);
-    }
-  }
-
-  document.body.appendChild(form);
-  form.submit();
-    
-</script>
-</body>
-</html> 
-            `
+        await page.setContent(`
+            <!DOCTYPE html>
+            <html>
+            <body>
+            ${postForm}
+            <script>document.getElementById('hackForm').submit();</script>
+            </body>
+            </html>`
         );
         await page.waitForTimeout(2000)
         try {
