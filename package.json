@@ -1,6 +1,6 @@
 {
   "name": "flaresolverr",
-  "version": "2.2.5",
+  "version": "2.2.6",
   "description": "Proxy server to bypass Cloudflare protection.",
   "scripts": {
     "install": "node install.js",
