@@ -4,9 +4,9 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/flaresolverr/flaresolverr)](https://hub.docker.com/r/flaresolverr/flaresolverr/)
 [![GitHub issues](https://img.shields.io/github/issues/FlareSolverr/FlareSolverr)](https://github.com/FlareSolverr/FlareSolverr/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/FlareSolverr/FlareSolverr)](https://github.com/FlareSolverr/FlareSolverr/pulls)
-[![Donate PayPal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=X5NJLLX5GLTV6&source=url)
-[![Donate Bitcoin](https://en.cryptobadges.io/badge/micro/13Hcv77AdnFWEUZ9qUpoPBttQsUT7q9TTh)](https://en.cryptobadges.io/donate/13Hcv77AdnFWEUZ9qUpoPBttQsUT7q9TTh)
-[![Donate Ethereum](https://en.cryptobadges.io/badge/micro/0x0D1549BbB00926BF3D92c1A8A58695e982f1BE2E)](https://en.cryptobadges.io/donate/0x0D1549BbB00926BF3D92c1A8A58695e982f1BE2E)
+[![Donate PayPal](https://img.shields.io/badge/Donate-PayPal-ffc439.svg)](https://www.paypal.com/paypalme/diegoheras0xff)
+[![Donate Bitcoin](https://img.shields.io/badge/Donate-Bitcoin-f7931a.svg)](https://www.blockchain.com/btc/address/13Hcv77AdnFWEUZ9qUpoPBttQsUT7q9TTh)
+[![Donate Ethereum](https://img.shields.io/badge/Donate-Ethereum-8c8c8c.svg)](https://www.blockchain.com/eth/address/0x0D1549BbB00926BF3D92c1A8A58695e982f1BE2E)
 
 FlareSolverr is a proxy server to bypass Cloudflare and DDoS-GUARD protection.
 
