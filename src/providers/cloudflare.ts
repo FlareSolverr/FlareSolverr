@@ -18,6 +18,8 @@ const CAPTCHA_SELECTORS: string[] = [
     '#cf-challenge-hcaptcha-wrapper', '#cf-norobot-container', 'input[name="cf_captcha_kind"]'
 ];
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
 export default async function resolveChallenge(url: string, page: Page, response: HTTPResponse): Promise<HTTPResponse> {
 
   // look for challenge and return fast if not detected
@@ -78,6 +80,8 @@ export default async function resolveChallenge(url: string, page: Page, response
           if (displayStyle == "none") {
             // spinner is hidden, could be a captcha or not
             log.debug('Challenge element is hidden')
+            log.debug("Waiting for 30 secs");
+            await delay(30 * 1000);
             // wait until redirecting disappears
             while (true) {
               try {
