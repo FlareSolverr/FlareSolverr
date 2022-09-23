@@ -13,9 +13,9 @@ FlareSolverr is a proxy server to bypass Cloudflare and DDoS-GUARD protection.
 ## How it works
 
 FlareSolverr starts a proxy server, and it waits for user requests in an idle state using few resources.
-When some request arrives, it uses [puppeteer](https://github.com/puppeteer/puppeteer) with the
-[stealth plugin](https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth)
-to create a headless browser (Firefox). It opens the URL with user parameters and waits until the Cloudflare challenge
+When some request arrives, it uses [Selenium](https://www.selenium.dev) with the
+[undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver)
+to create a web browser (Chrome). It opens the URL with user parameters and waits until the Cloudflare challenge
 is solved (or timeout). The HTML code and the cookies are sent back to the user, and those cookies can be used to
 bypass Cloudflare using other HTTP clients.
 
@@ -37,11 +37,12 @@ Docker images are available in:
 * DockerHub => https://hub.docker.com/r/flaresolverr/flaresolverr
 
 Supported architectures are:
-| Architecture | Tag |
-| :----: | --- |
-| x86-64 | linux/amd64 |
-| ARM64 | linux/arm64 |
-| ARM32 | linux/arm/v7 |
+
+| Architecture | Tag          |
+|--------------|--------------|
+| x86-64       | linux/amd64  |
+| ARM64        | linux/arm64  |
+| ARM32        | linux/arm/v7 |
 
 We provide a `docker-compose.yml` configuration file. Clone this repository and execute `docker-compose up -d` to start
 the container.
@@ -70,13 +71,11 @@ This is the recommended way for Windows users.
 ### From source code
 
 This is the recommended way for macOS users and for developers.
-* Install [NodeJS](https://nodejs.org/) 16.
+* Install [Python 3.10](https://www.python.org/downloads/).
+* Install [Chrome](https://www.google.com/intl/en_us/chrome/) or [Chromium](https://www.chromium.org/getting-involved/download-chromium/) web browser.
 * Clone this repository and open a shell in that path.
-* Run `export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true` (Linux/macOS) or `set PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true` (Windows).
-* Run `npm install` command to install FlareSolverr dependencies.
-* Run `npm start` command to compile TypeScript code and start FlareSolverr.
-
-If you get errors related to firefox not installed try running `node install.js` to install Firefox.
+* Run `pip install -r requirements.txt` command to install FlareSolverr dependencies.
+* Run `python src/flaresolverr.py` command to start FlareSolverr.
 
 ### Systemd service
 
