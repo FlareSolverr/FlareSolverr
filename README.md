@@ -40,9 +40,10 @@ Supported architectures are:
 
 | Architecture | Tag          |
 |--------------|--------------|
+| x86          | linux/386    |
 | x86-64       | linux/amd64  |
-| ARM64        | linux/arm64  |
 | ARM32        | linux/arm/v7 |
+| ARM64        | linux/arm64  |
 
 We provide a `docker-compose.yml` configuration file. Clone this repository and execute `docker-compose up -d` to start
 the container.
@@ -73,6 +74,7 @@ This is the recommended way for Windows users.
 This is the recommended way for macOS users and for developers.
 * Install [Python 3.10](https://www.python.org/downloads/).
 * Install [Chrome](https://www.google.com/intl/en_us/chrome/) or [Chromium](https://www.chromium.org/getting-involved/download-chromium/) web browser.
+* (Only in Linux / macOS) Install [Xvfb](https://en.wikipedia.org/wiki/Xvfb) package.
 * Clone this repository and open a shell in that path.
 * Run `pip install -r requirements.txt` command to install FlareSolverr dependencies.
 * Run `python src/flaresolverr.py` command to start FlareSolverr.
@@ -104,10 +106,10 @@ cookies for the browser to use.
 
 This also speeds up the requests since it won't have to launch a new browser instance for every request.
 
-Parameter | Notes
-|--|--|
-session | Optional. The session ID that you want to be assigned to the instance. If isn't set a random UUID will be assigned.
-proxy | Optional, default disabled. Eg: `"proxy": {"url": "http://127.0.0.1:8888"}`. You must include the proxy schema in the URL: `http://`, `socks4://` or `socks5://`. Authorization (username/password) is not supported.
+| Parameter | Notes                                                                                                                                                                                                                 |
+|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| session   | Optional. The session ID that you want to be assigned to the instance. If isn't set a random UUID will be assigned.                                                                                                   |
+| proxy     | Optional, default disabled. Eg: `"proxy": {"url": "http://127.0.0.1:8888"}`. You must include the proxy schema in the URL: `http://`, `socks4://` or `socks5://`. Authorization (username/password) is not supported. |
 
 #### + `sessions.list`
 
@@ -132,20 +134,20 @@ Example response:
 This will properly shutdown a browser instance and remove all files associated with it to free up resources for a new
 session. When you no longer need to use a session you should make sure to close it.
 
-Parameter | Notes
-|--|--|
-session | The session ID that you want to be destroyed.
+| Parameter | Notes                                         |
+|-----------|-----------------------------------------------|
+| session   | The session ID that you want to be destroyed. |
 
 #### + `request.get`
 
-Parameter | Notes
-|--|--|
-url | Mandatory
-session | Optional. Will send the request from and existing browser instance. If one is not sent it will create a temporary instance that will be destroyed immediately after the request is completed.
-maxTimeout | Optional, default value 60000. Max timeout to solve the challenge in milliseconds.
-cookies | Optional. Will be used by the headless browser. Follow [this](https://github.com/puppeteer/puppeteer/blob/v3.3.0/docs/api.md#pagesetcookiecookies) format.
-returnOnlyCookies | Optional, default false. Only returns the cookies. Response data, headers and other parts of the response are removed.
-proxy | Optional, default disabled. Eg: `"proxy": {"url": "http://127.0.0.1:8888"}`. You must include the proxy schema in the URL: `http://`, `socks4://` or `socks5://`. Authorization (username/password) is not supported. (When the `session` parameter is set, the proxy is ignored; a session specific proxy can be set in `sessions.create`.)
+| Parameter         | Notes                                                                                                                                                                                                                                                                                                                                        |
+|-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| url               | Mandatory                                                                                                                                                                                                                                                                                                                                    |
+| session           | Optional. Will send the request from and existing browser instance. If one is not sent it will create a temporary instance that will be destroyed immediately after the request is completed.                                                                                                                                                |
+| maxTimeout        | Optional, default value 60000. Max timeout to solve the challenge in milliseconds.                                                                                                                                                                                                                                                           |
+| cookies           | Optional. Will be used by the headless browser. Follow [this](https://github.com/puppeteer/puppeteer/blob/v3.3.0/docs/api.md#pagesetcookiecookies) format.                                                                                                                                                                                   |
+| returnOnlyCookies | Optional, default false. Only returns the cookies. Response data, headers and other parts of the response are removed.                                                                                                                                                                                                                       |
+| proxy             | Optional, default disabled. Eg: `"proxy": {"url": "http://127.0.0.1:8888"}`. You must include the proxy schema in the URL: `http://`, `socks4://` or `socks5://`. Authorization (username/password) is not supported. (When the `session` parameter is set, the proxy is ignored; a session specific proxy can be set in `sessions.create`.) |
 
 :warning: If you want to use Cloudflare clearance cookie in your scripts, make sure you use the FlareSolverr User-Agent too. If they don't match you will see the challenge.
 
@@ -212,23 +214,23 @@ Example response from running the `curl` above:
 
 This is the same as `request.get` but it takes one more param:
 
-Parameter | Notes
-|--|--|
-postData | Must be a string with `application/x-www-form-urlencoded`. Eg: `a=b&c=d`
+| Parameter | Notes                                                                    |
+|-----------|--------------------------------------------------------------------------|
+| postData  | Must be a string with `application/x-www-form-urlencoded`. Eg: `a=b&c=d` |
 
 ## Environment variables
 
-Name | Default | Notes
-|--|--|--|
-LOG_LEVEL | info | Verbosity of the logging. Use `LOG_LEVEL=debug` for more information.
-LOG_HTML | false | Only for debugging. If `true` all HTML that passes through the proxy will be logged to the console in `debug` level.
-CAPTCHA_SOLVER | none | Captcha solving method. It is used when a captcha is encountered. See the Captcha Solvers section.
-TZ | UTC | Timezone used in the logs and the web browser. Example: `TZ=Europe/London`.
-HEADLESS | true | Only for debugging. To run the web browser in headless mode or visible.
-BROWSER_TIMEOUT | 40000 | If you are experiencing errors/timeouts because your system is slow, you can try to increase this value. Remember to increase the `maxTimeout` parameter too.
-TEST_URL | https://www.google.com | FlareSolverr makes a request on start to make sure the web browser is working. You can change that URL if it is blocked in your country.
-PORT | 8191 | Listening port. You don't need to change this if you are running on Docker.
-HOST | 0.0.0.0 | Listening interface. You don't need to change this if you are running on Docker.
+| Name            | Default                | Notes                                                                                                                                                         |
+|-----------------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| LOG_LEVEL       | info                   | Verbosity of the logging. Use `LOG_LEVEL=debug` for more information.                                                                                         |
+| LOG_HTML        | false                  | Only for debugging. If `true` all HTML that passes through the proxy will be logged to the console in `debug` level.                                          |
+| CAPTCHA_SOLVER  | none                   | Captcha solving method. It is used when a captcha is encountered. See the Captcha Solvers section.                                                            |
+| TZ              | UTC                    | Timezone used in the logs and the web browser. Example: `TZ=Europe/London`.                                                                                   |
+| HEADLESS        | true                   | Only for debugging. To run the web browser in headless mode or visible.                                                                                       |
+| BROWSER_TIMEOUT | 40000                  | If you are experiencing errors/timeouts because your system is slow, you can try to increase this value. Remember to increase the `maxTimeout` parameter too. |
+| TEST_URL        | https://www.google.com | FlareSolverr makes a request on start to make sure the web browser is working. You can change that URL if it is blocked in your country.                      |
+| PORT            | 8191                   | Listening port. You don't need to change this if you are running on Docker.                                                                                   |
+| HOST            | 0.0.0.0                | Listening interface. You don't need to change this if you are running on Docker.                                                                              |
 
 Environment variables are set differently depending on the operating system. Some examples:
 * Docker: Take a look at the Docker section in this document. Environment variables can be set in the `docker-compose.yml` file or in the Docker CLI command.
