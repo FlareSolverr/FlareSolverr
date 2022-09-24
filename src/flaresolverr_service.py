@@ -13,7 +13,10 @@ from dtos import V1RequestBase, V1ResponseBase, ChallengeResolutionT, ChallengeR
     HealthResponse, STATUS_OK, STATUS_ERROR
 import utils
 
-
+ACCESS_DENIED_SELECTORS = [
+    # Cloudflare
+    'div.main-wrapper div.header.section h1 span.code-label span'
+]
 CHALLENGE_SELECTORS = [
     # Cloudflare
     '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#trk_jschal_js',
@@ -62,7 +65,7 @@ def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
     res.startTimestamp = start_ts
     res.endTimestamp = int(time.time() * 1000)
     res.version = utils.get_flaresolverr_version()
-    logging.debug(f"Response => POST /v1 body: {utils.object_to_dict(res.solution)}")
+    logging.debug(f"Response => POST /v1 body: {utils.object_to_dict(res)}")
     logging.info(f"Response in {(res.endTimestamp - res.startTimestamp) / 1000} s")
     return res
 
@@ -163,8 +166,17 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     if utils.get_config_log_html():
         logging.debug(f"Response HTML:\n{driver.page_source}")
 
-    # find challenge selectors
+    # wait for the page
     html_element = driver.find_element(By.TAG_NAME, "html")
+
+    # find access denied selectors
+    for selector in ACCESS_DENIED_SELECTORS:
+        found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
+        if len(found_elements) > 0:
+            raise Exception('Cloudflare has blocked this request. '
+                            'Probably your IP is banned for this site, check in your web browser.')
+
+    # find challenge selectors
     challenge_found = False
     for selector in CHALLENGE_SELECTORS:
         found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
@@ -199,8 +211,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             logging.debug("Timeout waiting for redirect")
 
         logging.info("Challenge solved!")
+        res.message = "Challenge solved!"
     else:
         logging.info("Challenge not detected!")
+        res.message = "Challenge not detected!"
 
     challenge_res = ChallengeResolutionResultT({})
     challenge_res.url = driver.current_url
