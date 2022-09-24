@@ -36,8 +36,8 @@ RUN echo "\ndeb http://snapshot.debian.org/archive/debian/20210519T212015Z/ bull
         chromium-driver=89.0.4389.114-1 xvfb \
     # Remove temporary files and hardware decoding libraries
     && rm -rf /var/lib/apt/lists/* \
-    && rm /usr/lib/x86_64-linux-gnu/libmfxhw* \
-    && rm /usr/lib/x86_64-linux-gnu/mfx/* \
+    && rm -f /usr/lib/x86_64-linux-gnu/libmfxhw* \
+    && rm -f /usr/lib/x86_64-linux-gnu/mfx/* \
     # Create flaresolverr user
     && useradd --home-dir /app --shell /bin/sh flaresolverr \
     && mv /usr/bin/chromedriver chromedriver \
