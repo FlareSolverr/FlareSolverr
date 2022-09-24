@@ -8,10 +8,15 @@ import undetected_chromedriver as uc
 FLARESOLVERR_VERSION = None
 CHROME_MAJOR_VERSION = None
 USER_AGENT = None
+XVFB_DISPLAY = None
 
 
 def get_config_log_html() -> bool:
     return os.environ.get('LOG_HTML', 'false').lower() == 'true'
+
+
+def get_config_headless() -> bool:
+    return os.environ.get('HEADLESS', 'true').lower() == 'true'
 
 
 def get_flaresolverr_version() -> str:
@@ -32,11 +37,15 @@ def get_webdriver() -> WebDriver:
     options = uc.ChromeOptions()
     options.add_argument('--no-sandbox')
     options.add_argument('--window-size=1920,1080')
-    # todo: this param shows a warning in chrome headfull
+    # todo: this param shows a warning in chrome head-full
     options.add_argument('--disable-setuid-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    # note: headless mode is detected
-    # options.headless = True
+
+    # note: headless mode is detected (options.headless = True)
+    # we launch the browser in head-full mode with the window hidden
+    if get_config_headless():
+        if os.name != 'nt':  # not in windows
+            start_xvfb_display()
 
     # if we are inside the Docker container, we avoid downloading the driver
     driver_exe_path = None
@@ -91,6 +100,14 @@ def get_user_agent(driver=None) -> str:
     finally:
         if driver is not None:
             driver.quit()
+
+
+def start_xvfb_display():
+    global XVFB_DISPLAY
+    if XVFB_DISPLAY is None:
+        from xvfbwrapper import Xvfb
+        XVFB_DISPLAY = Xvfb()
+        XVFB_DISPLAY.start()
 
 
 def object_to_dict(_object):
