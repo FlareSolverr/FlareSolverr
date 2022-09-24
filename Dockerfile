@@ -31,12 +31,11 @@ RUN pip install -r requirements.txt \
 USER flaresolverr
 
 COPY src .
-COPY docker/entrypoint.sh .
 COPY package.json ../
 
 EXPOSE 8191
 
-CMD ["/bin/sh", "/app/entrypoint.sh"]
+CMD ["/usr/local/bin/python", "-u", "/app/flaresolverr.py"]
 
 # docker build -t flaresolverr:3.0.0.beta1 .
 # docker run -p 8191:8191 flaresolverr:3.0.0.beta1

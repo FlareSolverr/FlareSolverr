@@ -63,6 +63,7 @@ if __name__ == "__main__":
     # validate configuration
     log_level = os.environ.get('LOG_LEVEL', 'info').upper()
     log_html = utils.get_config_log_html()
+    headless = utils.get_config_headless()
     server_host = os.environ.get('HOST', '0.0.0.0')
     server_port = int(os.environ.get('PORT', 8191))
 

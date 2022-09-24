@@ -3,3 +3,4 @@ waitress==2.1.2
 selenium==4.4.3
 undetected-chromedriver==3.1.5.post4
 func-timeout==4.3.5
+xvfbwrapper==0.2.9
