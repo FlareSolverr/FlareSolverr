@@ -43,8 +43,11 @@ def get_webdriver() -> WebDriver:
 
     # note: headless mode is detected (options.headless = True)
     # we launch the browser in head-full mode with the window hidden
+    windows_headless = False
     if get_config_headless():
-        if os.name != 'nt':  # not in windows
+        if os.name == 'nt':
+            windows_headless = True
+        else:
             start_xvfb_display()
 
     # if we are inside the Docker container, we avoid downloading the driver
@@ -57,7 +60,8 @@ def get_webdriver() -> WebDriver:
 
     # downloads and patches the chromedriver
     # todo: if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
-    driver = uc.Chrome(options=options, driver_executable_path=driver_exe_path, version_main=version_main)
+    driver = uc.Chrome(options=options, driver_executable_path=driver_exe_path, version_main=version_main,
+                       windows_headless=windows_headless)
 
     # selenium vanilla
     # options = webdriver.ChromeOptions()
