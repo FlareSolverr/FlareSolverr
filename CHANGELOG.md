@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.2.9 (2022/09/25)
+
+* Detect Cloudflare Access Denied
+* Commit the complete changelog
+
 ## v2.2.8 (2022/09/17)
 
 * Remove 30 s delay and clean legacy code
