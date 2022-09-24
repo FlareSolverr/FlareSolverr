@@ -6,7 +6,9 @@ import log from "../services/log";
  *  This class contains the logic to solve protections provided by CloudFlare
  **/
 
-const BAN_SELECTORS: string[] = [];
+const BAN_SELECTORS: string[] = [
+  'div.main-wrapper div.header.section h1 span.code-label span' // CloudFlare
+];
 const CHALLENGE_SELECTORS: string[] = [
     // todo: deprecate  '#trk_jschal_js', '#cf-please-wait'
     '#cf-challenge-running', '#trk_jschal_js', '#cf-please-wait', // CloudFlare

@@ -14,7 +14,7 @@ const googleUrl = "https://www.google.com";
 const postUrl = "https://ptsv2.com/t/qv4j3-1634496523";
 const cfUrl = "https://nowsecure.nl";
 const cfCaptchaUrl = "https://idope.se"
-const cfBlockedUrl = "https://www.torrentmafya.org/table.php"
+const cfBlockedUrl = "https://avistaz.to/api/v1/jackett/torrents?in=1&type=0&search="
 const ddgUrl = "https://anidex.info/";
 const ccfUrl = "https://www.muziekfabriek.org";
 
