@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 import undetected_chromedriver as uc
@@ -79,14 +80,56 @@ def get_chrome_major_version() -> str:
     if CHROME_MAJOR_VERSION is not None:
         return CHROME_MAJOR_VERSION
 
-    chrome_path = uc.find_chrome_executable()
-    # Example 1: 'Chromium 104.0.5112.79 Arch Linux\n'
-    # Example 2: 'Google Chrome 104.0.5112.79 Arch Linux\n'
-    process = os.popen(f"{chrome_path} --version")
-    complete_version = process.read()
-    process.close()
+    if os.name == 'nt':
+        try:
+            stream = os.popen(
+                'reg query "HKLM\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome"')
+            output = stream.read()
+            # Example: '104.0.5112.79'
+            complete_version = extract_version_registry(output)
+        except Exception:
+            # Example: '104.0.5112.79'
+            complete_version = extract_version_folder()
+    else:
+        chrome_path = uc.find_chrome_executable()
+        process = os.popen(f'"{chrome_path}" --version')
+        # Example 1: 'Chromium 104.0.5112.79 Arch Linux\n'
+        # Example 2: 'Google Chrome 104.0.5112.79 Arch Linux\n'
+        complete_version = process.read()
+        process.close()
+
     CHROME_MAJOR_VERSION = complete_version.split('.')[0].split(' ')[-1]
+    logging.info(f"Chrome major version: {CHROME_MAJOR_VERSION}")
     return CHROME_MAJOR_VERSION
+
+
+def extract_version_registry(output) -> str:
+    try:
+        google_version = ''
+        for letter in output[output.rindex('DisplayVersion    REG_SZ') + 24:]:
+            if letter != '\n':
+                google_version += letter
+            else:
+                break
+        return google_version.strip()
+    except TypeError:
+        return ''
+
+
+def extract_version_folder() -> str:
+    # Check if the Chrome folder exists in the x32 or x64 Program Files folders.
+    for i in range(2):
+        path = 'C:\\Program Files' + (' (x86)' if i else '') + '\\Google\\Chrome\\Application'
+        if os.path.isdir(path):
+            paths = [f.path for f in os.scandir(path) if f.is_dir()]
+            for path in paths:
+                filename = os.path.basename(path)
+                pattern = '\d+\.\d+\.\d+\.\d+'
+                match = re.search(pattern, filename)
+                if match and match.group():
+                    # Found a Chrome version.
+                    return match.group(0)
+    return ''
 
 
 def get_user_agent(driver=None) -> str:
