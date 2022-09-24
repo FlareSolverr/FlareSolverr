@@ -67,8 +67,11 @@ if __name__ == "__main__":
     server_port = int(os.environ.get('PORT', 8191))
 
     # configure logger
+    logger_format = '%(asctime)s %(levelname)-8s %(message)s'
+    if log_level == 'DEBUG':
+        logger_format = '%(asctime)s %(levelname)-8s ReqId %(thread)s %(message)s'
     logging.basicConfig(
-        format='%(asctime)s %(levelname)-8s ReqId %(thread)s %(message)s',
+        format=logger_format,
         level=log_level,
         datefmt='%Y-%m-%d %H:%M:%S',
         handlers=[
