@@ -25,6 +25,7 @@ class TestFlareSolverr(unittest.TestCase):
     cloudflare_url_2 = "https://idope.se/torrent-list/harry/"
     ddos_guard_url = "https://anidex.info/"
     custom_cloudflare_url = "https://www.muziekfabriek.org"
+    cloudflare_blocked_url = "https://avistaz.to/api/v1/jackett/torrents?in=1&type=0&search="
 
     app = TestApp(flaresolverr.app)
 
@@ -75,7 +76,7 @@ class TestFlareSolverr(unittest.TestCase):
 
         body = V1ResponseBase(res.json)
         self.assertEqual(STATUS_OK, body.status)
-        self.assertEqual("", body.message)
+        self.assertEqual("Challenge not detected!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
         self.assertEqual(utils.get_flaresolverr_version(), body.version) 
@@ -97,7 +98,7 @@ class TestFlareSolverr(unittest.TestCase):
 
         body = V1ResponseBase(res.json)
         self.assertEqual(STATUS_OK, body.status)
-        self.assertEqual("", body.message)
+        self.assertEqual("Challenge solved!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
         self.assertEqual(utils.get_flaresolverr_version(), body.version) 
@@ -123,7 +124,7 @@ class TestFlareSolverr(unittest.TestCase):
 
         body = V1ResponseBase(res.json)
         self.assertEqual(STATUS_OK, body.status)
-        self.assertEqual("", body.message)
+        self.assertEqual("Challenge solved!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
         self.assertEqual(utils.get_flaresolverr_version(), body.version) 
@@ -149,7 +150,7 @@ class TestFlareSolverr(unittest.TestCase):
 
         body = V1ResponseBase(res.json)
         self.assertEqual(STATUS_OK, body.status)
-        self.assertEqual("", body.message)
+        self.assertEqual("Challenge solved!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
         self.assertEqual(utils.get_flaresolverr_version(), body.version) 
@@ -175,7 +176,7 @@ class TestFlareSolverr(unittest.TestCase):
 
         body = V1ResponseBase(res.json)
         self.assertEqual(STATUS_OK, body.status)
-        self.assertEqual("", body.message)
+        self.assertEqual("Challenge solved!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
         self.assertEqual(utils.get_flaresolverr_version(), body.version) 
@@ -193,7 +194,22 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertGreater(len(cf_cookie["value"]), 10)
 
     # todo: test Cmd 'request.get' should return fail with Cloudflare CAPTCHA
-    # todo: test Cmd 'request.get' should return fail with Cloudflare Blocked
+
+    def test_v1_endpoint_request_get_cloudflare_blocked(self):
+        res = self.app.post_json('/v1', {
+            "cmd": "request.get",
+            "url": self.cloudflare_blocked_url
+        }, status=500)
+        self.assertEqual(res.status_code, 500)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_ERROR, body.status)
+        self.assertEqual("Error: Error solving the challenge. Cloudflare has blocked this request. "
+                         "Probably your IP is banned for this site, check in your web browser.", body.message)
+        self.assertGreater(body.startTimestamp, 10000)
+        self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
+
     # todo: test Cmd 'request.get' should return OK with 'cookies' param
 
     def test_v1_endpoint_request_get_returnOnlyCookies_param(self):
@@ -206,7 +222,7 @@ class TestFlareSolverr(unittest.TestCase):
 
         body = V1ResponseBase(res.json)
         self.assertEqual(STATUS_OK, body.status)
-        self.assertEqual("", body.message)
+        self.assertEqual("Challenge not detected!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
         self.assertEqual(utils.get_flaresolverr_version(), body.version)
@@ -260,7 +276,7 @@ class TestFlareSolverr(unittest.TestCase):
 
         body = V1ResponseBase(res.json)
         self.assertEqual(STATUS_OK, body.status)
-        self.assertEqual("", body.message)
+        self.assertEqual("Challenge not detected!", body.message)
 
     def test_v1_endpoint_request_post_no_cloudflare(self):
         res = self.app.post_json('/v1', {
@@ -272,7 +288,7 @@ class TestFlareSolverr(unittest.TestCase):
 
         body = V1ResponseBase(res.json)
         self.assertEqual(STATUS_OK, body.status)
-        self.assertEqual("", body.message)
+        self.assertEqual("Challenge not detected!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
         self.assertEqual(utils.get_flaresolverr_version(), body.version)
@@ -307,7 +323,7 @@ class TestFlareSolverr(unittest.TestCase):
 
         body = V1ResponseBase(res.json)
         self.assertEqual(STATUS_OK, body.status)
-        self.assertEqual("", body.message)
+        self.assertEqual("Challenge solved!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
         self.assertEqual(utils.get_flaresolverr_version(), body.version)
@@ -346,7 +362,7 @@ class TestFlareSolverr(unittest.TestCase):
 
         body = V1ResponseBase(res.json)
         self.assertEqual(STATUS_OK, body.status)
-        self.assertEqual("", body.message)
+        self.assertEqual("Challenge not detected!", body.message)
 
     # todo: test Cmd 'sessions.create' should return OK
     # todo: test Cmd 'sessions.create' should return OK with session

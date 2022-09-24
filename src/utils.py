@@ -94,4 +94,6 @@ def get_user_agent(driver=None) -> str:
 
 
 def object_to_dict(_object):
-    return json.loads(json.dumps(_object, default=lambda o: o.__dict__))
+    json_dict = json.loads(json.dumps(_object, default=lambda o: o.__dict__))
+    # remove hidden fields
+    return {k: v for k, v in json_dict.items() if not k.startswith('__')}
