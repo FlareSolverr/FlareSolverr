@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+import shutil
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 import undetected_chromedriver as uc
@@ -10,6 +11,7 @@ FLARESOLVERR_VERSION = None
 CHROME_MAJOR_VERSION = None
 USER_AGENT = None
 XVFB_DISPLAY = None
+PATCHED_DRIVER_PATH = None
 
 
 def get_config_log_html() -> bool:
@@ -32,6 +34,7 @@ def get_flaresolverr_version() -> str:
 
 
 def get_webdriver() -> WebDriver:
+    global PATCHED_DRIVER_PATH
     logging.debug('Launching web browser...')
 
     # undetected_chromedriver
@@ -55,14 +58,22 @@ def get_webdriver() -> WebDriver:
     driver_exe_path = None
     version_main = None
     if os.path.exists("/app/chromedriver"):
+        # running inside Docker
         driver_exe_path = "/app/chromedriver"
     else:
         version_main = get_chrome_major_version()
+        if PATCHED_DRIVER_PATH is not None:
+            driver_exe_path = PATCHED_DRIVER_PATH
 
     # downloads and patches the chromedriver
-    # todo: if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
+    # if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
     driver = uc.Chrome(options=options, driver_executable_path=driver_exe_path, version_main=version_main,
                        windows_headless=windows_headless)
+
+    # save the patched driver to avoid re-downloads
+    if driver_exe_path is None:
+        PATCHED_DRIVER_PATH = os.path.join(driver.patcher.data_path, driver.patcher.exe_name)
+        shutil.copy(driver.patcher.executable_path, PATCHED_DRIVER_PATH)
 
     # selenium vanilla
     # options = webdriver.ChromeOptions()
