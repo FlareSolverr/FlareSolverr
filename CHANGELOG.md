@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.2.10 (2022/10/22)
+
+* Detect DDoS-Guard through title content
+
 ## v2.2.9 (2022/09/25)
 
 * Detect Cloudflare Access Denied
