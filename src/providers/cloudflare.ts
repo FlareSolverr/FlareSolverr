@@ -15,6 +15,9 @@ const CHALLENGE_SELECTORS: string[] = [
     '#link-ddg', // DDoS-GUARD
     'td.info #js_info' // Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
 ];
+const CHALLENGE_TITLES: string[] = [
+    'DDOS-GUARD'
+];
 const CAPTCHA_SELECTORS: string[] = [
     // todo: deprecate 'input[name="cf_captcha_kind"]'
     '#cf-challenge-hcaptcha-wrapper', '#cf-norobot-container', 'input[name="cf_captcha_kind"]'
@@ -49,7 +52,7 @@ export default async function resolveChallenge(url: string, page: Page, response
 
   // find Cloudflare selectors
   let selectorFound = false;
-  let selector: string = await findAnySelector(page, CHALLENGE_SELECTORS)
+  let selector: string = await findChallenge(page)
   if (selector) {
     selectorFound = true;
     log.debug(`Javascript challenge element '${selector}' detected.`)
@@ -58,7 +61,7 @@ export default async function resolveChallenge(url: string, page: Page, response
     while (true) {
       try {
 
-        selector = await findAnySelector(page, CHALLENGE_SELECTORS)
+        selector = await findChallenge(page)
         if (!selector) {
           // solved!
           log.debug('Challenge element not found')
@@ -122,6 +125,20 @@ export default async function resolveChallenge(url: string, page: Page, response
   }
 
   return response;
+}
+
+async function findChallenge(page: Page): Promise<string|null> {
+  const selector = await findAnySelector(page, CHALLENGE_SELECTORS);
+
+  if (selector == null) {
+    const title = await page.title();
+
+    if (CHALLENGE_TITLES.includes(title)) {
+      return `:title[${title}]`;
+    }
+  }
+
+  return selector;
 }
 
 async function findAnySelector(page: Page, selectors: string[]) {
