@@ -65,7 +65,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual("Error: Request parameter 'cmd' = 'request.bad' is invalid.", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
-        self.assertEqual(utils.get_flaresolverr_version(), body.version) 
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
 
     def test_v1_endpoint_request_get_no_cloudflare(self):
         res = self.app.post_json('/v1', {
@@ -79,7 +79,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual("Challenge not detected!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
-        self.assertEqual(utils.get_flaresolverr_version(), body.version) 
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
 
         solution = body.solution
         self.assertIn(self.google_url, solution.url)
@@ -101,7 +101,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual("Challenge solved!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
-        self.assertEqual(utils.get_flaresolverr_version(), body.version) 
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
 
         solution = body.solution
         self.assertIn(self.cloudflare_url, solution.url)
@@ -127,7 +127,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual("Challenge solved!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
-        self.assertEqual(utils.get_flaresolverr_version(), body.version) 
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
 
         solution = body.solution
         self.assertIn(self.cloudflare_url_2, solution.url)
@@ -153,7 +153,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual("Challenge solved!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
-        self.assertEqual(utils.get_flaresolverr_version(), body.version) 
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
 
         solution = body.solution
         self.assertIn(self.ddos_guard_url, solution.url)
@@ -179,7 +179,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual("Challenge solved!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
-        self.assertEqual(utils.get_flaresolverr_version(), body.version) 
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
 
         solution = body.solution
         self.assertIn(self.custom_cloudflare_url, solution.url)
