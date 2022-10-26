@@ -13,6 +13,8 @@ USER_AGENT = None
 XVFB_DISPLAY = None
 PATCHED_DRIVER_PATH = None
 
+logger = logging.getLogger('flaresolverr')
+
 
 def get_config_log_html() -> bool:
     return os.environ.get('LOG_HTML', 'false').lower() == 'true'
@@ -35,7 +37,7 @@ def get_flaresolverr_version() -> str:
 
 def get_webdriver() -> WebDriver:
     global PATCHED_DRIVER_PATH
-    logging.debug('Launching web browser...')
+    logger.debug('Launching web browser...')
 
     # undetected_chromedriver
     options = uc.ChromeOptions()
@@ -110,7 +112,7 @@ def get_chrome_major_version() -> str:
         process.close()
 
     CHROME_MAJOR_VERSION = complete_version.split('.')[0].split(' ')[-1]
-    logging.info(f"Chrome major version: {CHROME_MAJOR_VERSION}")
+    logger.info(f"Chrome major version: {CHROME_MAJOR_VERSION}")
     return CHROME_MAJOR_VERSION
 
 
