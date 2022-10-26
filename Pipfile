@@ -15,6 +15,7 @@ xvfbwrapper = "==0.2.9"
 [dev-packages]
 autopep8 = "*"
 flake8 = "*"
+webtest = "*"
 
 [requires]
 python_version = "3.10"
