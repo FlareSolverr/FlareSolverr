@@ -27,12 +27,14 @@ CHALLENGE_SELECTORS = [
 ]
 SHORT_TIMEOUT = 5
 
+logger = logging.getLogger('flaresolverr')
+
 
 def test_browser_installation():
-    logging.info("Testing web browser installation...")
+    logger.info("Testing web browser installation...")
     user_agent = utils.get_user_agent()
-    logging.info("FlareSolverr User-Agent: " + user_agent)
-    logging.info("Test successful")
+    logger.info("FlareSolverr User-Agent: " + user_agent)
+    logger.info("Test successful")
 
 
 def index_endpoint() -> IndexResponse:
@@ -51,7 +53,7 @@ def health_endpoint() -> HealthResponse:
 
 def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
     start_ts = int(time.time() * 1000)
-    logging.info(f"Incoming request => POST /v1 body: {utils.object_to_dict(req)}")
+    logger.info(f"Incoming request => POST /v1 body: {utils.object_to_dict(req)}")
     res: V1ResponseBase
     try:
         res = _controller_v1_handler(req)
@@ -60,13 +62,13 @@ def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
         res.__error_500__ = True
         res.status = STATUS_ERROR
         res.message = "Error: " + str(e)
-        logging.error(res.message)
+        logger.error(res.message)
 
     res.startTimestamp = start_ts
     res.endTimestamp = int(time.time() * 1000)
     res.version = utils.get_flaresolverr_version()
-    logging.debug(f"Response => POST /v1 body: {utils.object_to_dict(res)}")
-    logging.info(f"Response in {(res.endTimestamp - res.startTimestamp) / 1000} s")
+    logger.debug(f"Response => POST /v1 body: {utils.object_to_dict(res)}")
+    logger.info(f"Response in {(res.endTimestamp - res.startTimestamp) / 1000} s")
     return res
 
 
@@ -75,9 +77,9 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
     if req.cmd is None:
         raise Exception("Request parameter 'cmd' is mandatory.")
     if req.headers is not None:
-        logging.warning("Request parameter 'headers' was removed in FlareSolverr v2.")
+        logger.warning("Request parameter 'headers' was removed in FlareSolverr v2.")
     if req.userAgent is not None:
-        logging.warning("Request parameter 'userAgent' was removed in FlareSolverr v2.")
+        logger.warning("Request parameter 'userAgent' was removed in FlareSolverr v2.")
 
     # set default values
     if req.maxTimeout is None or req.maxTimeout < 1:
@@ -108,9 +110,9 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
     if req.postData is not None:
         raise Exception("Cannot use 'postBody' when sending a GET request.")
     if req.returnRawHtml is not None:
-        logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
+        logger.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
-        logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
+        logger.warning("Request parameter 'download' was removed in FlareSolverr v2.")
 
     challenge_res = _resolve_challenge(req, 'GET')
     res = V1ResponseBase({})
@@ -125,9 +127,9 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     if req.postData is None:
         raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
     if req.returnRawHtml is not None:
-        logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
+        logger.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
-        logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
+        logger.warning("Request parameter 'download' was removed in FlareSolverr v2.")
 
     challenge_res = _resolve_challenge(req, 'POST')
     res = V1ResponseBase({})
@@ -158,13 +160,13 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     res.message = ""
 
     # navigate to the page
-    logging.debug(f'Navigating to... {req.url}')
+    logger.debug(f'Navigating to... {req.url}')
     if method == 'POST':
         _post_request(req, driver)
     else:
         driver.get(req.url)
     if utils.get_config_log_html():
-        logging.debug(f"Response HTML:\n{driver.page_source}")
+        logger.debug(f"Response HTML:\n{driver.page_source}")
 
     # wait for the page
     html_element = driver.find_element(By.TAG_NAME, "html")
@@ -182,7 +184,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
         if len(found_elements) > 0:
             challenge_found = True
-            logging.info("Challenge detected. Selector found: " + selector)
+            logger.info("Challenge detected. Selector found: " + selector)
             break
 
     if challenge_found:
@@ -190,7 +192,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             try:
                 # then wait until all the selectors disappear
                 for selector in CHALLENGE_SELECTORS:
-                    logging.debug("Waiting for selector: " + selector)
+                    logger.debug("Waiting for selector: " + selector)
                     WebDriverWait(driver, SHORT_TIMEOUT).until_not(
                         presence_of_element_located((By.CSS_SELECTOR, selector)))
 
@@ -198,22 +200,22 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
                 break
 
             except TimeoutException:
-                logging.debug("Timeout waiting for selector")
+                logger.debug("Timeout waiting for selector")
                 # update the html (cloudflare reloads the page every 5 s)
                 html_element = driver.find_element(By.TAG_NAME, "html")
 
         # waits until cloudflare redirection ends
-        logging.debug("Waiting for redirect")
+        logger.debug("Waiting for redirect")
         # noinspection PyBroadException
         try:
             WebDriverWait(driver, SHORT_TIMEOUT).until(staleness_of(html_element))
         except Exception:
-            logging.debug("Timeout waiting for redirect")
+            logger.debug("Timeout waiting for redirect")
 
-        logging.info("Challenge solved!")
+        logger.info("Challenge solved!")
         res.message = "Challenge solved!"
     else:
-        logging.info("Challenge not detected!")
+        logger.info("Challenge not detected!")
         res.message = "Challenge not detected!"
 
     challenge_res = ChallengeResolutionResultT({})

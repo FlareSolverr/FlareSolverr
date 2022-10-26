@@ -33,7 +33,7 @@ RUN echo "\ndeb http://snapshot.debian.org/archive/debian/20210519T212015Z/ bull
     # Install dependencies
     && apt-get update \
     && apt-get install -y --no-install-recommends chromium=89.0.4389.114-1 chromium-common=89.0.4389.114-1 \
-        chromium-driver=89.0.4389.114-1 xvfb \
+    chromium-driver=89.0.4389.114-1 xvfb \
     # Remove temporary files and hardware decoding libraries
     && rm -rf /var/lib/apt/lists/* \
     && rm -f /usr/lib/x86_64-linux-gnu/libmfxhw* \
@@ -44,8 +44,10 @@ RUN echo "\ndeb http://snapshot.debian.org/archive/debian/20210519T212015Z/ bull
     && chown -R flaresolverr:flaresolverr .
 
 # Install Python dependencies
-COPY requirements.txt .
-RUN pip install -r requirements.txt \
+RUN pip install pipenv
+COPY Pipfile .
+COPY Pipfile.lock .
+RUN pipenv install --system --deploy --ignore-pipfile \
     # Remove temporary files
     && rm -rf /root/.cache \
     && find / -name '*.pyc' -delete
