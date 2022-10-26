@@ -13,6 +13,7 @@ websockets = "==10.3"
 xvfbwrapper = "==0.2.9"
 
 [dev-packages]
+autopep8 = "*"
 
 [requires]
 python_version = "3.10"
