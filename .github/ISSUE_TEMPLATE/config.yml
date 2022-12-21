@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Requesting new features or changes
+    url: https://github.com/FlareSolverr/FlareSolverr/discussions
+    about: Please create a new discussion topic, grouped under "Ideas".
+  - name: Asking questions
+    url: https://github.com/FlareSolverr/FlareSolverr/discussions
+    about: Please create a new discussion topic, grouped under "Q&A".
