@@ -1,5 +1,16 @@
 # Changelog
 
+## v3.0.0 (2023/01/04)
+
+* This is the first release of FlareSolverr v3. There are some breaking changes
+* Docker images for linux/386, linux/amd64, linux/arm/v7 and linux/arm64/v8
+* Replaced Firefox with Chrome
+* Replaced NodeJS / Typescript with Python
+* Replaced Puppeter with Selenium
+* No binaries for Linux / Windows. You have to use the Docker image or install from Source code
+* No proxy support
+* No session support
+
 ## v2.2.10 (2022/10/22)
 
 * Detect DDoS-Guard through title content
