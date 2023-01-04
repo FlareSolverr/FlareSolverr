@@ -19,13 +19,13 @@ ACCESS_DENIED_SELECTORS = [
 ]
 CHALLENGE_SELECTORS = [
     # Cloudflare
-    '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#trk_jschal_js',
+    '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js',
     # DDoS-GUARD
     '#link-ddg',
     # Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
     'td.info #js_info'
 ]
-SHORT_TIMEOUT = 5
+SHORT_TIMEOUT = 10
 
 
 def test_browser_installation():
@@ -220,11 +220,11 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     challenge_res.url = driver.current_url
     challenge_res.status = 200  # todo: fix, selenium not provides this info
     challenge_res.cookies = driver.get_cookies()
+    challenge_res.userAgent = utils.get_user_agent(driver)
 
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
         challenge_res.response = driver.page_source
-        challenge_res.userAgent = utils.get_user_agent(driver)
 
     res.result = challenge_res
     return res
