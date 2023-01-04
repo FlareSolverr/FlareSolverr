@@ -1,5 +1,4 @@
 import unittest
-from datetime import datetime, timezone
 
 from webtest import TestApp
 
@@ -20,12 +19,12 @@ class TestFlareSolverr(unittest.TestCase):
     proxy_url = "http://127.0.0.1:8888"
     proxy_socks_url = "socks5://127.0.0.1:1080"
     google_url = "https://www.google.com"
-    post_url = "https://ptsv2.com/t/qv4j3-1634496523"
+    post_url = "https://httpbin.org/post"
     cloudflare_url = "https://nowsecure.nl"
     cloudflare_url_2 = "https://idope.se/torrent-list/harry/"
     ddos_guard_url = "https://anidex.info/"
     custom_cloudflare_url = "https://www.muziekfabriek.org"
-    cloudflare_blocked_url = "https://avistaz.to/api/v1/jackett/torrents?in=1&type=0&search="
+    cloudflare_blocked_url = "https://cpasbiens3.fr/index.php?do=search&subaction=search"
 
     app = TestApp(flaresolverr.app)
 
@@ -233,7 +232,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertIsNone(solution.headers)
         self.assertIsNone(solution.response)
         self.assertGreater(len(solution.cookies), 0)
-        self.assertIsNone(solution.userAgent)
+        self.assertIn("Chrome/", solution.userAgent)
 
     # todo: test Cmd 'request.get' should return OK with HTTP 'proxy' param
     # todo: test Cmd 'request.get' should return OK with HTTP 'proxy' param with credentials
@@ -281,7 +280,7 @@ class TestFlareSolverr(unittest.TestCase):
     def test_v1_endpoint_request_post_no_cloudflare(self):
         res = self.app.post_json('/v1', {
             "cmd": "request.post",
-            "url": self.post_url + '/post',
+            "url": self.post_url,
             "postData": "param1=value1&param2=value2"
         })
         self.assertEqual(res.status_code, 200)
@@ -297,21 +296,9 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertIn(self.post_url, solution.url)
         self.assertEqual(solution.status, 200)
         self.assertIs(len(solution.headers), 0)
-        self.assertIn("I hope you have a lovely day!", solution.response)
+        self.assertIn('"form": {\n    "param1": "value1", \n    "param2": "value2"\n  }', solution.response)
         self.assertEqual(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
-
-        # check that we sent the post data
-        res2 = self.app.post_json('/v1', {
-            "cmd": "request.get",
-            "url": self.post_url
-        })
-        self.assertEqual(res2.status_code, 200)
-
-        body2 = V1ResponseBase(res2.json)
-        self.assertEqual(STATUS_OK, body2.status)
-        date_hour = datetime.now(timezone.utc).isoformat().split(':')[0].replace('T', ' ')
-        self.assertIn(date_hour, body2.solution.response)
 
     def test_v1_endpoint_request_post_cloudflare(self):
         res = self.app.post_json('/v1', {

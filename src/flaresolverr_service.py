@@ -15,7 +15,7 @@ import utils
 
 ACCESS_DENIED_SELECTORS = [
     # Cloudflare
-    'div.main-wrapper div.header.section h1 span.code-label span'
+    'div.cf-error-title span.cf-code-label span'
 ]
 CHALLENGE_SELECTORS = [
     # Cloudflare
