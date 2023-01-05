@@ -7,7 +7,7 @@ from selenium.common import TimeoutException
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support.expected_conditions import presence_of_element_located, staleness_of
+from selenium.webdriver.support.expected_conditions import presence_of_element_located, staleness_of, title_is
 
 from dtos import V1RequestBase, V1ResponseBase, ChallengeResolutionT, ChallengeResolutionResultT, IndexResponse, \
     HealthResponse, STATUS_OK, STATUS_ERROR
@@ -17,11 +17,15 @@ ACCESS_DENIED_SELECTORS = [
     # Cloudflare
     'div.cf-error-title span.cf-code-label span'
 ]
+CHALLENGE_TITLE = [
+    # Cloudflare
+    'Just a moment...',
+    # DDoS-GUARD
+    'DDOS-GUARD',
+]
 CHALLENGE_SELECTORS = [
     # Cloudflare
     '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js',
-    # DDoS-GUARD
-    '#link-ddg',
     # Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
     'td.info #js_info'
 ]
@@ -176,18 +180,31 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             raise Exception('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
 
-    # find challenge selectors
+    # find challenge by title
     challenge_found = False
-    for selector in CHALLENGE_SELECTORS:
-        found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
-        if len(found_elements) > 0:
+    page_title = driver.title
+    for title in CHALLENGE_TITLE:
+        if title == page_title:
             challenge_found = True
-            logging.info("Challenge detected. Selector found: " + selector)
+            logging.info("Challenge detected. Title found: " + title)
             break
+    if not challenge_found:
+        # find challenge by selectors
+        for selector in CHALLENGE_SELECTORS:
+            found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
+            if len(found_elements) > 0:
+                challenge_found = True
+                logging.info("Challenge detected. Selector found: " + selector)
+                break
 
     if challenge_found:
         while True:
             try:
+                # wait until the title change
+                for title in CHALLENGE_TITLE:
+                    logging.debug("Waiting for title: " + title)
+                    WebDriverWait(driver, SHORT_TIMEOUT).until_not(title_is(title))
+
                 # then wait until all the selectors disappear
                 for selector in CHALLENGE_SELECTORS:
                     logging.debug("Waiting for selector: " + selector)
