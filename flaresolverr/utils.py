@@ -5,7 +5,7 @@ import re
 import shutil
 
 from selenium.webdriver.chrome.webdriver import WebDriver
-import undetected_chromedriver as uc
+import flaresolverr.undetected_chromedriver as uc
 
 FLARESOLVERR_VERSION = None
 CHROME_MAJOR_VERSION = None
@@ -27,7 +27,7 @@ def get_flaresolverr_version() -> str:
     if FLARESOLVERR_VERSION is not None:
         return FLARESOLVERR_VERSION
 
-    package_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'package.json')
+    package_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'package.json')
     with open(package_path) as f:
         FLARESOLVERR_VERSION = json.loads(f.read())['version']
         return FLARESOLVERR_VERSION

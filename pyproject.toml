@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "flaresolverr"
+description = "Proxy server to bypass Cloudflare protection"
+version = "3.0.0"
+readme = "README.md"
+requires-python = ">=3.7"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Diego Heras (ngosang)", email = "ngosang@hotmail.es" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+  "bottle==0.12.23",
+  "waitress==2.1.2",
+  "selenium==4.4.3",
+  "func-timeout==4.3.5",
+  "requests==2.28.1",
+  "websockets==10.3",
+  "xvfbwrapper==0.2.9",
+]
+
+[project.urls]
+Documentation = "https://github.com/flaresolverr/flaresolverr#readme"
+Issues = "https://github.com/flaresolverr/flaresolverr/issues"
+Source = "https://github.com/flaresolverr/flaresolverr"
+
+[project.scripts]
+flaresolverr = "flaresolverr.flaresolverr:cli_run"
+
+[tool.hatch.build]
+include = [
+  "flaresolverr",
+]
+
+[tool.hatch.envs.default]
+dependencies = [
+  "pytest",
+  "pytest-cov",
+]
+
+[tool.hatch.envs.default.scripts]
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=flaresolverr --cov=tests {args}"
+no-cov = "cov --no-cov {args}"
+
+[[tool.hatch.envs.test.matrix]]
+python = ["37", "38", "39", "310", "311"]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]

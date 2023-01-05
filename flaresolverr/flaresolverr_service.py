@@ -9,9 +9,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support.expected_conditions import presence_of_element_located, staleness_of, title_is
 
-from dtos import V1RequestBase, V1ResponseBase, ChallengeResolutionT, ChallengeResolutionResultT, IndexResponse, \
+from flaresolverr.dtos import V1RequestBase, V1ResponseBase, ChallengeResolutionT, ChallengeResolutionResultT, IndexResponse, \
     HealthResponse, STATUS_OK, STATUS_ERROR
-import utils
+import flaresolverr.utils as utils
 
 ACCESS_DENIED_SELECTORS = [
     # Cloudflare
