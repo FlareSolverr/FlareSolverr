@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.1.0 (upcoming)
+
+* Include procps (ps), curl and vim packages in the Docker image
+
 ## v3.0.0 (2023/01/04)
 
 * This is the first release of FlareSolverr v3. There are some breaking changes
