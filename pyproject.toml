@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "flaresolverr"
+version = "3.0.0"
+description = "Proxy server to bypass Cloudflare protection"
+authors = ["Diego Heras <ngosang@hotmail.es>"]
+readme = "README.md"
+include = ["flaresolverr"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+bottle = "^0.12.23"
+waitress = "^2.1.2"
+selenium = "^4.7.2"
+func-timeout = "^4.3.5"
+requests = "^2.28.1"
+websockets = "^10.4"
+xvfbwrapper = "^0.2.9"
+
+[tool.poetry.group.dev.dependencies]
+WebTest = "^3.0.0"
+
+[tool.poetry.scripts]
+flaresolverr = 'flaresolverr.flaresolverr:cli_run'
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

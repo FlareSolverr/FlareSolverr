@@ -5,11 +5,11 @@ import sys
 
 from bottle import run, response, Bottle, request
 
-from bottle_plugins.error_plugin import error_plugin
-from bottle_plugins.logger_plugin import logger_plugin
-from dtos import IndexResponse, V1RequestBase
-import flaresolverr_service
-import utils
+from flaresolverr.bottle_plugins.error_plugin import error_plugin
+from flaresolverr.bottle_plugins.logger_plugin import logger_plugin
+from flaresolverr.dtos import IndexResponse, V1RequestBase
+import flaresolverr.flaresolverr_service as flaresolverr_service
+import flaresolverr.utils as utils
 
 
 class JSONErrorBottle(Bottle):
@@ -59,7 +59,7 @@ def controller_v1():
     return utils.object_to_dict(res)
 
 
-if __name__ == "__main__":
+def cli_run():
     # validate configuration
     log_level = os.environ.get('LOG_LEVEL', 'info').upper()
     log_html = utils.get_config_log_html()
@@ -93,3 +93,7 @@ if __name__ == "__main__":
     # start webserver
     # default server 'wsgiref' does not support concurrent requests
     run(app, host=server_host, port=server_port, quiet=True, server='waitress')
+
+
+if __name__ == "__main__":
+    cli_run()
