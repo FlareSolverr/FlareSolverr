@@ -44,6 +44,8 @@ def get_webdriver() -> WebDriver:
     # todo: this param shows a warning in chrome head-full
     options.add_argument('--disable-setuid-sandbox')
     options.add_argument('--disable-dev-shm-usage')
+    # this option removes the zygote sandbox (it seems that the resolution is a bit faster)
+    options.add_argument('--no-zygote')
 
     # note: headless mode is detected (options.headless = True)
     # we launch the browser in head-full mode with the window hidden
