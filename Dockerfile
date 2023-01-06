@@ -29,7 +29,8 @@ RUN dpkg -i /libgl1-mesa-dri.deb \
     && dpkg -i /adwaita-icon-theme.deb \
     # Install dependencies
     && apt-get update \
-    && apt-get install -y --no-install-recommends chromium chromium-common chromium-driver xvfb procps curl vim \
+    && apt-get install -y --no-install-recommends chromium chromium-common chromium-driver xvfb dumb-init \
+        procps curl vim \
     # Remove temporary files and hardware decoding libraries
     && rm -rf /var/lib/apt/lists/* \
     && rm -f /usr/lib/x86_64-linux-gnu/libmfxhw* \
@@ -51,6 +52,9 @@ COPY src .
 COPY package.json ../
 
 EXPOSE 8191
+
+# dumb-init avoids zombie chromium processes
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
 CMD ["/usr/local/bin/python", "-u", "/app/flaresolverr.py"]
 
