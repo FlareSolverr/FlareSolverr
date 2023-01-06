@@ -1,13 +1,13 @@
+import atexit
+import logging
 import multiprocessing
 import os
 import platform
-import sys
+import signal
 from subprocess import PIPE
 from subprocess import Popen
-import atexit
-import traceback
-import logging
-import signal
+import sys
+
 
 CREATE_NEW_PROCESS_GROUP = 0x00000200
 DETACHED_PROCESS = 0x00000008
@@ -27,14 +27,12 @@ def start_detached(executable, *args):
     reader, writer = multiprocessing.Pipe(False)
 
     # do not keep reference
-    process = multiprocessing.Process(
+    multiprocessing.Process(
         target=_start_detached,
         args=(executable, *args),
         kwargs={"writer": writer},
         daemon=True,
-    )
-    process.start()
-    process.join()
+    ).start()
     # receive pid from pipe
     pid = reader.recv()
     REGISTERED.append(pid)

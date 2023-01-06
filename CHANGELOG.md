@@ -4,6 +4,7 @@
 
 * Kill Chromium processes properly to avoid defunct/zombie processes
 * Include procps (ps), curl and vim packages in the Docker image
+* Update undetected-chromedriver
 
 ## v3.0.0 (2023/01/04)
 

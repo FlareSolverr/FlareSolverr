@@ -17,6 +17,7 @@ by UltrafunkAmsterdam (https://github.com/ultrafunkamsterdam)
 
 """
 
+from distutils.version import LooseVersion
 import io
 import logging
 import os
@@ -24,11 +25,13 @@ import random
 import re
 import string
 import sys
+from urllib.request import urlopen
+from urllib.request import urlretrieve
 import zipfile
-from distutils.version import LooseVersion
-from urllib.request import urlopen, urlretrieve
 
-from selenium.webdriver import Chrome as _Chrome, ChromeOptions as _ChromeOptions
+from selenium.webdriver import Chrome as _Chrome
+from selenium.webdriver import ChromeOptions as _ChromeOptions
+
 
 TARGET_VERSION = 0
 logger = logging.getLogger("uc")
