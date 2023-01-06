@@ -1,6 +1,6 @@
 # Changelog
 
-## v3.1.0 (upcoming)
+## v3.0.1 (2023/01/06)
 
 * Kill Chromium processes properly to avoid defunct/zombie processes
 * Update undetected-chromedriver
