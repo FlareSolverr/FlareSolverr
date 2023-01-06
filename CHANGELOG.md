@@ -3,9 +3,10 @@
 ## v3.1.0 (upcoming)
 
 * Kill Chromium processes properly to avoid defunct/zombie processes
-* Include procps (ps), curl and vim packages in the Docker image
 * Update undetected-chromedriver
 * Disable Zygote sandbox in Chromium browser
+* Add more selectors to detect blocked access
+* Include procps (ps), curl and vim packages in the Docker image
 
 ## v3.0.0 (2023/01/04)
 

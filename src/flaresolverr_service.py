@@ -16,6 +16,8 @@ import utils
 ACCESS_DENIED_SELECTORS = [
     # Cloudflare
     'div.cf-error-title span.cf-code-label span'
+    # Cloudflare http://bitturk.net/ Firefox
+    '#cf-error-details div.cf-error-overview h1'
 ]
 CHALLENGE_TITLE = [
     # Cloudflare
