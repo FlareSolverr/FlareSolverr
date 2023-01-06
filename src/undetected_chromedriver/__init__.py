@@ -120,9 +120,10 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
         version_main=None,
         patcher_force_close=False,
         suppress_welcome=True,
-        use_subprocess=True,
+        use_subprocess=False,
         debug=False,
         no_sandbox=True,
+        windows_headless=False,
         **kw,
     ):
         """
@@ -403,17 +404,21 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
         if not desired_capabilities:
             desired_capabilities = options.to_capabilities()
 
-        if not use_subprocess:
+        if not use_subprocess and not windows_headless:
             self.browser_pid = start_detached(
                 options.binary_location, *options.arguments
             )
         else:
+            startupinfo = subprocess.STARTUPINFO()
+            if os.name == 'nt' and windows_headless:
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             browser = subprocess.Popen(
                 [options.binary_location, *options.arguments],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 close_fds=IS_POSIX,
+                startupinfo=startupinfo
             )
             self.browser_pid = browser.pid
 
@@ -698,6 +703,7 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
     def quit(self):
         try:
             self.service.process.kill()
+            self.service.process.wait(5)
             logger.debug("webdriver process ended")
         except (AttributeError, RuntimeError, OSError):
             pass
