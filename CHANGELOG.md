@@ -3,6 +3,7 @@
 ## v3.0.2 (2023/01/08)
 
 * Detect Cloudflare blocked access
+* Check Chrome / Chromium web browser is installed correctly
 
 ## v3.0.1 (2023/01/06)
 

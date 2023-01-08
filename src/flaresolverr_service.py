@@ -1,4 +1,5 @@
 import logging
+import sys
 import time
 from urllib.parse import unquote
 
@@ -42,6 +43,21 @@ SHORT_TIMEOUT = 10
 
 def test_browser_installation():
     logging.info("Testing web browser installation...")
+
+    chrome_exe_path = utils.get_chrome_exe_path()
+    if chrome_exe_path is None:
+        logging.error("Chrome / Chromium web browser not installed!")
+        sys.exit(1)
+    else:
+        logging.info("Chrome / Chromium path: " + chrome_exe_path)
+
+    chrome_major_version = utils.get_chrome_major_version()
+    if chrome_major_version == '':
+        logging.error("Chrome / Chromium version not detected!")
+        sys.exit(1)
+    else:
+        logging.info("Chrome / Chromium major version: " + chrome_major_version)
+
     user_agent = utils.get_user_agent()
     logging.info("FlareSolverr User-Agent: " + user_agent)
     logging.info("Test successful")

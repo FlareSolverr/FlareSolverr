@@ -88,6 +88,10 @@ def get_webdriver() -> WebDriver:
     return driver
 
 
+def get_chrome_exe_path() -> str:
+    return uc.find_chrome_executable()
+
+
 def get_chrome_major_version() -> str:
     global CHROME_MAJOR_VERSION
     if CHROME_MAJOR_VERSION is not None:
@@ -112,7 +116,6 @@ def get_chrome_major_version() -> str:
         process.close()
 
     CHROME_MAJOR_VERSION = complete_version.split('.')[0].split(' ')[-1]
-    logging.info(f"Chrome major version: {CHROME_MAJOR_VERSION}")
     return CHROME_MAJOR_VERSION
 
 
