@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.0.2 (2023/01/08)
+
+* Detect Cloudflare blocked access
+
 ## v3.0.1 (2023/01/06)
 
 * Kill Chromium processes properly to avoid defunct/zombie processes

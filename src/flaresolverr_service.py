@@ -13,13 +13,19 @@ from dtos import V1RequestBase, V1ResponseBase, ChallengeResolutionT, ChallengeR
     HealthResponse, STATUS_OK, STATUS_ERROR
 import utils
 
+ACCESS_DENIED_TITLES = [
+    # Cloudflare
+    'Access denied',
+    # Cloudflare http://bitturk.net/ Firefox
+    'Attention Required! | Cloudflare'
+]
 ACCESS_DENIED_SELECTORS = [
     # Cloudflare
-    'div.cf-error-title span.cf-code-label span'
+    'div.cf-error-title span.cf-code-label span',
     # Cloudflare http://bitturk.net/ Firefox
     '#cf-error-details div.cf-error-overview h1'
 ]
-CHALLENGE_TITLE = [
+CHALLENGE_TITLES = [
     # Cloudflare
     'Just a moment...',
     # DDoS-GUARD
@@ -174,7 +180,13 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     # wait for the page
     html_element = driver.find_element(By.TAG_NAME, "html")
+    page_title = driver.title
 
+    # find access denied titles
+    for title in ACCESS_DENIED_TITLES:
+        if title == page_title:
+            raise Exception('Cloudflare has blocked this request. '
+                            'Probably your IP is banned for this site, check in your web browser.')
     # find access denied selectors
     for selector in ACCESS_DENIED_SELECTORS:
         found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
@@ -184,8 +196,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     # find challenge by title
     challenge_found = False
-    page_title = driver.title
-    for title in CHALLENGE_TITLE:
+    for title in CHALLENGE_TITLES:
         if title == page_title:
             challenge_found = True
             logging.info("Challenge detected. Title found: " + title)
@@ -202,8 +213,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     if challenge_found:
         while True:
             try:
-                # wait until the title change
-                for title in CHALLENGE_TITLE:
+                # wait until the title changes
+                for title in CHALLENGE_TITLES:
                     logging.debug("Waiting for title: " + title)
                     WebDriverWait(driver, SHORT_TIMEOUT).until_not(title_is(title))
 
