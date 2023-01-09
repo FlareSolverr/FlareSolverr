@@ -64,14 +64,11 @@ Remember to restart the Docker daemon and the container after the update.
 
 ### Precompiled binaries
 
-This is the recommended way for Windows users.
-* Download the [FlareSolverr zip](https://github.com/FlareSolverr/FlareSolverr/releases) from the release's assets. It is available for Windows and Linux.
-* Extract the zip file. FlareSolverr executable and firefox folder must be in the same directory.
-* Execute FlareSolverr binary. In the environment variables section you can find how to change the configuration.
+Precompiled binaries are not currently available for v3. Please see https://github.com/FlareSolverr/FlareSolverr/issues/660 for updates,
+or below for instructions of how to build FlareSolverr from source code.
 
 ### From source code
 
-This is the recommended way for macOS users and for developers.
 * Install [Python 3.10](https://www.python.org/downloads/).
 * Install [Chrome](https://www.google.com/intl/en_us/chrome/) or [Chromium](https://www.chromium.org/getting-involved/download-chromium/) web browser.
 * (Only in Linux / macOS) Install [Xvfb](https://en.wikipedia.org/wiki/Xvfb) package.
