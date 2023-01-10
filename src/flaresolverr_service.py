@@ -7,12 +7,12 @@ from func_timeout import func_timeout, FunctionTimedOut
 from selenium.common import TimeoutException
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support.expected_conditions import presence_of_element_located, staleness_of, title_is
+from selenium.webdriver.support.wait import WebDriverWait
 
+import utils
 from dtos import V1RequestBase, V1ResponseBase, ChallengeResolutionT, ChallengeResolutionResultT, IndexResponse, \
     HealthResponse, STATUS_OK, STATUS_ERROR
-import utils
 
 ACCESS_DENIED_TITLES = [
     # Cloudflare
@@ -205,6 +205,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
                             'Probably your IP is banned for this site, check in your web browser.')
     # find access denied selectors
     for selector in ACCESS_DENIED_SELECTORS:
+        # ToDo: body seems empty using seleniumwire, thus challenge is not found
         found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
         if len(found_elements) > 0:
             raise Exception('Cloudflare has blocked this request. '
@@ -264,12 +265,19 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     challenge_res = ChallengeResolutionResultT({})
     challenge_res.url = driver.current_url
-    challenge_res.status = 200  # todo: fix, selenium not provides this info
+    try:
+        challenge_res.status = driver.requests[
+            0].headers  # Todo this is the status code BEFORE solving the challenge, so most likely a 403
+    except:
+        challenge_res.status = 200
     challenge_res.cookies = driver.get_cookies()
     challenge_res.userAgent = utils.get_user_agent(driver)
 
     if not req.returnOnlyCookies:
-        challenge_res.headers = {}  # todo: fix, selenium not provides this info
+        try:
+            challenge_res.headers = driver.requests[0].headers
+        except:
+            challenge_res.headers = {}
         challenge_res.response = driver.page_source
 
     res.result = challenge_res

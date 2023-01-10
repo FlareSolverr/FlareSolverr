@@ -4,7 +4,9 @@ import os
 import re
 import shutil
 
+import seleniumwire.undetected_chromedriver as sw_uc
 from selenium.webdriver.chrome.webdriver import WebDriver
+
 import undetected_chromedriver as uc
 
 FLARESOLVERR_VERSION = None
@@ -38,7 +40,7 @@ def get_webdriver() -> WebDriver:
     logging.debug('Launching web browser...')
 
     # undetected_chromedriver
-    options = uc.ChromeOptions()
+    options = sw_uc.ChromeOptions()
     options.add_argument('--no-sandbox')
     options.add_argument('--window-size=1920,1080')
     # todo: this param shows a warning in chrome head-full
@@ -69,8 +71,17 @@ def get_webdriver() -> WebDriver:
 
     # downloads and patches the chromedriver
     # if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
-    driver = uc.Chrome(options=options, driver_executable_path=driver_exe_path, version_main=version_main,
-                       windows_headless=windows_headless)
+    # ToDo: seleniumwire supports proxy through seleniumwire_options
+    # sw_options = {
+    #     'proxy': {
+    #         'http': 'http://192.168.10.100:8888',
+    #         'https': 'https://192.168.10.100:8888',
+    #         'no_proxy': 'localhost,127.0.0.1'
+    #     }
+    # }
+    sw_options = {}
+    driver = sw_uc.Chrome(options=options, driver_executable_path=driver_exe_path, version_main=version_main,
+                          windows_headless=windows_headless, seleniumwire_options=sw_options)
 
     # save the patched driver to avoid re-downloads
     if driver_exe_path is None:
