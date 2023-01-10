@@ -1,6 +1,7 @@
 bottle==0.12.23
 waitress==2.1.2
 selenium==4.7.2
+selenium-wire==5.1.0
 func-timeout==4.3.5
 # required by undetected_chromedriver
 requests==2.28.1
