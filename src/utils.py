@@ -35,7 +35,7 @@ def get_flaresolverr_version() -> str:
         return FLARESOLVERR_VERSION
 
 
-def get_webdriver() -> WebDriver:
+def get_webdriver(request_info=False) -> WebDriver:
     global PATCHED_DRIVER_PATH
     logging.debug('Launching web browser...')
 
@@ -69,17 +69,28 @@ def get_webdriver() -> WebDriver:
         if PATCHED_DRIVER_PATH is not None:
             driver_exe_path = PATCHED_DRIVER_PATH
 
+    # seleniumwire supports http or socks proxys (optionally with inline basic auth)
+    # see: https://pypi.org/project/selenium-wire/#proxies
+    proxy_info = None
+    if request_info:
+        try:
+            proxy_info = request_info.proxy
+        except:
+            pass
+
+    sw_options = {}
+    if proxy_info is not None:
+        proxy_url = proxy_info['url']  #
+        sw_options = {
+            'proxy': {
+                'http': proxy_url,
+                'https': proxy_url,
+                'no_proxy': 'localhost,127.0.0.1'
+            }
+        }
+
     # downloads and patches the chromedriver
     # if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
-    # ToDo: seleniumwire supports proxy through seleniumwire_options
-    # sw_options = {
-    #     'proxy': {
-    #         'http': 'http://192.168.10.100:8888',
-    #         'https': 'https://192.168.10.100:8888',
-    #         'no_proxy': 'localhost,127.0.0.1'
-    #     }
-    # }
-    sw_options = {}
     driver = sw_uc.Chrome(options=options, driver_executable_path=driver_exe_path, version_main=version_main,
                           windows_headless=windows_headless, seleniumwire_options=sw_options)
 
