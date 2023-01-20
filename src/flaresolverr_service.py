@@ -168,7 +168,7 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     return res
 
 
-def _cmd_sessions_create(req: V1RequestBase):
+def _cmd_sessions_create(req: V1RequestBase) -> V1ResponseBase:
     logging.debug("Creating new session...")
     session_id = req.session or str(uuid1())
     driver = utils.get_webdriver()
@@ -180,7 +180,7 @@ def _cmd_sessions_create(req: V1RequestBase):
     })
 
 
-def _cmd_sessions_list(req: V1RequestBase):
+def _cmd_sessions_list(req: V1RequestBase) -> V1ResponseBase:
     return V1ResponseBase({
         "status": STATUS_OK,
         "message": "",
@@ -188,7 +188,7 @@ def _cmd_sessions_list(req: V1RequestBase):
     })
 
 
-def _cmd_sessions_destroy(req: V1RequestBase):
+def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
     if req.session in SESSIONS_STORAGE:
         driver = SESSIONS_STORAGE.pop(req.session)
         driver.quit()
