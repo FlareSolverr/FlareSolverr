@@ -64,7 +64,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual("Error: Request parameter 'cmd' = 'request.bad' is invalid.", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
-        self.assertEqual(utils.get_flaresolverr_version(), body.version) 
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
 
     def test_v1_endpoint_request_get_no_cloudflare(self):
         res = self.app.post_json('/v1', {
@@ -78,7 +78,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual("Challenge not detected!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
-        self.assertEqual(utils.get_flaresolverr_version(), body.version) 
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
 
         solution = body.solution
         self.assertIn(self.google_url, solution.url)
@@ -100,7 +100,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual("Challenge solved!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
-        self.assertEqual(utils.get_flaresolverr_version(), body.version) 
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
 
         solution = body.solution
         self.assertIn(self.cloudflare_url, solution.url)
@@ -126,7 +126,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual("Challenge solved!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
-        self.assertEqual(utils.get_flaresolverr_version(), body.version) 
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
 
         solution = body.solution
         self.assertIn(self.cloudflare_url_2, solution.url)
@@ -152,7 +152,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual("Challenge solved!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
-        self.assertEqual(utils.get_flaresolverr_version(), body.version) 
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
 
         solution = body.solution
         self.assertIn(self.ddos_guard_url, solution.url)
@@ -178,7 +178,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual("Challenge solved!", body.message)
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
-        self.assertEqual(utils.get_flaresolverr_version(), body.version) 
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
 
         solution = body.solution
         self.assertIn(self.custom_cloudflare_url, solution.url)
@@ -351,13 +351,85 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual(STATUS_OK, body.status)
         self.assertEqual("Challenge not detected!", body.message)
 
-    # todo: test Cmd 'sessions.create' should return OK
-    # todo: test Cmd 'sessions.create' should return OK with session
-    # todo: test Cmd 'sessions.list' should return OK
-    # todo: test Cmd 'sessions.destroy' should return OK
-    # todo: test Cmd 'sessions.destroy' should fail
-    # todo: test Cmd 'request.get' should use session
+    def test_v1_endpoint_sessions_create_without_session(self):
+        res = self.app.post_json('/v1', {
+            "cmd": "sessions.create"
+        })
+        self.assertEqual(res.status_code, 200)
 
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+        self.assertEqual("Session created successfully.", body.message)
+        self.assertIsNotNone(body.session)
+
+    def test_v1_endpoint_sessions_create_with_session(self):
+        res = self.app.post_json('/v1', {
+            "cmd": "sessions.create",
+            "session": "test_create_session"
+        })
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+        self.assertEqual("Session created successfully.", body.message)
+        self.assertEqual(body.session, "test_create_session")
+
+    def test_v1_endpoint_sessions_list(self):
+        self.app.post_json('/v1', {
+            "cmd": "sessions.create",
+            "session": "test_list_sessions"
+        })
+        res = self.app.post_json('/v1', {
+            "cmd": "sessions.list"
+        })
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+        self.assertEqual("", body.message)
+        self.assertGreaterEqual(len(body.sessions), 1)
+        self.assertIn("test_list_sessions", body.sessions)
+
+    def test_v1_endpoint_sessions_destroy_existing_session(self):
+        self.app.post_json('/v1', {
+            "cmd": "sessions.create",
+            "session": "test_destroy_sessions"
+        })
+        res = self.app.post_json('/v1', {
+            "cmd": "sessions.destroy",
+            "session": "test_destroy_sessions"
+        })
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+        self.assertEqual("The session has been removed.", body.message)
+
+    def test_v1_endpoint_sessions_destroy_non_existing_session(self):
+        res = self.app.post_json('/v1', {
+            "cmd": "sessions.destroy",
+            "session": "non_existing_session_name"
+        }, status=500)
+        self.assertEqual(res.status_code, 500)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_ERROR, body.status)
+        self.assertEqual("Error: This session does not exist.", body.message)
+
+    def test_v1_endpoint_request_get_with_session(self):
+        self.app.post_json('/v1', {
+            "cmd": "sessions.create",
+            "session": "test_request_sessions"
+        })
+        res = self.app.post_json('/v1', {
+            "cmd": "request.get",
+            "session": "test_request_sessions",
+            "url": self.google_url
+        })
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
 
 if __name__ == '__main__':
     unittest.main()
