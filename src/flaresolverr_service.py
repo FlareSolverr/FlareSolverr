@@ -31,6 +31,8 @@ CHALLENGE_TITLES = [
     'Just a moment...',
     # DDoS-GUARD
     'DDOS-GUARD',
+    # DDoS-Guard https://anidex.info/ Chrome
+    'DDoS-Guard'
 ]
 CHALLENGE_SELECTORS = [
     # Cloudflare
