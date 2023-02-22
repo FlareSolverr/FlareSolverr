@@ -18,13 +18,17 @@ ACCESS_DENIED_TITLES = [
     # Cloudflare
     'Access denied',
     # Cloudflare http://bitturk.net/ Firefox
-    'Attention Required! | Cloudflare'
+    'Attention Required! | Cloudflare',
+    # PerimeterX | Cloudflare
+    'Access to this page has been denied.'
 ]
 ACCESS_DENIED_SELECTORS = [
     # Cloudflare
     'div.cf-error-title span.cf-code-label span',
     # Cloudflare http://bitturk.net/ Firefox
-    '#cf-error-details div.cf-error-overview h1'
+    '#cf-error-details div.cf-error-overview h1',
+    # PerimeterX | Cloudflare
+    '#px-captcha'
 ]
 CHALLENGE_TITLES = [
     # Cloudflare
@@ -200,7 +204,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     # find access denied titles
     for title in ACCESS_DENIED_TITLES:
-        if title == page_title:
+        if title.lower() == page_title.lower():
             raise Exception('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
     # find access denied selectors
@@ -213,7 +217,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     # find challenge by title
     challenge_found = False
     for title in CHALLENGE_TITLES:
-        if title == page_title:
+        if title.lower() == page_title.lower():
             challenge_found = True
             logging.info("Challenge detected. Title found: " + title)
             break
