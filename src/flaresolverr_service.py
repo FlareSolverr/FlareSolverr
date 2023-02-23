@@ -1,6 +1,8 @@
 import logging
 import sys
 import time
+from time import sleep
+import random
 from urllib.parse import unquote
 from uuid import uuid1
 
@@ -10,6 +12,8 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support.expected_conditions import presence_of_element_located, staleness_of, title_is
+from selenium.webdriver import ActionChains
+from selenium.webdriver.common.action_chains import ActionChains
 
 from dtos import V1RequestBase, V1ResponseBase, ChallengeResolutionT, ChallengeResolutionResultT, IndexResponse, \
     HealthResponse, STATUS_OK, STATUS_ERROR
@@ -21,7 +25,7 @@ ACCESS_DENIED_TITLES = [
     # Cloudflare http://bitturk.net/ Firefox
     'Attention Required! | Cloudflare',
     # PerimeterX | Cloudflare
-    'Access to this page has been denied.'
+    # 'Access to this page has been denied.'
 ]
 ACCESS_DENIED_SELECTORS = [
     # Cloudflare
@@ -250,9 +254,13 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     # find access denied selectors
     for selector in ACCESS_DENIED_SELECTORS:
         found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
-        if len(found_elements) > 0:
-            raise Exception('Cloudflare has blocked this request. '
-                            'Probably your IP is banned for this site, check in your web browser.')
+        
+        if len(found_elements) > 0 and selector == '#px-captcha':
+            _try_solve_perimeterx_captcha_mouse_movement(driver)
+            return _evil_logic(req, driver,method)
+        # else if len(found_elements) > 0:
+        #     raise Exception('Cloudflare has blocked this request. '
+        #                     'Probably your IP is banned for this site, check in your web browser.')
 
     # find challenge by title
     challenge_found = False
@@ -319,7 +327,33 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     res.result = challenge_res
     return res
 
-
+def _try_solve_perimeterx_captcha_mouse_movement(driver: WebDriver, retry=3):
+    '''
+    Solve blocked
+    (Cross-domain iframe cannot get elements temporarily)
+    Simulate the mouse press and hold to complete the verification
+    '''
+    if not retry:
+        return False
+    while retry != 0:
+        # find captcha bar
+        mouse_tracker = driver.find_element(By.ID, "px-captcha")
+        logging.info('Captcha Element: %s', mouse_tracker)
+        # click and hold captcha
+        ActionChains(driver) \
+            .move_to_element(mouse_tracker) \
+            .move_by_offset(-450 + random.randint(-25, 25), 0 + random.randint(-25, 25)) \
+            .click_and_hold() \
+            .perform()
+        sleep(6 + random.randint(-2, 2))
+        logging.info('Released captcha')
+        # release mouse button
+        ActionChains(driver).release().perform()
+        return # try just once
+    time.sleep(1)
+    retry -= 1
+    _try_solve_perimeterx_captcha_mouse_movement(retry)
+    
 def _post_request(req: V1RequestBase, driver: WebDriver):
     post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
     query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
