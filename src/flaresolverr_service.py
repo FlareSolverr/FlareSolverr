@@ -170,6 +170,12 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
 def _cmd_sessions_create(req: V1RequestBase) -> V1ResponseBase:
     logging.debug("Creating new session...")
     session_id = req.session or str(uuid1())
+    if session_id in SESSIONS_STORAGE:
+        return V1ResponseBase({
+            "status": STATUS_OK,
+            "message": "Session already exists.",
+            "session": session_id
+        })
     driver = utils.get_webdriver()
     SESSIONS_STORAGE[session_id] = driver
     return V1ResponseBase({
