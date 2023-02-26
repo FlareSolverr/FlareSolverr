@@ -27,14 +27,12 @@ def start_detached(executable, *args):
     reader, writer = multiprocessing.Pipe(False)
 
     # do not keep reference
-    process = multiprocessing.Process(
+    multiprocessing.Process(
         target=_start_detached,
         args=(executable, *args),
         kwargs={"writer": writer},
         daemon=True,
-    )
-    process.start()
-    process.join()
+    ).start()
     # receive pid from pipe
     pid = reader.recv()
     REGISTERED.append(pid)
@@ -46,7 +44,6 @@ def start_detached(executable, *args):
 
 
 def _start_detached(executable, *args, writer: multiprocessing.Pipe = None):
-
     # configure launch
     kwargs = {}
     if platform.system() == "Windows":
