@@ -194,15 +194,18 @@ def _cmd_sessions_list(req: V1RequestBase) -> V1ResponseBase:
 
 
 def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
-    if req.session in SESSIONS_STORAGE:
-        driver = SESSIONS_STORAGE.pop(req.session)
-        driver.quit()
+    if req.session not in SESSIONS_STORAGE:
         return V1ResponseBase({
             "status": STATUS_OK,
-            "message": "The session has been removed."
+            "message": "The session doesn't exists."
         })
-    else:
-        raise Exception("This session does not exist.")
+
+    driver = SESSIONS_STORAGE.pop(req.session)
+    driver.quit()
+    return V1ResponseBase({
+        "status": STATUS_OK,
+        "message": "The session has been removed."
+    })
 
 
 def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
