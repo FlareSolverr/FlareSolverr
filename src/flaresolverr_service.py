@@ -215,10 +215,14 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
         if req.session:
             if req.session in SESSIONS_STORAGE:
                 driver = SESSIONS_STORAGE[req.session]
+                logging.debug(f'Existing session is used to perform the request (session_id={req.session})')
             else:
-                raise Exception("This session does not exist. Use 'list_sessions' to see all the existing sessions.")
+                driver = utils.get_webdriver()
+                SESSIONS_STORAGE[req.session] = driver
+                logging.debug(f'New session has been created (session_id={req.session})')
         else:
             driver = utils.get_webdriver()
+            logging.debug('New instance of webdriver has been created to perform the request')
         return func_timeout(timeout, _evil_logic, (req, driver, method))
     except FunctionTimedOut:
         raise Exception(f'Error solving the challenge. Timeout after {timeout} seconds.')
@@ -227,6 +231,7 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
     finally:
         if not req.session and driver is not None:
             driver.quit()
+            logging.debug('A used instance of webdriver has been destroyed')
 
 
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
