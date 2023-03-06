@@ -7,7 +7,6 @@ import logging
 import os
 import random
 import re
-import secrets
 import string
 import sys
 import time
@@ -41,7 +40,7 @@ class Patcher(object):
         d = "~/appdata/roaming/undetected_chromedriver"
     elif "LAMBDA_TASK_ROOT" in os.environ:
         d = "/tmp/undetected_chromedriver"
-    elif platform.startswith(("linux","linux2")):
+    elif platform.startswith(("linux", "linux2")):
         d = "~/.local/share/undetected_chromedriver"
     elif platform.endswith("darwin"):
         d = "~/Library/Application Support/undetected_chromedriver"
@@ -51,7 +50,6 @@ class Patcher(object):
 
     def __init__(self, executable_path=None, force=False, version_main: int = 0):
         """
-
         Args:
             executable_path: None = automatic
                              a full file path to the chromedriver executable
@@ -60,10 +58,9 @@ class Patcher(object):
             version_main: 0 = auto
                 specify main chrome version (rounded, ex: 82)
         """
-
         self.force = force
-        self.executable_path = None
-        prefix = secrets.token_hex(8)
+        self._custom_exe_path = False
+        prefix = "undetected"
 
         if not os.path.exists(self.data_path):
             os.makedirs(self.data_path, exist_ok=True)
@@ -85,8 +82,6 @@ class Patcher(object):
                 os.path.join(".", self.executable_path)
             )
 
-        self._custom_exe_path = False
-
         if executable_path:
             self._custom_exe_path = True
             self.executable_path = executable_path
@@ -94,7 +89,6 @@ class Patcher(object):
         self.version_full = None
 
     def auto(self, executable_path=None, force=False, version_main=None):
-        """"""
         if executable_path:
             self.executable_path = executable_path
             self._custom_exe_path = True
@@ -206,43 +200,46 @@ class Patcher(object):
 
     @staticmethod
     def gen_random_cdc():
-        cdc = random.choices(string.ascii_lowercase, k=26)
-        cdc[-6:-4] = map(str.upper, cdc[-6:-4])
-        cdc[2] = cdc[0]
-        cdc[3] = "_"
+        cdc = random.choices(string.ascii_letters, k=27)
         return "".join(cdc).encode()
 
     def is_binary_patched(self, executable_path=None):
-        """simple check if executable is patched.
-
-        :return: False if not patched, else True
-        """
         executable_path = executable_path or self.executable_path
-        with io.open(executable_path, "rb") as fh:
-            for line in iter(lambda: fh.readline(), b""):
-                if b"cdc_" in line:
-                    return False
-            else:
-                return True
+        try:
+            with io.open(executable_path, "rb") as fh:
+                return fh.read().find(b"undetected chromedriver") != -1
+        except FileNotFoundError:
+            return False
 
     def patch_exe(self):
-        """
-        Patches the ChromeDriver binary
-
-        :return: False on failure, binary name on success
-        """
+        start = time.perf_counter()
         logger.info("patching driver executable %s" % self.executable_path)
-
-        linect = 0
-        replacement = self.gen_random_cdc()
         with io.open(self.executable_path, "r+b") as fh:
-            for line in iter(lambda: fh.readline(), b""):
-                if b"cdc_" in line:
-                    fh.seek(-len(line), 1)
-                    newline = re.sub(b"cdc_.{22}", replacement, line)
-                    fh.write(newline)
-                    linect += 1
-            return linect
+            content = fh.read()
+            # match_injected_codeblock = re.search(rb"{window.*;}", content)
+            match_injected_codeblock = re.search(rb"\{window\.cdc.*?;\}", content)
+            if match_injected_codeblock:
+                target_bytes = match_injected_codeblock[0]
+                new_target_bytes = (
+                    b'{console.log("undetected chromedriver 1337!")}'.ljust(
+                        len(target_bytes), b" "
+                    )
+                )
+                new_content = content.replace(target_bytes, new_target_bytes)
+                if new_content == content:
+                    logger.warning(
+                        "something went wrong patching the driver binary. could not find injection code block"
+                    )
+                else:
+                    logger.debug(
+                        "found block:\n%s\nreplacing with:\n%s"
+                        % (target_bytes, new_target_bytes)
+                    )
+                fh.seek(0)
+                fh.write(new_content)
+        logger.debug(
+            "patching took us {:.2f} seconds".format(time.perf_counter() - start)
+        )
 
     def __repr__(self):
         return "{0:s}({1:s})".format(
@@ -251,7 +248,6 @@ class Patcher(object):
         )
 
     def __del__(self):
-
         if self._custom_exe_path:
             # if the driver binary is specified by user
             # we assume it is important enough to not delete it
