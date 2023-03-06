@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.0.3 (2023/03/06)
+
+* Update undetected_chromedriver version to 3.4.6
+
 ## v3.0.2 (2023/01/08)
 
 * Detect Cloudflare blocked access
