@@ -7,6 +7,7 @@ from func_timeout import func_timeout, FunctionTimedOut
 from selenium.common import TimeoutException
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support.expected_conditions import presence_of_element_located, staleness_of, title_is
 
@@ -180,6 +181,45 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
             driver.quit()
 
 
+def click_verify(driver: WebDriver):
+    try:
+        logging.debug("Try to find the Cloudflare verify checkbox")
+        iframe = driver.find_element(By.XPATH, "//iframe[@title='Widget containing a Cloudflare security challenge']")
+        driver.switch_to.frame(iframe)
+        checkbox = driver.find_element(
+            by=By.XPATH,
+            value='//*[@id="cf-stage"]//label[@class="ctp-checkbox-label"]/input',
+        )
+        if checkbox:
+            actions = ActionChains(driver)
+            actions.move_to_element_with_offset(checkbox, 5, 7)
+            actions.click(checkbox)
+            actions.perform()
+            logging.debug("Cloudflare verify checkbox found and clicked")
+    except Exception as e:
+        logging.debug("Cloudflare verify checkbox not found on the page")
+        # print(e)
+    finally:
+        driver.switch_to.default_content()
+
+    try:
+        logging.debug("Try to find the Cloudflare 'Verify you are human' button")
+        button = driver.find_element(
+            by=By.XPATH,
+            value="//input[@type='button' and @value='Verify you are human']",
+        )
+        if button:
+            actions = ActionChains(driver)
+            actions.move_to_element_with_offset(button, 5, 7)
+            actions.click(button)
+            actions.perform()
+            logging.debug("The Cloudflare 'Verify you are human' button found and clicked")
+    except Exception as e:
+        logging.debug("The Cloudflare 'Verify you are human' button not found on the page")
+        # print(e)
+
+    time.sleep(2)
+
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
@@ -226,17 +266,19 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
                 logging.info("Challenge detected. Selector found: " + selector)
                 break
 
+    attempt = 0
     if challenge_found:
         while True:
             try:
+                attempt = attempt + 1
                 # wait until the title changes
                 for title in CHALLENGE_TITLES:
-                    logging.debug("Waiting for title: " + title)
+                    logging.debug("Waiting for title (attempt " + str(attempt) + "): " + title)
                     WebDriverWait(driver, SHORT_TIMEOUT).until_not(title_is(title))
 
                 # then wait until all the selectors disappear
                 for selector in CHALLENGE_SELECTORS:
-                    logging.debug("Waiting for selector: " + selector)
+                    logging.debug("Waiting for selector (attempt " + str(attempt) + "): " + selector)
                     WebDriverWait(driver, SHORT_TIMEOUT).until_not(
                         presence_of_element_located((By.CSS_SELECTOR, selector)))
 
@@ -245,6 +287,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
             except TimeoutException:
                 logging.debug("Timeout waiting for selector")
+
+                click_verify(driver)
+
                 # update the html (cloudflare reloads the page every 5 s)
                 html_element = driver.find_element(By.TAG_NAME, "html")
 
