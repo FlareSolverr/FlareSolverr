@@ -374,6 +374,21 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual("Session created successfully.", body.message)
         self.assertEqual(body.session, "test_create_session")
 
+    def test_v1_endpoint_session_create_same_twice(self):
+        self.app.post_json('/v1', {
+            "cmd": "sessions.create",
+            "session": "test_create_double_session"
+        })
+        res = self.app.post_json('/v1', {
+            "cmd": "sessions.create",
+            "session": "test_create_double_session"
+        }, status=500)
+        self.assertEqual(res.status_code, 500)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_ERROR, body.status)
+        self.assertEqual("Error: Session test_create_double_session already exists.", body.message)
+
     def test_v1_endpoint_sessions_list(self):
         self.app.post_json('/v1', {
             "cmd": "sessions.create",
