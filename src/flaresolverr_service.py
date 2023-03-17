@@ -1,19 +1,24 @@
 import logging
 import sys
 import time
+from datetime import timedelta
 from urllib.parse import unquote
 from uuid import uuid1
 
-from func_timeout import func_timeout, FunctionTimedOut
+from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.expected_conditions import (
+    presence_of_element_located, staleness_of, title_is)
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support.expected_conditions import presence_of_element_located, staleness_of, title_is
 
-from dtos import V1RequestBase, V1ResponseBase, ChallengeResolutionT, ChallengeResolutionResultT, IndexResponse, \
-    HealthResponse, STATUS_OK, STATUS_ERROR
 import utils
+from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
+                  ChallengeResolutionT, HealthResponse, IndexResponse,
+                  V1RequestBase, V1ResponseBase)
+from sessions import SessionsStorage
 
 ACCESS_DENIED_TITLES = [
     # Cloudflare
@@ -41,7 +46,7 @@ CHALLENGE_SELECTORS = [
 ]
 SHORT_TIMEOUT = 10
 
-SESSIONS_STORAGE = {}
+SESSIONS_STORAGE = SessionsStorage()
 
 def test_browser_installation():
     logging.info("Testing web browser installation...")
@@ -169,15 +174,17 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
 
 def _cmd_sessions_create(req: V1RequestBase) -> V1ResponseBase:
     logging.debug("Creating new session...")
-    session_id = req.session or str(uuid1())
-    if session_id in SESSIONS_STORAGE:
+
+    session, fresh = SESSIONS_STORAGE.create()
+    session_id = session.session_id
+
+    if not fresh:
         return V1ResponseBase({
             "status": STATUS_OK,
             "message": "Session already exists.",
             "session": session_id
         })
-    driver = utils.get_webdriver()
-    SESSIONS_STORAGE[session_id] = driver
+
     return V1ResponseBase({
         "status": STATUS_OK,
         "message": "Session created successfully.",
@@ -186,22 +193,25 @@ def _cmd_sessions_create(req: V1RequestBase) -> V1ResponseBase:
 
 
 def _cmd_sessions_list(req: V1RequestBase) -> V1ResponseBase:
+    session_ids = SESSIONS_STORAGE.session_ids()
+
     return V1ResponseBase({
         "status": STATUS_OK,
         "message": "",
-        "sessions": list(SESSIONS_STORAGE.keys())
+        "sessions": session_ids
     })
 
 
 def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
-    if req.session not in SESSIONS_STORAGE:
+    session_id = req.session
+    existed = SESSIONS_STORAGE.destroy(session_id)
+
+    if not existed:
         return V1ResponseBase({
             "status": STATUS_OK,
             "message": "The session doesn't exists."
         })
 
-    driver = SESSIONS_STORAGE.pop(req.session)
-    driver.quit()
     return V1ResponseBase({
         "status": STATUS_OK,
         "message": "The session has been removed."
@@ -213,13 +223,16 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
     driver = None
     try:
         if req.session:
-            if req.session in SESSIONS_STORAGE:
-                driver = SESSIONS_STORAGE[req.session]
-                logging.debug(f'Existing session is used to perform the request (session_id={req.session})')
+            session_id = req.session
+            ttl = timedelta(minutes=req.session_ttl_minutes) if req.session_ttl_minutes else None
+            session, fresh = SESSIONS_STORAGE.get(session_id, ttl)
+
+            if fresh:
+                logging.debug(f"new session created to perform the request (session_id={session_id})")
             else:
-                driver = utils.get_webdriver()
-                SESSIONS_STORAGE[req.session] = driver
-                logging.debug(f'New session has been created (session_id={req.session})')
+                logging.debug(f"existing session is used to perform the request (session_id={session_id}, lifetime={str(session.lifetime())}, ttl={str(ttl)})")
+
+            driver = session.driver
         else:
             driver = utils.get_webdriver()
             logging.debug('New instance of webdriver has been created to perform the request')
