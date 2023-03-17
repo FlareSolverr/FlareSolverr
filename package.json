@@ -1,6 +1,6 @@
 {
   "name": "flaresolverr",
-  "version": "3.0.2",
+  "version": "3.0.4",
   "description": "Proxy server to bypass Cloudflare protection",
   "author": "Diego Heras (ngosang / ngosang@hotmail.es)",
   "license": "MIT"

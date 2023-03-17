@@ -6,6 +6,7 @@ import json
 import logging
 import threading
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -63,9 +64,7 @@ class Reactor(threading.Thread):
                     break
 
     async def listen(self):
-
         while self.running:
-
             await self._wait_service_started()
             await asyncio.sleep(1)
 
@@ -74,9 +73,7 @@ class Reactor(threading.Thread):
                     log_entries = self.driver.get_log("performance")
 
                 for entry in log_entries:
-
                     try:
-
                         obj_serialized: str = entry.get("message")
                         obj = json.loads(obj_serialized)
                         message = obj.get("message")

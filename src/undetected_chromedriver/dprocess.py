@@ -46,7 +46,6 @@ def start_detached(executable, *args):
 
 
 def _start_detached(executable, *args, writer: multiprocessing.Pipe = None):
-
     # configure launch
     kwargs = {}
     if platform.system() == "Windows":
