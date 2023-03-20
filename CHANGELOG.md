@@ -1,6 +1,18 @@
 # Changelog
 
-## v3.0.4 (2023/03/07
+## v3.1.0 (2023/03/20)
+
+* Build binaries for Linux x64 and Windows x64
+* Sessions with auto-creation on fetch request and TTL
+* Fix error trace: Crash Reports/pending No such file or directory
+* Fix Waitress server error with asyncore_use_poll=true
+* Attempt to fix Docker ARM32 build
+* Print platform information on start up
+* Add Fairlane challenge selector
+* Update DDOS-GUARD title
+* Update dependencies
+
+## v3.0.4 (2023/03/07)
 
 * Click on the Cloudflare's 'Verify you are human' button if necessary
 
