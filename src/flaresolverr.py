@@ -3,11 +3,11 @@ import logging
 import os
 import sys
 
-from bottle import run, response, Bottle, request
+from bottle import run, response, Bottle, request, ServerAdapter
 
 from bottle_plugins.error_plugin import error_plugin
 from bottle_plugins.logger_plugin import logger_plugin
-from dtos import IndexResponse, V1RequestBase
+from dtos import V1RequestBase
 import flaresolverr_service
 import utils
 
@@ -92,4 +92,10 @@ if __name__ == "__main__":
 
     # start webserver
     # default server 'wsgiref' does not support concurrent requests
-    run(app, host=server_host, port=server_port, quiet=True, server='waitress')
+    # https://github.com/FlareSolverr/FlareSolverr/issues/680
+    # https://github.com/Pylons/waitress/issues/31
+    class WaitressServerPoll(ServerAdapter):
+        def run(self, handler):
+            from waitress import serve
+            serve(handler, host=self.host, port=self.port, asyncore_use_poll=True)
+    run(app, host=server_host, port=server_port, quiet=True, server=WaitressServerPoll)
