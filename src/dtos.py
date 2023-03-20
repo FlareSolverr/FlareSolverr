@@ -52,6 +52,8 @@ class V1ResponseBase(object):
     # V1ResponseBase
     status: str = None
     message: str = None
+    session: str = None
+    sessions: list[str] = None
     startTimestamp: int = None
     endTimestamp: int = None
     version: str = None

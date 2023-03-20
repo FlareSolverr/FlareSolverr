@@ -4,12 +4,10 @@ import sys
 import time
 from datetime import timedelta
 from urllib.parse import unquote
-from uuid import uuid1
 
 from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
 from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import (
     presence_of_element_located, staleness_of, title_is)
@@ -49,8 +47,8 @@ CHALLENGE_SELECTORS = [
     'div.vc div.text-box h2'
 ]
 SHORT_TIMEOUT = 10
-
 SESSIONS_STORAGE = SessionsStorage()
+
 
 def test_browser_installation():
     logging.info("Testing web browser installation...")
@@ -181,7 +179,7 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
 def _cmd_sessions_create(req: V1RequestBase) -> V1ResponseBase:
     logging.debug("Creating new session...")
 
-    session, fresh = SESSIONS_STORAGE.create()
+    session, fresh = SESSIONS_STORAGE.create(session_id=req.session)
     session_id = session.session_id
 
     if not fresh:
@@ -213,10 +211,7 @@ def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
     existed = SESSIONS_STORAGE.destroy(session_id)
 
     if not existed:
-        return V1ResponseBase({
-            "status": STATUS_OK,
-            "message": "The session doesn't exists."
-        })
+        raise Exception("The session doesn't exist.")
 
     return V1ResponseBase({
         "status": STATUS_OK,
@@ -236,7 +231,8 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
             if fresh:
                 logging.debug(f"new session created to perform the request (session_id={session_id})")
             else:
-                logging.debug(f"existing session is used to perform the request (session_id={session_id}, lifetime={str(session.lifetime())}, ttl={str(ttl)})")
+                logging.debug(f"existing session is used to perform the request (session_id={session_id}, "
+                              f"lifetime={str(session.lifetime())}, ttl={str(ttl)})")
 
             driver = session.driver
         else:
@@ -268,9 +264,8 @@ def click_verify(driver: WebDriver):
             actions.click(checkbox)
             actions.perform()
             logging.debug("Cloudflare verify checkbox found and clicked")
-    except Exception as e:
+    except Exception:
         logging.debug("Cloudflare verify checkbox not found on the page")
-        # print(e)
     finally:
         driver.switch_to.default_content()
 
@@ -291,6 +286,7 @@ def click_verify(driver: WebDriver):
         # print(e)
 
     time.sleep(2)
+
 
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
     res = ChallengeResolutionT({})

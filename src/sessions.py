@@ -17,7 +17,8 @@ class Session:
 
     def lifetime(self) -> timedelta:
         return datetime.now() - self.created_at
-    
+
+
 class SessionsStorage:
     """SessionsStorage creates, stores and process all the sessions"""
 
@@ -25,12 +26,12 @@ class SessionsStorage:
         self.sessions = {}
 
     def create(self, session_id: Optional[str] = None, force_new: Optional[bool] = False) -> Tuple[Session, bool]:
-        """create creates new instance of WebDriver if neccessary,
+        """create creates new instance of WebDriver if necessary,
         assign defined (or newly generated) session_id to the instance
         and returns the session object. If a new session has been created
         second argument is set to True.
 
-        Note: The function is idemponent, so in case if session_id 
+        Note: The function is idempotent, so in case if session_id
         already exists in the storage a new instance of WebDriver won't be created
         and existing session will be returned. Second argument defines if 
         new session has been created (True) or an existing one was used (False).
@@ -70,13 +71,11 @@ class SessionsStorage:
     def get(self, session_id: str, ttl: Optional[timedelta] = None) -> Tuple[Session, bool]:
         session, fresh = self.create(session_id)
 
-        if ttl != None and not fresh and session.lifetime() > ttl:
+        if ttl is not None and not fresh and session.lifetime() > ttl:
             logging.debug(f'session\'s lifetime has expired, so the session is recreated (session_id={session_id})')
-            session, fresh = self.create(session_id, force_new = True)
+            session, fresh = self.create(session_id, force_new=True)
 
         return session, fresh
 
-        
     def session_ids(self) -> list[str]:
         return list(self.sessions.keys())
-

@@ -437,11 +437,11 @@ class TestFlareSolverr(unittest.TestCase):
             "cmd": "sessions.destroy",
             "session": "non_existing_session_name"
         }, status=500)
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 500)
 
         body = V1ResponseBase(res.json)
         self.assertEqual(STATUS_ERROR, body.status)
-        self.assertEqual("The session doesn't exists.", body.message)
+        self.assertEqual("Error: The session doesn't exist.", body.message)
 
     def test_v1_endpoint_request_get_with_session(self):
         self.app.post_json('/v1', {
@@ -457,6 +457,7 @@ class TestFlareSolverr(unittest.TestCase):
 
         body = V1ResponseBase(res.json)
         self.assertEqual(STATUS_OK, body.status)
+
 
 if __name__ == '__main__':
     unittest.main()
