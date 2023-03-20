@@ -31,7 +31,7 @@ CHALLENGE_TITLES = [
     # Cloudflare
     'Just a moment...',
     # DDoS-GUARD
-    'DDOS-GUARD',
+    'DDoS-Guard'
 ]
 CHALLENGE_SELECTORS = [
     # Cloudflare
@@ -253,9 +253,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     # find challenge by title
     challenge_found = False
     for title in CHALLENGE_TITLES:
-        if title == page_title:
+        if title.lower() == page_title.lower():
             challenge_found = True
-            logging.info("Challenge detected. Title found: " + title)
+            logging.info("Challenge detected. Title found: " + page_title)
             break
     if not challenge_found:
         # find challenge by selectors
