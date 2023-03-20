@@ -1,4 +1,5 @@
 import logging
+import platform
 import sys
 import time
 from urllib.parse import unquote
@@ -44,6 +45,7 @@ SHORT_TIMEOUT = 10
 
 def test_browser_installation():
     logging.info("Testing web browser installation...")
+    logging.info("Platform: " + platform.platform())
 
     chrome_exe_path = utils.get_chrome_exe_path()
     if chrome_exe_path is None:
@@ -59,9 +61,10 @@ def test_browser_installation():
     else:
         logging.info("Chrome / Chromium major version: " + chrome_major_version)
 
+    logging.info("Launching web browser...")
     user_agent = utils.get_user_agent()
     logging.info("FlareSolverr User-Agent: " + user_agent)
-    logging.info("Test successful")
+    logging.info("Test successful!")
 
 
 def index_endpoint() -> IndexResponse:
