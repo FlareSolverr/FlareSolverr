@@ -30,7 +30,7 @@ RUN dpkg -i /libgl1-mesa-dri.deb \
     # Install dependencies
     && apt-get update \
     && apt-get install -y --no-install-recommends chromium chromium-common chromium-driver xvfb dumb-init \
-        procps curl vim \
+        procps curl vim xauth \
     # Remove temporary files and hardware decoding libraries
     && rm -rf /var/lib/apt/lists/* \
     && rm -f /usr/lib/x86_64-linux-gnu/libmfxhw* \
@@ -67,3 +67,9 @@ CMD ["/usr/local/bin/python", "-u", "/app/flaresolverr.py"]
 # docker buildx create --use
 # docker buildx build -t ngosang/flaresolverr:3.0.0 --platform linux/386,linux/amd64,linux/arm/v7,linux/arm64/v8 .
 #   add --push to publish in DockerHub
+
+# Test multi-arch build
+# docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+# docker buildx create --use
+# docker buildx build -t ngosang/flaresolverr:3.0.0 --platform linux/arm/v7 --load .
+# docker run -p 8191:8191 --platform linux/arm/v7 ngosang/flaresolverr:3.0.0

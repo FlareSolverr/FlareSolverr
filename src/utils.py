@@ -46,6 +46,11 @@ def get_webdriver() -> WebDriver:
     options.add_argument('--disable-dev-shm-usage')
     # this option removes the zygote sandbox (it seems that the resolution is a bit faster)
     options.add_argument('--no-zygote')
+    # attempt to fix Docker ARM32 build
+    options.add_argument('--disable-gpu-sandbox')
+    options.add_argument('--disable-software-rasterizer')
+    options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--ignore-ssl-errors')
 
     # note: headless mode is detected (options.headless = True)
     # we launch the browser in head-full mode with the window hidden
