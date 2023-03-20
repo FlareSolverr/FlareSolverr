@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 
+import certifi
 from bottle import run, response, Bottle, request, ServerAdapter
 
 from bottle_plugins.error_plugin import error_plugin
@@ -60,6 +61,12 @@ def controller_v1():
 
 
 if __name__ == "__main__":
+    # fix ssl certificates for compiled binaries
+    # https://github.com/pyinstaller/pyinstaller/issues/7229
+    # https://stackoverflow.com/questions/55736855/how-to-change-the-cafile-argument-in-the-ssl-module-in-python3
+    os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
+    os.environ["SSL_CERT_FILE"] = certifi.where()
+
     # validate configuration
     log_level = os.environ.get('LOG_LEVEL', 'info').upper()
     log_html = utils.get_config_log_html()

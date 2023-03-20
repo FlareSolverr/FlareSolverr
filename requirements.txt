@@ -4,6 +4,9 @@ selenium==4.8.2
 func-timeout==4.3.5
 # required by undetected_chromedriver
 requests==2.28.2
+certifi==2022.12.7
 websockets==10.4
 # only required for linux
 xvfbwrapper==0.2.9
+# only required for windows
+pefile==2023.2.7

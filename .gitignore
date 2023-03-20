@@ -25,6 +25,7 @@ __pycache__/
 build/
 develop-eggs/
 dist/
+dist_chrome/
 downloads/
 eggs/
 .eggs/

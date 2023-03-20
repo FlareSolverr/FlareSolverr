@@ -8,6 +8,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 import undetected_chromedriver as uc
 
 FLARESOLVERR_VERSION = None
+CHROME_EXE_PATH = None
 CHROME_MAJOR_VERSION = None
 USER_AGENT = None
 XVFB_DISPLAY = None
@@ -28,6 +29,8 @@ def get_flaresolverr_version() -> str:
         return FLARESOLVERR_VERSION
 
     package_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'package.json')
+    if not os.path.isfile(package_path):
+        package_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'package.json')
     with open(package_path) as f:
         FLARESOLVERR_VERSION = json.loads(f.read())['version']
         return FLARESOLVERR_VERSION
@@ -72,9 +75,13 @@ def get_webdriver() -> WebDriver:
         if PATCHED_DRIVER_PATH is not None:
             driver_exe_path = PATCHED_DRIVER_PATH
 
+    # detect chrome path
+    browser_executable_path = get_chrome_exe_path()
+
     # downloads and patches the chromedriver
     # if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
-    driver = uc.Chrome(options=options, driver_executable_path=driver_exe_path, version_main=version_main,
+    driver = uc.Chrome(options=options, browser_executable_path=browser_executable_path,
+                       driver_executable_path=driver_exe_path, version_main=version_main,
                        windows_headless=windows_headless)
 
     # save the patched driver to avoid re-downloads
@@ -94,7 +101,22 @@ def get_webdriver() -> WebDriver:
 
 
 def get_chrome_exe_path() -> str:
-    return uc.find_chrome_executable()
+    global CHROME_EXE_PATH
+    if CHROME_EXE_PATH is not None:
+        return CHROME_EXE_PATH
+    # linux pyinstaller bundle
+    chrome_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'chrome', "chrome")
+    if os.path.exists(chrome_path) and os.access(chrome_path, os.X_OK):
+        CHROME_EXE_PATH = chrome_path
+        return CHROME_EXE_PATH
+    # windows pyinstaller bundle
+    chrome_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'chrome', "chrome.exe")
+    if os.path.exists(chrome_path) and os.access(chrome_path, os.X_OK):
+        CHROME_EXE_PATH = chrome_path
+        return CHROME_EXE_PATH
+    # system
+    CHROME_EXE_PATH = uc.find_chrome_executable()
+    return CHROME_EXE_PATH
 
 
 def get_chrome_major_version() -> str:
@@ -103,17 +125,17 @@ def get_chrome_major_version() -> str:
         return CHROME_MAJOR_VERSION
 
     if os.name == 'nt':
+        # Example: '104.0.5112.79'
         try:
-            stream = os.popen(
-                'reg query "HKLM\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome"')
-            output = stream.read()
-            # Example: '104.0.5112.79'
-            complete_version = extract_version_registry(output)
+            complete_version = extract_version_nt_executable(get_chrome_exe_path())
         except Exception:
-            # Example: '104.0.5112.79'
-            complete_version = extract_version_folder()
+            try:
+                complete_version = extract_version_nt_registry()
+            except Exception:
+                # Example: '104.0.5112.79'
+                complete_version = extract_version_nt_folder()
     else:
-        chrome_path = uc.find_chrome_executable()
+        chrome_path = get_chrome_exe_path()
         process = os.popen(f'"{chrome_path}" --version')
         # Example 1: 'Chromium 104.0.5112.79 Arch Linux\n'
         # Example 2: 'Google Chrome 104.0.5112.79 Arch Linux\n'
@@ -124,20 +146,29 @@ def get_chrome_major_version() -> str:
     return CHROME_MAJOR_VERSION
 
 
-def extract_version_registry(output) -> str:
-    try:
-        google_version = ''
-        for letter in output[output.rindex('DisplayVersion    REG_SZ') + 24:]:
-            if letter != '\n':
-                google_version += letter
-            else:
-                break
-        return google_version.strip()
-    except TypeError:
-        return ''
+def extract_version_nt_executable(exe_path: str) -> str:
+    import pefile
+    pe = pefile.PE(exe_path, fast_load=True)
+    pe.parse_data_directories(
+        directories=[pefile.DIRECTORY_ENTRY["IMAGE_DIRECTORY_ENTRY_RESOURCE"]]
+    )
+    return pe.FileInfo[0][0].StringTable[0].entries[b"FileVersion"].decode('utf-8')
 
 
-def extract_version_folder() -> str:
+def extract_version_nt_registry() -> str:
+    stream = os.popen(
+        'reg query "HKLM\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome"')
+    output = stream.read()
+    google_version = ''
+    for letter in output[output.rindex('DisplayVersion    REG_SZ') + 24:]:
+        if letter != '\n':
+            google_version += letter
+        else:
+            break
+    return google_version.strip()
+
+
+def extract_version_nt_folder() -> str:
     # Check if the Chrome folder exists in the x32 or x64 Program Files folders.
     for i in range(2):
         path = 'C:\\Program Files' + (' (x86)' if i else '') + '\\Google\\Chrome\\Application'
