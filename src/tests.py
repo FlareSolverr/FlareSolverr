@@ -23,6 +23,7 @@ class TestFlareSolverr(unittest.TestCase):
     cloudflare_url = "https://nowsecure.nl"
     cloudflare_url_2 = "https://idope.se/torrent-list/harry/"
     ddos_guard_url = "https://anidex.info/"
+    fairlane_url = "https://www.pararius.com/apartments/amsterdam"
     custom_cloudflare_url = "https://www.muziekfabriek.org"
     cloudflare_blocked_url = "https://cpasbiens3.fr/index.php?do=search&subaction=search"
 
@@ -165,6 +166,32 @@ class TestFlareSolverr(unittest.TestCase):
         cf_cookie = _find_obj_by_key("name", "__ddg1_", solution.cookies)
         self.assertIsNotNone(cf_cookie, "DDOS-Guard cookie not found")
         self.assertGreater(len(cf_cookie["value"]), 10)
+
+    def test_v1_endpoint_request_get_fairlane_js(self):
+        res = self.app.post_json('/v1', {
+            "cmd": "request.get",
+            "url": self.fairlane_url
+        })
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+        self.assertEqual("Challenge solved!", body.message)
+        self.assertGreater(body.startTimestamp, 10000)
+        self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
+
+        solution = body.solution
+        self.assertIn(self.fairlane_url, solution.url)
+        self.assertEqual(solution.status, 200)
+        self.assertIs(len(solution.headers), 0)
+        self.assertIn("<title>Rental Apartments Amsterdam</title>", solution.response)
+        self.assertGreater(len(solution.cookies), 0)
+        self.assertIn("Chrome/", solution.userAgent)
+
+        cf_cookie = _find_obj_by_key("name", "fl_pass_v2_b", solution.cookies)
+        self.assertIsNotNone(cf_cookie, "Fairlane cookie not found")
+        self.assertGreater(len(cf_cookie["value"]), 50)
 
     def test_v1_endpoint_request_get_custom_cloudflare_js(self):
         res = self.app.post_json('/v1', {
