@@ -57,6 +57,7 @@ def run_pyinstaller():
     sep = ';' if os.name == 'nt' else ':'
     subprocess.check_call([sys.executable, "-m", "PyInstaller",
                            "--onefile",
+                           "--icon", "resources/flaresolverr_logo.ico",
                            "--add-data", f"package.json{sep}.",
                            "--add-data", f"{os.path.join('dist_chrome', 'chrome')}{sep}chrome",
                            os.path.join("src", "flaresolverr.py")],
