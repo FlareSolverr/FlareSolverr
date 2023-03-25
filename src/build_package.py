@@ -56,19 +56,23 @@ def download_chromium():
 def run_pyinstaller():
     sep = ';' if os.name == 'nt' else ':'
     subprocess.check_call([sys.executable, "-m", "PyInstaller",
-                           "--onefile",
                            "--icon", "resources/flaresolverr_logo.ico",
                            "--add-data", f"package.json{sep}.",
                            "--add-data", f"{os.path.join('dist_chrome', 'chrome')}{sep}chrome",
                            os.path.join("src", "flaresolverr.py")],
                           cwd=os.pardir)
-    exe_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'dist')
-    exe_name = 'flaresolverr.exe' if os.name == 'nt' else 'flaresolverr'
-    exe_new_name = 'flaresolverr_windows_x64.exe' if os.name == 'nt' else 'flaresolverr_linux_x64'
-    exe_path = os.path.join(exe_folder, exe_name)
-    exe_new_path = os.path.join(exe_folder, exe_new_name)
-    shutil.move(exe_path, exe_new_path)
-    print("Executable path: " + exe_new_path)
+
+
+def compress_package():
+    dist_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'dist')
+    exe_folder = os.path.join(dist_folder, 'flaresolverr')
+    print("Executable folder: " + exe_folder)
+
+    compr_format = 'zip' if os.name == 'nt' else 'gztar'
+    compr_file_name = 'flaresolverr_windows_x64' if os.name == 'nt' else 'flaresolverr_linux_x64'
+    compr_file_path = os.path.join(dist_folder, compr_file_name)
+    shutil.make_archive(compr_file_path, compr_format, dist_folder)
+    print("Compressed file path: " + compr_file_path)
 
 
 if __name__ == "__main__":
@@ -83,5 +87,8 @@ if __name__ == "__main__":
 
     print("Building pyinstaller executable... ")
     run_pyinstaller()
+
+    print("Compressing package... ")
+    compress_package()
 
 # NOTE: python -m pip install pyinstaller

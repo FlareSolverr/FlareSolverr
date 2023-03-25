@@ -6,7 +6,7 @@ on:
       - 'v*.*.*'
 
 jobs:
-  build:
+  build-docker-images:
     runs-on: ubuntu-22.04
     steps:
       -

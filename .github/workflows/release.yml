@@ -36,7 +36,7 @@ jobs:
           draft: false
           prerelease: false
 
-  build-linux:
+  build-linux-package:
     name: Build Linux binary
     needs: create-release
     runs-on: ubuntu-22.04
@@ -65,7 +65,7 @@ jobs:
         with:
           asset_paths: '["./dist/flaresolverr_*"]'
 
-  build-windows:
+  build-windows-package:
     name: Build Windows binary
     needs: create-release
     runs-on: windows-2022
