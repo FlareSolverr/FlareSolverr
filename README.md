@@ -64,11 +64,17 @@ Remember to restart the Docker daemon and the container after the update.
 
 ### Precompiled binaries
 
+> **Warning**
+> Precompiled binaries are only available for x64 architecture. For other architectures see Docker images.
+
 This is the recommended way for Windows users.
 * Download the [FlareSolverr executable](https://github.com/FlareSolverr/FlareSolverr/releases) from the release's page. It is available for Windows x64 and Linux x64.
 * Execute FlareSolverr binary. In the environment variables section you can find how to change the configuration.
 
 ### From source code
+
+> **Warning**
+> Installing from source code only works for x64 architecture. For other architectures see Docker images.
 
 * Install [Python 3.11](https://www.python.org/downloads/).
 * Install [Chrome](https://www.google.com/intl/en_us/chrome/) (all OS) or [Chromium](https://www.chromium.org/getting-involved/download-chromium/) (just Linux, it doesn't work in Windows) web browser.
@@ -148,7 +154,8 @@ session. When you no longer need to use a session you should make sure to close 
 | returnOnlyCookies   | Optional, default false. Only returns the cookies. Response data, headers and other parts of the response are removed.                                                                                                                                                                                                                       |
 | proxy               | Optional, default disabled. Eg: `"proxy": {"url": "http://127.0.0.1:8888"}`. You must include the proxy schema in the URL: `http://`, `socks4://` or `socks5://`. Authorization (username/password) is not supported. (When the `session` parameter is set, the proxy is ignored; a session specific proxy can be set in `sessions.create`.) |
 
-:warning: If you want to use Cloudflare clearance cookie in your scripts, make sure you use the FlareSolverr User-Agent too. If they don't match you will see the challenge.
+> **Warning**
+> If you want to use Cloudflare clearance cookie in your scripts, make sure you use the FlareSolverr User-Agent too. If they don't match you will see the challenge.
 
 Example response from running the `curl` above:
 
@@ -238,13 +245,14 @@ Environment variables are set differently depending on the operating system. Som
 
 ## Captcha Solvers
 
-:warning: At this time none of the captcha solvers work. You can check the status in the open issues. Any help is welcome.
+> **Warning**
+> At this time none of the captcha solvers work. You can check the status in the open issues. Any help is welcome.
 
 Sometimes CloudFlare not only gives mathematical computations and browser tests, sometimes they also require the user to
 solve a captcha.
 If this is the case, FlareSolverr will return the error `Captcha detected but no automatic solver is configured.`
 
-FlareSolverr can be customized to solve the captchas automatically by setting the environment variable `CAPTCHA_SOLVER`
+FlareSolverr can be customized to solve the CAPTCHA automatically by setting the environment variable `CAPTCHA_SOLVER`
 to the file name of one of the adapters inside the [/captcha](src/captcha) directory.
 
 ## Related projects
