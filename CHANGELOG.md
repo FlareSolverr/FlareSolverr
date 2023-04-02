@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.1.2 (2023/04/02)
+
+* Fix headless mode in macOS
+* Remove redundant artifact from Windows binary package
+* Bump Selenium dependency
+
 ## v3.1.1 (2023/03/25)
 
 * Distribute binary executables in compressed package
