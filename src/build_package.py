@@ -65,13 +65,14 @@ def run_pyinstaller():
 
 def compress_package():
     dist_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'dist')
-    exe_folder = os.path.join(dist_folder, 'flaresolverr')
-    print("Executable folder: " + exe_folder)
+    package_folder = os.path.join(dist_folder, 'package')
+    shutil.move(os.path.join(dist_folder, 'flaresolverr'), os.path.join(package_folder, 'flaresolverr'))
+    print("Package folder: " + package_folder)
 
     compr_format = 'zip' if os.name == 'nt' else 'gztar'
     compr_file_name = 'flaresolverr_windows_x64' if os.name == 'nt' else 'flaresolverr_linux_x64'
     compr_file_path = os.path.join(dist_folder, compr_file_name)
-    shutil.make_archive(compr_file_path, compr_format, dist_folder)
+    shutil.make_archive(compr_file_path, compr_format, package_folder)
     print("Compressed file path: " + compr_file_path)
 
 
