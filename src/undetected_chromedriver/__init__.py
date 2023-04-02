@@ -372,9 +372,10 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             options.arguments.extend(["--no-sandbox", "--test-type"])
 
         if headless or options.headless:
-            if self.patcher.version_main < 108:
+            v_main = int(self.patcher.version_main) if self.patcher.version_main else 108
+            if v_main < 108:
                 options.add_argument("--headless=chrome")
-            elif self.patcher.version_main >= 108:
+            elif v_main >= 108:
                 options.add_argument("--headless=new")
 
         options.add_argument("--window-size=1920,1080")
