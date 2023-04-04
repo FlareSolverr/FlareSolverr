@@ -36,7 +36,7 @@ def get_flaresolverr_version() -> str:
         return FLARESOLVERR_VERSION
 
 
-def get_webdriver() -> WebDriver:
+def get_webdriver(proxyconf: dict=None) -> WebDriver:
     global PATCHED_DRIVER_PATH
     logging.debug('Launching web browser...')
 
@@ -54,6 +54,11 @@ def get_webdriver() -> WebDriver:
     options.add_argument('--disable-software-rasterizer')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
+
+    if proxyconf:
+        proxy_url = proxyconf['url']
+        logging.debug("Using webdriver proxy: %s", proxy_url)
+        options.add_argument('--proxy-server=%s' % proxy_url)
 
     # note: headless mode is detected (options.headless = True)
     # we launch the browser in head-full mode with the window hidden

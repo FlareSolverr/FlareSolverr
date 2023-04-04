@@ -25,7 +25,7 @@ class SessionsStorage:
     def __init__(self):
         self.sessions = {}
 
-    def create(self, session_id: Optional[str] = None, force_new: Optional[bool] = False) -> Tuple[Session, bool]:
+    def create(self, session_id: Optional[str] = None, proxyconf: Optional[dict] = None, force_new: Optional[bool] = False) -> Tuple[Session, bool]:
         """create creates new instance of WebDriver if necessary,
         assign defined (or newly generated) session_id to the instance
         and returns the session object. If a new session has been created
@@ -44,7 +44,7 @@ class SessionsStorage:
         if self.exists(session_id):
             return self.sessions[session_id], False
 
-        driver = utils.get_webdriver()
+        driver = utils.get_webdriver(proxyconf=proxyconf)
         created_at = datetime.now()
         session = Session(session_id, driver, created_at)
 
