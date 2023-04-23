@@ -10,6 +10,7 @@ class ChallengeResolutionResultT:
     response: str = None
     cookies: list = None
     userAgent: str = None
+    responseJSON: str = None
 
     def __init__(self, _dict):
         self.__dict__.update(_dict)
@@ -33,6 +34,7 @@ class V1RequestBase(object):
     maxTimeout: int = None
     proxy: dict = None
     session: str = None
+    returnJSON: bool = None
     session_ttl_minutes: int = None
     headers: list = None  # deprecated v2.0.0, not used
     userAgent: str = None  # deprecated v2.0.0, not used

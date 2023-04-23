@@ -1,6 +1,7 @@
 import logging
 import platform
 import sys
+import json
 import time
 from datetime import timedelta
 from urllib.parse import unquote
@@ -292,7 +293,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
     res.message = ""
-
+   
     # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
     if method == 'POST':
@@ -303,6 +304,11 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         logging.debug(f"Response HTML:\n{driver.page_source}")
 
     # wait for the page
+    for cookie in req.cookies:
+        logging.info(f'Adding cookie for cookie key... {cookie["name"]}')
+        driver.delete_cookie(cookie['name'])
+        driver.add_cookie({'name': cookie["name"], 'value': cookie["value"]})
+  
     html_element = driver.find_element(By.TAG_NAME, "html")
     page_title = driver.title
 
@@ -375,15 +381,25 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         logging.info("Challenge not detected!")
         res.message = "Challenge not detected!"
 
+   
+   
     challenge_res = ChallengeResolutionResultT({})
     challenge_res.url = driver.current_url
     challenge_res.status = 200  # todo: fix, selenium not provides this info
     challenge_res.cookies = driver.get_cookies()
     challenge_res.userAgent = utils.get_user_agent(driver)
 
+
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
-        challenge_res.response = driver.page_source
+        if req.returnJSON == True:
+            try: 
+                challenge_res.responseJSON = json.loads(driver.find_elements(By.TAG_NAME, 'pre')[0].text)
+            except Exception: 
+                logging.info("Error parsing JSON, please ommit JSON parameter in the request.")
+                challenge_res.response = driver.page_source
+        else:
+            challenge_res.response = driver.page_source
 
     res.result = challenge_res
     return res
