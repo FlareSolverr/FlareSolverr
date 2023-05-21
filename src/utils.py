@@ -106,12 +106,15 @@ def get_chrome_exe_path() -> str:
         return CHROME_EXE_PATH
     # linux pyinstaller bundle
     chrome_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'chrome', "chrome")
-    if os.path.exists(chrome_path) and os.access(chrome_path, os.X_OK):
+    if os.path.exists(chrome_path):
+        if not os.access(chrome_path, os.X_OK):
+            raise Exception(f'Chrome binary "{chrome_path}" is not executable. '
+                            f'Please, extract the archive with "tar xzf <file.tar.gz>".')
         CHROME_EXE_PATH = chrome_path
         return CHROME_EXE_PATH
     # windows pyinstaller bundle
     chrome_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'chrome', "chrome.exe")
-    if os.path.exists(chrome_path) and os.access(chrome_path, os.X_OK):
+    if os.path.exists(chrome_path):
         CHROME_EXE_PATH = chrome_path
         return CHROME_EXE_PATH
     # system

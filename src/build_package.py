@@ -50,7 +50,20 @@ def download_chromium():
     with zipfile.ZipFile(dl_path_zip, 'r') as zip_ref:
         zip_ref.extractall(dl_path)
     os.remove(dl_path_zip)
-    shutil.move(dl_path_folder, os.path.join(dl_path, "chrome"))
+
+    chrome_path = os.path.join(dl_path, "chrome")
+    shutil.move(dl_path_folder, chrome_path)
+    print("Extracted in: " + chrome_path)
+
+    if os.name != 'nt':
+        # Give executable permissions for *nix
+        # file * | grep executable | cut -d: -f1
+        print("Giving executable permissions...")
+        execs = ['chrome', 'chrome_crashpad_handler', 'chrome_sandbox', 'chrome-wrapper', 'nacl_helper',
+                 'nacl_helper_bootstrap', 'nacl_irt_x86_64.nexe', 'xdg-mime', 'xdg-settings']
+        for exec_file in execs:
+            exec_path = os.path.join(chrome_path, exec_file)
+            os.chmod(exec_path, 0o755)
 
 
 def run_pyinstaller():
