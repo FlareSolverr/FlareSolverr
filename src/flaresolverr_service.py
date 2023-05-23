@@ -179,7 +179,7 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
 def _cmd_sessions_create(req: V1RequestBase) -> V1ResponseBase:
     logging.debug("Creating new session...")
 
-    session, fresh = SESSIONS_STORAGE.create(session_id=req.session)
+    session, fresh = SESSIONS_STORAGE.create(session_id=req.session, proxy=req.proxy)
     session_id = session.session_id
 
     if not fresh:
@@ -236,7 +236,7 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
 
             driver = session.driver
         else:
-            driver = utils.get_webdriver()
+            driver = utils.get_webdriver(req.proxy)
             logging.debug('New instance of webdriver has been created to perform the request')
         return func_timeout(timeout, _evil_logic, (req, driver, method))
     except FunctionTimedOut:
