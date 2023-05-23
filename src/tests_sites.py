@@ -39,6 +39,8 @@ def asset_cloudflare_solution(self, res, site_url, site_text):
 
 class TestFlareSolverr(unittest.TestCase):
     app = TestApp(flaresolverr.app)
+    # wait until the server is ready
+    app.get('/')
 
     def test_v1_endpoint_request_get_cloudflare(self):
         sites_get = [

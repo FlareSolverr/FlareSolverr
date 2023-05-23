@@ -242,7 +242,7 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
     except FunctionTimedOut:
         raise Exception(f'Error solving the challenge. Timeout after {timeout} seconds.')
     except Exception as e:
-        raise Exception('Error solving the challenge. ' + str(e))
+        raise Exception('Error solving the challenge. ' + str(e).replace('\n', '\\n'))
     finally:
         if not req.session and driver is not None:
             driver.quit()
