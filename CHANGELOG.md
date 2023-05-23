@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.2.0 (2023/05/23)
+
+* Support "proxy" param in requests and sessions
+* Support "cookies" param in requests
+* Fix Chromium exec permissions in Linux package
+* Update Python dependencies
+
 ## v3.1.2 (2023/04/02)
 
 * Fix headless mode in macOS
