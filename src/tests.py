@@ -239,7 +239,45 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
         self.assertEqual(utils.get_flaresolverr_version(), body.version)
 
-    # todo: test Cmd 'request.get' should return OK with 'cookies' param
+    def test_v1_endpoint_request_get_cookies_param(self):
+        res = self.app.post_json('/v1', {
+            "cmd": "request.get",
+            "url": self.google_url,
+            "cookies": [
+                {
+                    "name": "testcookie1",
+                    "value": "testvalue1"
+                },
+                {
+                    "name": "testcookie2",
+                    "value": "testvalue2"
+                }
+            ]
+        })
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+        self.assertEqual("Challenge not detected!", body.message)
+        self.assertGreater(body.startTimestamp, 10000)
+        self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
+
+        solution = body.solution
+        self.assertIn(self.google_url, solution.url)
+        self.assertEqual(solution.status, 200)
+        self.assertIs(len(solution.headers), 0)
+        self.assertIn("<title>Google</title>", solution.response)
+        self.assertGreater(len(solution.cookies), 1)
+        self.assertIn("Chrome/", solution.userAgent)
+
+        user_cookie1 = _find_obj_by_key("name", "testcookie1", solution.cookies)
+        self.assertIsNotNone(user_cookie1, "User cookie 1 not found")
+        self.assertEqual("testvalue1", user_cookie1["value"])
+
+        user_cookie2 = _find_obj_by_key("name", "testcookie2", solution.cookies)
+        self.assertIsNotNone(user_cookie2, "User cookie 2 not found")
+        self.assertEqual("testvalue2", user_cookie2["value"])
 
     def test_v1_endpoint_request_get_returnOnlyCookies_param(self):
         res = self.app.post_json('/v1', {
