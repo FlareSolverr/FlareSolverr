@@ -13,7 +13,8 @@ from selenium.webdriver.support.expected_conditions import (
     presence_of_element_located, staleness_of, title_is)
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
-
+from metrics import REQUEST_COUNTER, REQUEST_DURATION, REQUEST_IN_PROGRESS, CHALLENGE_COUNTER
+import tldextract
 import utils
 from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
                   ChallengeResolutionT, HealthResponse, IndexResponse,
@@ -92,20 +93,32 @@ def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
     start_ts = int(time.time() * 1000)
     logging.info(f"Incoming request => POST /v1 body: {utils.object_to_dict(req)}")
     res: V1ResponseBase
+    REQUEST_IN_PROGRESS.inc()
+    try:
+        domain = tldextract.extract(req.url).registered_domain
+    except Exception as e:
+        logging.error(f"Error parsing domain: {e}")
+        domain = None
     try:
         res = _controller_v1_handler(req)
+        REQUEST_COUNTER.labels(domain=domain, status_code=res.status).inc()
     except Exception as e:
         res = V1ResponseBase({})
         res.__error_500__ = True
         res.status = STATUS_ERROR
         res.message = "Error: " + str(e)
         logging.error(res.message)
-
+    finally:
+        REQUEST_IN_PROGRESS.dec()
     res.startTimestamp = start_ts
     res.endTimestamp = int(time.time() * 1000)
     res.version = utils.get_flaresolverr_version()
+    run_time = (res.endTimestamp - res.startTimestamp) / 1000
+    REQUEST_DURATION.labels(domain=domain).observe(
+        run_time
+    )
     logging.debug(f"Response => POST /v1 body: {utils.object_to_dict(res)}")
-    logging.info(f"Response in {(res.endTimestamp - res.startTimestamp) / 1000} s")
+    logging.info(f"Response in {run_time} s")
     return res
 
 
@@ -292,7 +305,11 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
     res.message = ""
-
+    try:
+        domain = tldextract.extract(req.url).domain
+    except Exception as e:
+        logging.debug(f'Error parsing domain from URL: {e}')
+        domain = None
     # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
     if method == 'POST':
@@ -335,6 +352,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     for title in CHALLENGE_TITLES:
         if title.lower() == page_title.lower():
             challenge_found = True
+            CHALLENGE_COUNTER.labels(domain=domain, status="challenge detected").inc()
             logging.info("Challenge detected. Title found: " + page_title)
             break
     if not challenge_found:
@@ -343,6 +361,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
             if len(found_elements) > 0:
                 challenge_found = True
+                CHALLENGE_COUNTER.labels(domain=domain, status="challenge detected").inc()
                 logging.info("Challenge detected. Selector found: " + selector)
                 break
 
@@ -380,10 +399,11 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             WebDriverWait(driver, SHORT_TIMEOUT).until(staleness_of(html_element))
         except Exception:
             logging.debug("Timeout waiting for redirect")
-
+        CHALLENGE_COUNTER.labels(domain=domain, status="challenge solved").inc()
         logging.info("Challenge solved!")
         res.message = "Challenge solved!"
     else:
+        CHALLENGE_COUNTER.labels(domain=domain, status="challenge not detected").inc()
         logging.info("Challenge not detected!")
         res.message = "Challenge not detected!"
 
