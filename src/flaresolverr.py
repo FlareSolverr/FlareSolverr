@@ -11,7 +11,6 @@ from bottle_plugins.logger_plugin import logger_plugin
 from dtos import V1RequestBase
 import flaresolverr_service
 import utils
-from metrics import start_metrics_http_server
 
 
 class JSONErrorBottle(Bottle):
@@ -110,5 +109,4 @@ if __name__ == "__main__":
         def run(self, handler):
             from waitress import serve
             serve(handler, host=self.host, port=self.port, asyncore_use_poll=True)
-    start_metrics_http_server()
     run(app, host=server_host, port=server_port, quiet=True, server=WaitressServerPoll)
