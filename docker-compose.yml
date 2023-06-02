@@ -13,3 +13,17 @@ services:
     ports:
       - "${PORT:-8191}:8191"
     restart: unless-stopped
+    networks:
+      flaresolverr-network:
+        aliases:
+          - flaresolverr
+
+networks:
+  flaresolverr-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-flaresolverr
+    ipam:
+      driver: default
+      config:
+        - subnet: ${IPV4_NETWORK}
