@@ -10,6 +10,13 @@ body:
         required: true
 - type: checkboxes
   attributes:
+    label: Have you followed our Troubleshooting?
+    description: Please follow our <a href="https://github.com/FlareSolverr/FlareSolverr/wiki/Troubleshooting">Troubleshooting</a>.
+    options:
+      - label: I have followed your Troubleshooting
+        required: true
+- type: checkboxes
+  attributes:
     label: Is there already an issue for your problem?
     description: Please make sure you are not creating an already submitted <a href="https://github.com/FlareSolverr/FlareSolverr/issues">Issue</a>. Check closed issues as well, because your issue may have already been fixed.
     options:
