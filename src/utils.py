@@ -54,6 +54,11 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     options.add_argument('--disable-software-rasterizer')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
+    # fix GL erros in ASUSTOR NAS
+    # https://github.com/FlareSolverr/FlareSolverr/issues/782
+    # https://github.com/microsoft/vscode/issues/127800#issuecomment-873342069
+    # https://peter.sh/experiments/chromium-command-line-switches/#use-gl
+    options.add_argument('--use-gl=swiftshader')
 
     if proxy and 'url' in proxy:
         proxy_url = proxy['url']
