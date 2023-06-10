@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.2.1 (2023/06/10)
+
+* Kill dead Chrome processes in Windows
+* Fix Chrome GL erros in ASUSTOR NAS
+
 ## v3.2.0 (2023/05/23)
 
 * Support "proxy" param in requests and sessions
