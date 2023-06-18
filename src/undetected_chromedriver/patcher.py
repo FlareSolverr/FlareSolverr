@@ -5,15 +5,17 @@ from distutils.version import LooseVersion
 import io
 import logging
 import os
+import pathlib
 import random
 import re
+import shutil
 import string
 import sys
 import time
 from urllib.request import urlopen
 from urllib.request import urlretrieve
 import zipfile
-
+from multiprocessing import Lock
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +23,7 @@ IS_POSIX = sys.platform.startswith(("darwin", "cygwin", "linux", "linux2"))
 
 
 class Patcher(object):
+    lock = Lock()
     url_repo = "https://chromedriver.storage.googleapis.com"
     zip_name = "chromedriver_%s.zip"
     exe_name = "chromedriver%s"
@@ -48,7 +51,13 @@ class Patcher(object):
         d = "~/.undetected_chromedriver"
     data_path = os.path.abspath(os.path.expanduser(d))
 
-    def __init__(self, executable_path=None, force=False, version_main: int = 0):
+    def __init__(
+        self,
+        executable_path=None,
+        force=False,
+        version_main: int = 0,
+        user_multi_procs=False,
+    ):
         """
         Args:
             executable_path: None = automatic
@@ -61,6 +70,7 @@ class Patcher(object):
         self.force = force
         self._custom_exe_path = False
         prefix = "undetected"
+        self.user_multi_procs = user_multi_procs
 
         if not os.path.exists(self.data_path):
             os.makedirs(self.data_path, exist_ok=True)
@@ -78,17 +88,41 @@ class Patcher(object):
         self.zip_path = os.path.join(self.data_path, prefix)
 
         if not executable_path:
-            self.executable_path = os.path.abspath(
-                os.path.join(".", self.executable_path)
-            )
+            if not self.user_multi_procs:
+                self.executable_path = os.path.abspath(
+                    os.path.join(".", self.executable_path)
+                )
 
         if executable_path:
             self._custom_exe_path = True
             self.executable_path = executable_path
+
         self.version_main = version_main
         self.version_full = None
 
-    def auto(self, executable_path=None, force=False, version_main=None):
+    def auto(self, executable_path=None, force=False, version_main=None, _=None):
+        """
+
+        Args:
+            executable_path:
+            force:
+            version_main:
+
+        Returns:
+
+        """
+        # if self.user_multi_procs and \
+        #         self.user_multi_procs != -1:
+        #     # -1 being a skip value used later in this block
+        #
+        p = pathlib.Path(self.data_path)
+        with Lock():
+            files = list(p.rglob("*chromedriver*?"))
+            for file in files:
+                if self.is_binary_patched(file):
+                    self.executable_path = str(file)
+                    return True
+
         if executable_path:
             self.executable_path = executable_path
             self._custom_exe_path = True
@@ -126,6 +160,49 @@ class Patcher(object):
         self.version_full = release
         self.unzip_package(self.fetch_package())
         return self.patch()
+
+    def driver_binary_in_use(self, path: str = None) -> bool:
+        """
+        naive test to check if a found chromedriver binary is
+        currently in use
+
+        Args:
+            path: a string or PathLike object to the binary to check.
+                  if not specified, we check use this object's executable_path
+        """
+        if not path:
+            path = self.executable_path
+        p = pathlib.Path(path)
+
+        if not p.exists():
+            raise OSError("file does not exist: %s" % p)
+        try:
+            with open(p, mode="a+b") as fs:
+                exc = []
+                try:
+
+                    fs.seek(0, 0)
+                except PermissionError as e:
+                    exc.append(e)  # since some systems apprently allow seeking
+                    # we conduct another test
+                try:
+                    fs.readline()
+                except PermissionError as e:
+                    exc.append(e)
+
+                if exc:
+
+                    return True
+                return False
+            # ok safe to assume this is in use
+        except Exception as e:
+            # logger.exception("whoops ", e)
+            pass
+
+    def cleanup_unused_files(self):
+        p = pathlib.Path(self.data_path)
+        items = list(p.glob("*undetected*"))
+        print(items)
 
     def patch(self):
         self.patch_exe()
@@ -255,21 +332,17 @@ class Patcher(object):
         else:
             timeout = 3  # stop trying after this many seconds
             t = time.monotonic()
-            while True:
-                now = time.monotonic()
-                if now - t > timeout:
-                    # we don't want to wait until the end of time
-                    logger.debug(
-                        "could not unlink %s in time (%d seconds)"
-                        % (self.executable_path, timeout)
-                    )
-                    break
+            now = lambda: time.monotonic()
+            while now() - t > timeout:
+                # we don't want to wait until the end of time
                 try:
+                    if self.user_multi_procs:
+                        break
                     os.unlink(self.executable_path)
                     logger.debug("successfully unlinked %s" % self.executable_path)
                     break
                 except (OSError, RuntimeError, PermissionError):
-                    time.sleep(0.1)
+                    time.sleep(0.01)
                     continue
                 except FileNotFoundError:
                     break

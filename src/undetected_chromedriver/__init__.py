@@ -17,7 +17,7 @@ by UltrafunkAmsterdam (https://github.com/ultrafunkamsterdam)
 from __future__ import annotations
 
 
-__version__ = "3.4.6"
+__version__ = "3.5.0"
 
 import json
 import logging
@@ -33,7 +33,7 @@ from weakref import finalize
 import selenium.webdriver.chrome.service
 import selenium.webdriver.chrome.webdriver
 from selenium.webdriver.common.by import By
-import selenium.webdriver.common.service
+import selenium.webdriver.chromium.service
 import selenium.webdriver.remote.command
 import selenium.webdriver.remote.webdriver
 
@@ -109,21 +109,21 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
         browser_executable_path=None,
         port=0,
         enable_cdp_events=False,
-        service_args=None,
-        service_creationflags=None,
+        # service_args=None,
+        # service_creationflags=None,
         desired_capabilities=None,
         advanced_elements=False,
-        service_log_path=None,
+        # service_log_path=None,
         keep_alive=True,
         log_level=0,
         headless=False,
         version_main=None,
         patcher_force_close=False,
         suppress_welcome=True,
-        use_subprocess=False,
+        use_subprocess=True,
         debug=False,
-        no_sandbox=True,	
-        windows_headless=False,
+        no_sandbox=True,
+        user_multi_procs: bool = False,
         **kw,
     ):
         """
@@ -235,6 +235,14 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
              uses the --no-sandbox option, and additionally does suppress the "unsecure option" status bar
              this option has a default of True since many people seem to run this as root (....) , and chrome does not start
              when running as root without using --no-sandbox flag.
+
+        user_multi_procs:
+            set to true when you are using multithreads/multiprocessing
+            ensures not all processes are trying to modify a binary which is in use by another.
+            for this to work. YOU MUST HAVE AT LEAST 1 UNDETECTED_CHROMEDRIVER BINARY IN YOUR ROAMING DATA FOLDER.
+            this requirement can be easily satisfied, by just running this program "normal" and close/kill it.
+
+
         """
 
         finalize(self, self._ensure_close, self)
@@ -243,8 +251,11 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             executable_path=driver_executable_path,
             force=patcher_force_close,
             version_main=version_main,
+            user_multi_procs=user_multi_procs,
         )
+        # self.patcher.auto(user_multiprocess = user_multi_num_procs)
         self.patcher.auto()
+
         # self.patcher = patcher
         if not options:
             options = ChromeOptions()
@@ -372,10 +383,15 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             options.arguments.extend(["--no-sandbox", "--test-type"])
 
         if headless or options.headless:
-            v_main = int(self.patcher.version_main) if self.patcher.version_main else 108
-            if v_main < 108:
-                options.add_argument("--headless=chrome")
-            elif v_main >= 108:
+            #workaround until a better checking is found
+            try:
+                if self.patcher.version_main < 108:
+                    options.add_argument("--headless=chrome")
+                elif self.patcher.version_main >= 108:
+                    options.add_argument("--headless=new")
+            except:
+                logger.warning("could not detect version_main."
+                               "therefore, we are assuming it is chrome 108 or higher")
                 options.add_argument("--headless=new")
 
         options.add_argument("--window-size=1920,1080")
@@ -415,44 +431,29 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
         if not desired_capabilities:
             desired_capabilities = options.to_capabilities()
 
-        if not use_subprocess and not windows_headless:
+        if not use_subprocess:
             self.browser_pid = start_detached(
                 options.binary_location, *options.arguments
             )
-        else:	
-            startupinfo = subprocess.STARTUPINFO()	
-            if os.name == 'nt' and windows_headless:	
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        else:
             browser = subprocess.Popen(
                 [options.binary_location, *options.arguments],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                close_fds=IS_POSIX,	
-                startupinfo=startupinfo
+                close_fds=IS_POSIX,
             )
             self.browser_pid = browser.pid
 
-        if service_creationflags:
-            service = selenium.webdriver.common.service.Service(
-                self.patcher.executable_path, port, service_args, service_log_path
-            )
-            for attr_name in ("creationflags", "creation_flags"):
-                if hasattr(service, attr_name):
-                    setattr(service, attr_name, service_creationflags)
-                    break
-        else:
-            service = None
+
+        service = selenium.webdriver.chromium.service.ChromiumService(
+            self.patcher.executable_path
+        )
 
         super(Chrome, self).__init__(
-            executable_path=self.patcher.executable_path,
-            port=port,
+            service=service,
             options=options,
-            service_args=service_args,
-            desired_capabilities=desired_capabilities,
-            service_log_path=service_log_path,
             keep_alive=keep_alive,
-            service=service,  # needed or the service will be re-created
         )
 
         self.reactor = None
@@ -708,14 +709,48 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
         if not capabilities:
             capabilities = self.options.to_capabilities()
         super(selenium.webdriver.chrome.webdriver.WebDriver, self).start_session(
-            capabilities, browser_profile
+            capabilities
         )
         # super(Chrome, self).start_session(capabilities, browser_profile)
 
+    def find_elements_recursive(self, by, value):
+        """
+        find elements in all frames
+        this is a generator function, which is needed
+            since if it would return a list of elements, they
+            will be stale on arrival.
+        using generator, when the element is returned we are in the correct frame
+        to use it directly
+        Args:
+            by: By
+            value: str
+        Returns: Generator[webelement.WebElement]
+        """
+        def search_frame(f=None):
+            if not f:
+                # ensure we are on main content frame
+                self.switch_to.default_content()
+            else:
+                self.switch_to.frame(f)
+            for elem in self.find_elements(by, value):
+                yield elem
+            # switch back to main content, otherwise we will get StaleElementReferenceException
+            self.switch_to.default_content()
+
+        # search root frame
+        for elem in search_frame():
+            yield elem
+        # get iframes
+        frames = self.find_elements('css selector', 'iframe')
+
+        # search per frame
+        for f in frames:
+            for elem in search_frame(f):
+                yield elem
+
     def quit(self):
         try:
-            self.service.process.kill()	
-            self.service.process.wait(5)
+            self.service.process.kill()
             logger.debug("webdriver process ended")
         except (AttributeError, RuntimeError, OSError):
             pass
@@ -728,16 +763,7 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             os.kill(self.browser_pid, 15)
             logger.debug("gracefully closed browser")
         except Exception as e:  # noqa
-            logger.debug(e, exc_info=True)
-        # Force kill Chrome process in Windows
-        # https://github.com/FlareSolverr/FlareSolverr/issues/772
-        if os.name == 'nt':
-            try:
-                subprocess.call(['taskkill', '/f', '/pid', str(self.browser_pid)],
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL)
-            except Exception:
-                pass
+            pass
         if (
             hasattr(self, "keep_user_data_dir")
             and hasattr(self, "user_data_dir")
@@ -856,5 +882,7 @@ def find_chrome_executable():
                 ):
                     candidates.add(os.sep.join((item, subitem, "chrome.exe")))
     for candidate in candidates:
+        logger.debug('checking if %s exists and is executable' % candidate)
         if os.path.exists(candidate) and os.access(candidate, os.X_OK):
+            logger.debug('found! using %s' % candidate)
             return os.path.normpath(candidate)
