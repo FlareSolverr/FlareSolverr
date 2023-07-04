@@ -17,7 +17,7 @@ by UltrafunkAmsterdam (https://github.com/ultrafunkamsterdam)
 from __future__ import annotations
 
 
-__version__ = "3.4.6"
+__version__ = "3.2.1"
 
 import json
 import logging
@@ -122,7 +122,7 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
         suppress_welcome=True,
         use_subprocess=False,
         debug=False,
-        no_sandbox=True,	
+        no_sandbox=True,
         windows_headless=False,
         **kw,
     ):
@@ -239,13 +239,13 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
 
         finalize(self, self._ensure_close, self)
         self.debug = debug
-        self.patcher = Patcher(
+        patcher = Patcher(
             executable_path=driver_executable_path,
             force=patcher_force_close,
             version_main=version_main,
         )
-        self.patcher.auto()
-        # self.patcher = patcher
+        patcher.auto()
+        self.patcher = patcher
         if not options:
             options = ChromeOptions()
 
@@ -287,11 +287,6 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
 
         # see if a custom user profile is specified in options
         for arg in options.arguments:
-
-            if any([_ in arg for _ in ("--headless", "headless")]):
-                options.arguments.remove(arg)
-                options.headless = True
-
             if "lang" in arg:
                 m = re.search("(?:--)?lang(?:[ =])?(.*)", arg)
                 try:
@@ -370,19 +365,13 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             options.arguments.extend(["--no-default-browser-check", "--no-first-run"])
         if no_sandbox:
             options.arguments.extend(["--no-sandbox", "--test-type"])
-
         if headless or options.headless:
-            v_main = int(self.patcher.version_main) if self.patcher.version_main else 108
-            if v_main < 108:
-                options.add_argument("--headless=chrome")
-            elif v_main >= 108:
-                options.add_argument("--headless=new")
-
-        options.add_argument("--window-size=1920,1080")
-        options.add_argument("--start-maximized")
-        options.add_argument("--no-sandbox")
-        # fixes "could not connect to chrome" error when running
-        # on linux using privileged user like root (which i don't recommend)
+            options.headless = True
+            options.add_argument("--window-size=1920,1080")
+            options.add_argument("--start-maximized")
+            options.add_argument("--no-sandbox")
+            # fixes "could not connect to chrome" error when running
+            # on linux using privileged user like root (which i don't recommend)
 
         options.add_argument(
             "--log-level=%d" % log_level
@@ -419,23 +408,23 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             self.browser_pid = start_detached(
                 options.binary_location, *options.arguments
             )
-        else:	
-            startupinfo = subprocess.STARTUPINFO()	
-            if os.name == 'nt' and windows_headless:	
+        else:
+            startupinfo = subprocess.STARTUPINFO()
+            if os.name == "nt" and windows_headless:
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             browser = subprocess.Popen(
                 [options.binary_location, *options.arguments],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                close_fds=IS_POSIX,	
-                startupinfo=startupinfo
+                close_fds=IS_POSIX,
+                startupinfo=startupinfo,
             )
             self.browser_pid = browser.pid
 
         if service_creationflags:
             service = selenium.webdriver.common.service.Service(
-                self.patcher.executable_path, port, service_args, service_log_path
+                patcher.executable_path, port, service_args, service_log_path
             )
             for attr_name in ("creationflags", "creation_flags"):
                 if hasattr(service, attr_name):
@@ -445,7 +434,7 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             service = None
 
         super(Chrome, self).__init__(
-            executable_path=self.patcher.executable_path,
+            executable_path=patcher.executable_path,
             port=port,
             options=options,
             service_args=service_args,
@@ -486,18 +475,18 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
                     {
                         "source": """
 
-                           Object.defineProperty(window, "navigator", {
-                                Object.defineProperty(window, "navigator", {
-                                  value: new Proxy(navigator, {
-                                    has: (target, key) => (key === "webdriver" ? false : key in target),
-                                    get: (target, key) =>
-                                      key === "webdriver"
-                                        ? false
-                                        : typeof target[key] === "function"
-                                        ? target[key].bind(target)
-                                        : target[key],
-                                  }),
-                                });
+                            Object.defineProperty(window, 'navigator', {
+                                value: new Proxy(navigator, {
+                                        has: (target, key) => (key === 'webdriver' ? false : key in target),
+                                        get: (target, key) =>
+                                                key === 'webdriver' ?
+                                                false :
+                                                typeof target[key] === 'function' ?
+                                                target[key].bind(target) :
+                                                target[key]
+                                        })
+                            });
+
                     """
                     },
                 )
@@ -616,38 +605,37 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
 
         self.get = get_wrapped
 
-    # def _get_cdc_props(self):
-    #     return self.execute_script(
-    #         """
-    #         let objectToInspect = window,
-    #             result = [];
-    #         while(objectToInspect !== null)
-    #         { result = result.concat(Object.getOwnPropertyNames(objectToInspect));
-    #           objectToInspect = Object.getPrototypeOf(objectToInspect); }
-    #
-    #         return result.filter(i => i.match(/^([a-zA-Z]){27}(Array|Promise|Symbol)$/ig))
-    #         """
-    #     )
-    #
-    # def _hook_remove_cdc_props(self):
-    #     self.execute_cdp_cmd(
-    #         "Page.addScriptToEvaluateOnNewDocument",
-    #         {
-    #             "source": """
-    #                 let objectToInspect = window,
-    #                     result = [];
-    #                 while(objectToInspect !== null)
-    #                 { result = result.concat(Object.getOwnPropertyNames(objectToInspect));
-    #                   objectToInspect = Object.getPrototypeOf(objectToInspect); }
-    #                 result.forEach(p => p.match(/^([a-zA-Z]){27}(Array|Promise|Symbol)$/ig)
-    #                                     &&delete window[p]&&console.log('removed',p))
-    #                 """
-    #         },
-    #     )
+    def _get_cdc_props(self):
+        return self.execute_script(
+            """
+            let objectToInspect = window,
+                result = [];
+            while(objectToInspect !== null)
+            { result = result.concat(Object.getOwnPropertyNames(objectToInspect));
+              objectToInspect = Object.getPrototypeOf(objectToInspect); }
+            return result.filter(i => i.match(/.+_.+_(Array|Promise|Symbol)/ig))
+            """
+        )
+
+    def _hook_remove_cdc_props(self):
+        self.execute_cdp_cmd(
+            "Page.addScriptToEvaluateOnNewDocument",
+            {
+                "source": """
+                    let objectToInspect = window,
+                        result = [];
+                    while(objectToInspect !== null)
+                    { result = result.concat(Object.getOwnPropertyNames(objectToInspect));
+                      objectToInspect = Object.getPrototypeOf(objectToInspect); }
+                    result.forEach(p => p.match(/.+_.+_(Array|Promise|Symbol)/ig)
+                                        &&delete window[p]&&console.log('removed',p))
+                    """
+            },
+        )
 
     def get(self, url):
-        # if self._get_cdc_props():
-        #     self._hook_remove_cdc_props()
+        if self._get_cdc_props():
+            self._hook_remove_cdc_props()
         return super().get(url)
 
     def add_cdp_listener(self, event_name, callback):
@@ -714,7 +702,7 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
 
     def quit(self):
         try:
-            self.service.process.kill()	
+            self.service.process.kill()
             self.service.process.wait(5)
             logger.debug("webdriver process ended")
         except (AttributeError, RuntimeError, OSError):
@@ -731,11 +719,13 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             logger.debug(e, exc_info=True)
         # Force kill Chrome process in Windows
         # https://github.com/FlareSolverr/FlareSolverr/issues/772
-        if os.name == 'nt':
+        if os.name == "nt":
             try:
-                subprocess.call(['taskkill', '/f', '/pid', str(self.browser_pid)],
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL)
+                subprocess.call(
+                    ["taskkill", "/f", "/pid", str(self.browser_pid)],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
             except Exception:
                 pass
         if (
