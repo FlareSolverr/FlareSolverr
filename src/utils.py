@@ -144,11 +144,15 @@ def get_webdriver(proxy_str: dict = None) -> WebDriver:
 
     if proxy_str:
         proxy = parse_proxy(proxy_str)
+        # case where the proxy string contains authentication details
         if all(key in proxy for key in ["host", "port", "username", "password"]):
             create_proxy_extension(proxy)
             options.add_argument(
                 "--load-extension=%s" % os.path.abspath(PROXY_EXTENSION_DIR)
             )
+        elif "url" in proxy:
+            logging.debug("Using webdriver proxy: %s", proxy["url"])
+            options.add_argument("--proxy-server=%s" % proxy["url"])
 
     # note: headless mode is detected (options.headless = True)
     # we launch the browser in head-full mode with the window hidden
