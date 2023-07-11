@@ -4,6 +4,7 @@ import os
 import re
 import shutil
 import urllib.parse
+import tempfile
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 import undetected_chromedriver as uc
@@ -14,8 +15,6 @@ CHROME_MAJOR_VERSION = None
 USER_AGENT = None
 XVFB_DISPLAY = None
 PATCHED_DRIVER_PATH = None
-
-PROXY_EXTENSION_DIR = "proxy_extension"
 
 
 def get_config_log_html() -> bool:
@@ -99,13 +98,15 @@ def create_proxy_extension(proxy):
         proxy["password"],
     )
 
-    os.makedirs(PROXY_EXTENSION_DIR, exist_ok=True)
+    proxy_extension_dir = tempfile.mkdtemp()
 
     with open(os.path.join(PROXY_EXTENSION_DIR, "manifest.json"), "w") as f:
         f.write(manifest_json)
 
     with open(os.path.join(PROXY_EXTENSION_DIR, "background.js"), "w") as f:
         f.write(background_js)
+
+    return proxy_extension_dir
 
 
 def parse_proxy(proxy_str: str) -> dict:
@@ -146,9 +147,9 @@ def get_webdriver(proxy_str: dict = None) -> WebDriver:
         proxy = parse_proxy(proxy_str)
         # case where the proxy string contains authentication details
         if all(key in proxy for key in ["host", "port", "username", "password"]):
-            create_proxy_extension(proxy)
+            proxy_extension_dir = create_proxy_extension(proxy)
             options.add_argument(
-                "--load-extension=%s" % os.path.abspath(PROXY_EXTENSION_DIR)
+                "--load-extension=%s" % os.path.abspath(proxy_extension_dir)
             )
         elif "url" in proxy:
             logging.debug("Using webdriver proxy: %s", proxy["url"])
@@ -196,7 +197,7 @@ def get_webdriver(proxy_str: dict = None) -> WebDriver:
 
     # Clean up proxy extension directory
     if proxy_str:
-        shutil.rmtree(PROXY_EXTENSION_DIR)
+        shutil.rmtree(proxy_extension_dir)
 
     # selenium vanilla
     # options = webdriver.ChromeOptions()
