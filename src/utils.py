@@ -100,10 +100,10 @@ def create_proxy_extension(proxy):
 
     proxy_extension_dir = tempfile.mkdtemp()
 
-    with open(os.path.join(PROXY_EXTENSION_DIR, "manifest.json"), "w") as f:
+    with open(os.path.join(proxy_extension_dir, "manifest.json"), "w") as f:
         f.write(manifest_json)
 
-    with open(os.path.join(PROXY_EXTENSION_DIR, "background.js"), "w") as f:
+    with open(os.path.join(proxy_extension_dir, "background.js"), "w") as f:
         f.write(background_js)
 
     return proxy_extension_dir
