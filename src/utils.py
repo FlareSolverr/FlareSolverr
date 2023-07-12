@@ -54,7 +54,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     options.add_argument('--disable-software-rasterizer')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
-    options.add_argument("--auto-open-devtools-for-tabs") 
+    options.add_argument("--auto-open-devtools-for-tabs")
     # fix GL erros in ASUSTOR NAS
     # https://github.com/FlareSolverr/FlareSolverr/issues/782
     # https://github.com/microsoft/vscode/issues/127800#issuecomment-873342069
