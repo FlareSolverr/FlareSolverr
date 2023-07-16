@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.2.2 (2023/07/16)
+
+* Workaround for updated 'verify your are human' check
+
 ## v3.2.1 (2023/06/10)
 
 * Kill dead Chrome processes in Windows
