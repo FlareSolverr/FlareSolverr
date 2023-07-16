@@ -54,11 +54,15 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     options.add_argument('--disable-software-rasterizer')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
-    # fix GL erros in ASUSTOR NAS
+    # fix GL errors in ASUSTOR NAS
     # https://github.com/FlareSolverr/FlareSolverr/issues/782
     # https://github.com/microsoft/vscode/issues/127800#issuecomment-873342069
     # https://peter.sh/experiments/chromium-command-line-switches/#use-gl
     options.add_argument('--use-gl=swiftshader')
+    # workaround for updated 'verify your are human' check
+    # https://github.com/FlareSolverr/FlareSolverr/issues/811
+    options.add_argument('--auto-open-devtools-for-tabs')
+    options.add_argument('--headless=true')
 
     if proxy and 'url' in proxy:
         proxy_url = proxy['url']
@@ -98,6 +102,13 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     if driver_exe_path is None:
         PATCHED_DRIVER_PATH = os.path.join(driver.patcher.data_path, driver.patcher.exe_name)
         shutil.copy(driver.patcher.executable_path, PATCHED_DRIVER_PATH)
+        
+    # workaround for updated 'verify your are human' check
+    # https://github.com/FlareSolverr/FlareSolverr/issues/811
+    driver.execute_script('''window.open("","_blank");''')
+    driver.switch_to.window(window_name=driver.window_handles[0])
+    driver.close()
+    driver.switch_to.window(window_name=driver.window_handles[0])
 
     # selenium vanilla
     # options = webdriver.ChromeOptions()
