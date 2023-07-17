@@ -133,27 +133,24 @@ def get_webdriver(proxy_str: dict = None) -> WebDriver:
     # this option removes the zygote sandbox (it seems that the resolution is a bit faster)
     options.add_argument("--no-zygote")
     # attempt to fix Docker ARM32 build
-    options.add_argument("--disable-gpu-sandbox")
-    options.add_argument("--disable-software-rasterizer")
-    options.add_argument("--ignore-certificate-errors")
-    options.add_argument("--ignore-ssl-errors")
-    # fix GL erros in ASUSTOR NAS
+    options.add_argument('--disable-gpu-sandbox')
+    options.add_argument('--disable-software-rasterizer')
+    options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--ignore-ssl-errors')
+    # fix GL errors in ASUSTOR NAS
     # https://github.com/FlareSolverr/FlareSolverr/issues/782
     # https://github.com/microsoft/vscode/issues/127800#issuecomment-873342069
     # https://peter.sh/experiments/chromium-command-line-switches/#use-gl
-    options.add_argument("--use-gl=swiftshader")
+    options.add_argument('--use-gl=swiftshader')
+    # workaround for updated 'verify you are human' check
+    # https://github.com/FlareSolverr/FlareSolverr/issues/811
+    options.add_argument('--auto-open-devtools-for-tabs')
+    options.add_argument('--headless=true')
 
-    if proxy_str:
-        proxy = parse_proxy(proxy_str)
-        # case where the proxy string contains authentication details
-        if all(key in proxy for key in ["host", "port", "username", "password"]):
-            proxy_extension_dir = create_proxy_extension(proxy)
-            options.add_argument(
-                "--load-extension=%s" % os.path.abspath(proxy_extension_dir)
-            )
-        elif "url" in proxy:
-            logging.debug("Using webdriver proxy: %s", proxy["url"])
-            options.add_argument("--proxy-server=%s" % proxy["url"])
+    if proxy and 'url' in proxy:
+        proxy_url = proxy['url']
+        logging.debug("Using webdriver proxy: %s", proxy_url)
+        options.add_argument('--proxy-server=%s' % proxy_url)
 
     # note: headless mode is detected (options.headless = True)
     # we launch the browser in head-full mode with the window hidden
@@ -194,6 +191,13 @@ def get_webdriver(proxy_str: dict = None) -> WebDriver:
             driver.patcher.data_path, driver.patcher.exe_name
         )
         shutil.copy(driver.patcher.executable_path, PATCHED_DRIVER_PATH)
+        
+    # workaround for updated 'verify you are human' check
+    # https://github.com/FlareSolverr/FlareSolverr/issues/811
+    driver.execute_script('''window.open("","_blank");''')
+    driver.switch_to.window(window_name=driver.window_handles[0])
+    driver.close()
+    driver.switch_to.window(window_name=driver.window_handles[0])
 
     # Clean up proxy extension directory
     if proxy_str:
