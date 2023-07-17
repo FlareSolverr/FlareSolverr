@@ -124,3 +124,6 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# node
+node_modules/
