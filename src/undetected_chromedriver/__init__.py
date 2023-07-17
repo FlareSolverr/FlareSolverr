@@ -384,17 +384,16 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             options.arguments.extend(["--no-sandbox", "--test-type"])
 
         if headless or options.headless:
-            # workaround until a better checking is found
+            #workaround until a better checking is found
             try:
-                if self.patcher.version_main < 108:
+                v_main = int(self.patcher.version_main) if self.patcher.version_main else 108
+                if v_main < 108:
                     options.add_argument("--headless=chrome")
-                elif self.patcher.version_main >= 108:
+                elif v_main >= 108:
                     options.add_argument("--headless=new")
             except:
-                logger.warning(
-                    "could not detect version_main."
-                    "therefore, we are assuming it is chrome 108 or higher"
-                )
+                logger.warning("could not detect version_main."
+                               "therefore, we are assuming it is chrome 108 or higher")
                 options.add_argument("--headless=new")
 
         options.add_argument("--window-size=1920,1080")
@@ -440,7 +439,7 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             )
         else:
             startupinfo = subprocess.STARTUPINFO()
-            if os.name == "nt" and windows_headless:
+            if os.name == 'nt' and windows_headless:
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             browser = subprocess.Popen(
                 [options.binary_location, *options.arguments],
@@ -448,9 +447,10 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 close_fds=IS_POSIX,
-                startupinfo=startupinfo,
+                startupinfo=startupinfo
             )
             self.browser_pid = browser.pid
+
 
         service = selenium.webdriver.chromium.service.ChromiumService(
             self.patcher.executable_path
@@ -732,7 +732,6 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             value: str
         Returns: Generator[webelement.WebElement]
         """
-
         def search_frame(f=None):
             if not f:
                 # ensure we are on main content frame
@@ -748,7 +747,7 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
         for elem in search_frame():
             yield elem
         # get iframes
-        frames = self.find_elements("css selector", "iframe")
+        frames = self.find_elements('css selector', 'iframe')
 
         # search per frame
         for f in frames:
@@ -771,16 +770,14 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             os.kill(self.browser_pid, 15)
             logger.debug("gracefully closed browser")
         except Exception as e:  # noqa
-            logger.debug(e, exc_info=True)
+            pass
         # Force kill Chrome process in Windows
         # https://github.com/FlareSolverr/FlareSolverr/issues/772
-        if os.name == "nt":
+        if os.name == 'nt':
             try:
-                subprocess.call(
-                    ["taskkill", "/f", "/pid", str(self.browser_pid)],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
+                subprocess.call(['taskkill', '/f', '/pid', str(self.browser_pid)],
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL)
             except Exception:
                 pass
         if (
@@ -901,7 +898,7 @@ def find_chrome_executable():
                 ):
                     candidates.add(os.sep.join((item, subitem, "chrome.exe")))
     for candidate in candidates:
-        logger.debug("checking if %s exists and is executable" % candidate)
+        logger.debug('checking if %s exists and is executable' % candidate)
         if os.path.exists(candidate) and os.access(candidate, os.X_OK):
-            logger.debug("found! using %s" % candidate)
+            logger.debug('found! using %s' % candidate)
             return os.path.normpath(candidate)
