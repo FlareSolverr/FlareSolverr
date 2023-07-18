@@ -62,7 +62,6 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     # workaround for updated 'verify your are human' check
     # https://github.com/FlareSolverr/FlareSolverr/issues/811
     options.add_argument('--auto-open-devtools-for-tabs')
-    options.add_argument('--headless=true')
 
     if proxy and 'url' in proxy:
         proxy_url = proxy['url']
@@ -96,19 +95,13 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     # if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
     driver = uc.Chrome(options=options, browser_executable_path=browser_executable_path,
                        driver_executable_path=driver_exe_path, version_main=version_main,
-                       windows_headless=windows_headless)
+                       windows_headless=windows_headless, headless=windows_headless)
 
     # save the patched driver to avoid re-downloads
     if driver_exe_path is None:
         PATCHED_DRIVER_PATH = os.path.join(driver.patcher.data_path, driver.patcher.exe_name)
-        shutil.copy(driver.patcher.executable_path, PATCHED_DRIVER_PATH)
-        
-    # workaround for updated 'verify your are human' check
-    # https://github.com/FlareSolverr/FlareSolverr/issues/811
-    driver.execute_script('''window.open("","_blank");''')
-    driver.switch_to.window(window_name=driver.window_handles[0])
-    driver.close()
-    driver.switch_to.window(window_name=driver.window_handles[0])
+        if PATCHED_DRIVER_PATH != driver.patcher.executable_path:
+            shutil.copy(driver.patcher.executable_path, PATCHED_DRIVER_PATH)
 
     # selenium vanilla
     # options = webdriver.ChromeOptions()
