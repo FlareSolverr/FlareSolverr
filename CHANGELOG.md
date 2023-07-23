@@ -2,7 +2,7 @@
 
 ## v3.2.2 (2023/07/16)
 
-* Workaround for updated 'verify your are human' check
+* Workaround for updated 'verify you are human' check
 
 ## v3.2.1 (2023/06/10)
 

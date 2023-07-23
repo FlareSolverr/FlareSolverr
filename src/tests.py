@@ -335,6 +335,42 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
 
+    def test_v1_endpoint_request_get_proxy_http_param_with_credentials(self):
+        """
+        To configure TinyProxy in local:
+           * sudo vim /etc/tinyproxy/tinyproxy.conf
+              * edit => LogFile "/tmp/tinyproxy.log"
+              * edit => Syslog Off
+              * add => BasicAuth testuser testpass
+           * sudo tinyproxy -d
+           * sudo tail -f /tmp/tinyproxy.log
+        """
+        res = self.app.post_json('/v1', {
+            "cmd": "request.get",
+            "url": self.google_url,
+            "proxy": {
+                "url": self.proxy_url,
+                "username": "testuser",
+                "password": "testpass"
+            }
+        })
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+        self.assertEqual("Challenge not detected!", body.message)
+        self.assertGreater(body.startTimestamp, 10000)
+        self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
+
+        solution = body.solution
+        self.assertIn(self.google_url, solution.url)
+        self.assertEqual(solution.status, 200)
+        self.assertIs(len(solution.headers), 0)
+        self.assertIn("<title>Google</title>", solution.response)
+        self.assertGreater(len(solution.cookies), 0)
+        self.assertIn("Chrome/", solution.userAgent)
+
     def test_v1_endpoint_request_get_proxy_socks_param(self):
         """
         To configure Dante in local:
