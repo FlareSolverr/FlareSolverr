@@ -451,9 +451,11 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             )
             self.browser_pid = browser.pid
 
-
+        # Fix for Chrome 115
+        # https://github.com/seleniumbase/SeleniumBase/pull/1967
         service = selenium.webdriver.chromium.service.ChromiumService(
-            self.patcher.executable_path
+            executable_path=self.patcher.executable_path,
+            service_args=["--disable-build-check"]
         )
 
         super(Chrome, self).__init__(

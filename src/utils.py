@@ -85,6 +85,10 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         driver_exe_path = "/app/chromedriver"
     else:
         version_main = get_chrome_major_version()
+        # Fix for Chrome 115
+        # https://github.com/seleniumbase/SeleniumBase/pull/1967
+        if int(version_main) > 114:
+            version_main = 114
         if PATCHED_DRIVER_PATH is not None:
             driver_exe_path = PATCHED_DRIVER_PATH
 
