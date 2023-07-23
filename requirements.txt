@@ -2,9 +2,10 @@ bottle==0.12.25
 waitress==2.1.2
 selenium==4.10.0
 func-timeout==4.3.5
+prometheus-client==0.17.1
 # required by undetected_chromedriver
 requests==2.31.0
-certifi==2023.5.7
+certifi==2023.7.22
 websockets==11.0.3
 # only required for linux
 xvfbwrapper==0.2.9

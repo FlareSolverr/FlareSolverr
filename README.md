@@ -226,22 +226,50 @@ This is the same as `request.get` but it takes one more param:
 
 ## Environment variables
 
-| Name            | Default                | Notes                                                                                                                                                         |
-|-----------------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| LOG_LEVEL       | info                   | Verbosity of the logging. Use `LOG_LEVEL=debug` for more information.                                                                                         |
-| LOG_HTML        | false                  | Only for debugging. If `true` all HTML that passes through the proxy will be logged to the console in `debug` level.                                          |
-| CAPTCHA_SOLVER  | none                   | Captcha solving method. It is used when a captcha is encountered. See the Captcha Solvers section.                                                            |
-| TZ              | UTC                    | Timezone used in the logs and the web browser. Example: `TZ=Europe/London`.                                                                                   |
-| HEADLESS        | true                   | Only for debugging. To run the web browser in headless mode or visible.                                                                                       |
-| BROWSER_TIMEOUT | 40000                  | If you are experiencing errors/timeouts because your system is slow, you can try to increase this value. Remember to increase the `maxTimeout` parameter too. |
-| TEST_URL        | https://www.google.com | FlareSolverr makes a request on start to make sure the web browser is working. You can change that URL if it is blocked in your country.                      |
-| PORT            | 8191                   | Listening port. You don't need to change this if you are running on Docker.                                                                                   |
-| HOST            | 0.0.0.0                | Listening interface. You don't need to change this if you are running on Docker.                                                                              |
+| Name               | Default                | Notes                                                                                                                                                         |
+|--------------------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| LOG_LEVEL          | info                   | Verbosity of the logging. Use `LOG_LEVEL=debug` for more information.                                                                                         |
+| LOG_HTML           | false                  | Only for debugging. If `true` all HTML that passes through the proxy will be logged to the console in `debug` level.                                          |
+| CAPTCHA_SOLVER     | none                   | Captcha solving method. It is used when a captcha is encountered. See the Captcha Solvers section.                                                            |
+| TZ                 | UTC                    | Timezone used in the logs and the web browser. Example: `TZ=Europe/London`.                                                                                   |
+| HEADLESS           | true                   | Only for debugging. To run the web browser in headless mode or visible.                                                                                       |
+| BROWSER_TIMEOUT    | 40000                  | If you are experiencing errors/timeouts because your system is slow, you can try to increase this value. Remember to increase the `maxTimeout` parameter too. |
+| TEST_URL           | https://www.google.com | FlareSolverr makes a request on start to make sure the web browser is working. You can change that URL if it is blocked in your country.                      |
+| PORT               | 8191                   | Listening port. You don't need to change this if you are running on Docker.                                                                                   |
+| HOST               | 0.0.0.0                | Listening interface. You don't need to change this if you are running on Docker.                                                                              |
+| PROMETHEUS_ENABLED | false                  | Enable Prometheus exporter. See the Prometheus section below.                                                                                                 |
+| PROMETHEUS_PORT    | 8192                   | Listening port for Prometheus exporter. See the Prometheus section below.                                                                                     |
 
 Environment variables are set differently depending on the operating system. Some examples:
 * Docker: Take a look at the Docker section in this document. Environment variables can be set in the `docker-compose.yml` file or in the Docker CLI command.
 * Linux: Run `export LOG_LEVEL=debug` and then start FlareSolverr in the same shell.
 * Windows: Open `cmd.exe`, run `set LOG_LEVEL=debug` and then start FlareSolverr in the same shell.
+
+## Prometheus exporter
+
+The Prometheus exporter for FlareSolverr is disabled by default. It can be enabled with the environment variable `PROMETHEUS_ENABLED`. If you are using Docker make sure you expose the `PROMETHEUS_PORT`.
+
+Example metrics:
+```shell
+# HELP flaresolverr_request_total Total requests with result
+# TYPE flaresolverr_request_total counter
+flaresolverr_request_total{domain="nowsecure.nl",result="solved"} 1.0
+# HELP flaresolverr_request_created Total requests with result
+# TYPE flaresolverr_request_created gauge
+flaresolverr_request_created{domain="nowsecure.nl",result="solved"} 1.690141657157109e+09
+# HELP flaresolverr_request_duration Request duration in seconds
+# TYPE flaresolverr_request_duration histogram
+flaresolverr_request_duration_bucket{domain="nowsecure.nl",le="0.0"} 0.0
+flaresolverr_request_duration_bucket{domain="nowsecure.nl",le="10.0"} 1.0
+flaresolverr_request_duration_bucket{domain="nowsecure.nl",le="25.0"} 1.0
+flaresolverr_request_duration_bucket{domain="nowsecure.nl",le="50.0"} 1.0
+flaresolverr_request_duration_bucket{domain="nowsecure.nl",le="+Inf"} 1.0
+flaresolverr_request_duration_count{domain="nowsecure.nl"} 1.0
+flaresolverr_request_duration_sum{domain="nowsecure.nl"} 5.858
+# HELP flaresolverr_request_duration_created Request duration in seconds
+# TYPE flaresolverr_request_duration_created gauge
+flaresolverr_request_duration_created{domain="nowsecure.nl"} 1.6901416571570296e+09
+```
 
 ## Captcha Solvers
 

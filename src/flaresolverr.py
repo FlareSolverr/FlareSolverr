@@ -8,6 +8,7 @@ from bottle import run, response, Bottle, request, ServerAdapter
 
 from bottle_plugins.error_plugin import error_plugin
 from bottle_plugins.logger_plugin import logger_plugin
+from bottle_plugins import prometheus_plugin
 from dtos import V1RequestBase
 import flaresolverr_service
 import utils
@@ -23,10 +24,6 @@ class JSONErrorBottle(Bottle):
 
 
 app = JSONErrorBottle()
-
-# plugin order is important
-app.install(logger_plugin)
-app.install(error_plugin)
 
 
 @app.route('/')
@@ -100,6 +97,13 @@ if __name__ == "__main__":
 
     # test browser installation
     flaresolverr_service.test_browser_installation()
+
+    # start bootle plugins
+    # plugin order is important
+    app.install(logger_plugin)
+    app.install(error_plugin)
+    prometheus_plugin.setup()
+    app.install(prometheus_plugin.prometheus_plugin)
 
     # start webserver
     # default server 'wsgiref' does not support concurrent requests
