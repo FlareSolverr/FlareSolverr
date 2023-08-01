@@ -300,6 +300,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     else:
         driver.get(req.url)
 
+    driver.execute_script(f"window.open('{req.url}', '_blank')")
+
     # set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
         logging.debug(f'Setting cookies...')
