@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm as builder
+FROM python:3.11-slim-bullseye as builder
 
 # Build dummy packages to skip installing them and their dependencies
 RUN apt-get update \
@@ -12,7 +12,7 @@ RUN apt-get update \
     && equivs-build adwaita-icon-theme \
     && mv adwaita-icon-theme_*.deb /adwaita-icon-theme.deb
 
-FROM python:3.11-slim-bookworm
+FROM python:3.11-slim-bullseye
 
 # Copy dummy packages
 COPY --from=builder /*.deb /
@@ -30,11 +30,9 @@ RUN dpkg -i /libgl1-mesa-dri.deb \
     # Install dependencies
     && apt-get update \
     && apt-get install -y --no-install-recommends chromium chromium-common chromium-driver xvfb dumb-init \
-        procps curl vim-tiny xauth \
+        procps curl vim xauth \
     # Remove temporary files and hardware decoding libraries
     && rm -rf /var/lib/apt/lists/* \
-    && rm -f /usr/lib/systemd/systemd* \
-    && rm -f /usr/lib/x86_64-linux-gnu/systemd/* \
     && rm -f /usr/lib/x86_64-linux-gnu/libmfxhw* \
     && rm -f /usr/lib/x86_64-linux-gnu/mfx/* \
     # Create flaresolverr user
