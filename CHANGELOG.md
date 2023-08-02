@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.1 (2023/08/02)
+
+* Fix for some Linux distributions boot error
+
 ## v3.3.0 (2023/08/02)
 
 * Fix for new Cloudflare detection. Thanks @cedric-bour for #845
