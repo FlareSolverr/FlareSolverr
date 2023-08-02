@@ -54,7 +54,7 @@ jobs:
       - name: Build artifacts
         run: |
           python -m pip install -r requirements.txt
-          python -m pip install pyinstaller==5.9.0
+          python -m pip install pyinstaller==5.13.0
           cd src
           python build_package.py
 
@@ -83,7 +83,7 @@ jobs:
       - name: Build artifacts
         run: |
           python -m pip install -r requirements.txt
-          python -m pip install pyinstaller==5.9.0
+          python -m pip install pyinstaller==5.13.0
           cd src
           python build_package.py
 
