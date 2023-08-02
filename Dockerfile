@@ -27,9 +27,11 @@ WORKDIR /app
     # Install dummy packages
 RUN dpkg -i /libgl1-mesa-dri.deb \
     && dpkg -i /adwaita-icon-theme.deb \
+    # Use Testing packages. The latest version of Chromium is not available for ARM
+    && sed -i 's/bookworm-updates/bookworm-updates testing/g' /etc/apt/sources.list.d/debian.sources \
     # Install dependencies
     && apt-get update \
-    && apt-get install -y --no-install-recommends chromium chromium-common chromium-driver xvfb dumb-init \
+    && apt-get install -y --no-install-recommends -t testing chromium chromium-common chromium-driver xvfb dumb-init \
         procps curl vim-tiny xauth \
     # Remove temporary files and hardware decoding libraries
     && rm -rf /var/lib/apt/lists/* \
