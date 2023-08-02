@@ -1,6 +1,6 @@
 bottle==0.12.25
 waitress==2.1.2
-selenium==4.10.0
+selenium==4.11.2
 func-timeout==4.3.5
 prometheus-client==0.17.1
 # required by undetected_chromedriver
