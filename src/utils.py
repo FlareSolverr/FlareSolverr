@@ -135,9 +135,6 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     # https://github.com/microsoft/vscode/issues/127800#issuecomment-873342069
     # https://peter.sh/experiments/chromium-command-line-switches/#use-gl
     options.add_argument('--use-gl=swiftshader')
-    # workaround for updated 'verify you are human' check
-    # https://github.com/FlareSolverr/FlareSolverr/issues/811
-    options.add_argument('--auto-open-devtools-for-tabs')
 
     proxy_extension_dir = None
     if proxy and all(key in proxy for key in ['url', 'username', 'password']):
