@@ -68,12 +68,15 @@ def download_chromium():
 
 def run_pyinstaller():
     sep = ';' if os.name == 'nt' else ':'
-    subprocess.check_call([sys.executable, "-m", "PyInstaller",
-                           "--icon", "resources/flaresolverr_logo.ico",
-                           "--add-data", f"package.json{sep}.",
-                           "--add-data", f"{os.path.join('dist_chrome', 'chrome')}{sep}chrome",
-                           os.path.join("src", "flaresolverr.py")],
-                          cwd=os.pardir)
+    result = subprocess.run([sys.executable, "-m", "PyInstaller",
+                             "--icon", "resources/flaresolverr_logo.ico",
+                             "--add-data", f"package.json{sep}.",
+                             "--add-data", f"{os.path.join('dist_chrome', 'chrome')}{sep}chrome",
+                             os.path.join("src", "flaresolverr.py")],
+                            cwd=os.pardir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if result.returncode != 0:
+        print(result.stderr.decode('utf-8'))
+        raise Exception("Error running pyInstaller")
 
 
 def compress_package():
