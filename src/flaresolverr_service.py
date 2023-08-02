@@ -298,7 +298,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     if method == 'POST':
         _post_request(req, driver)
     else:
-        driver.get(req.url)
+        with driver:
+            driver.get(req.url)
 
     # set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
@@ -310,7 +311,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         if method == 'POST':
             _post_request(req, driver)
         else:
-            driver.get(req.url)
+            with driver:
+                driver.get(req.url)
 
     # wait for the page
     if utils.get_config_log_html():
