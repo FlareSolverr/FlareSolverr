@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.2 (2023/08/03)
+
+* Fix URL domain in Prometheus exporter
+
 ## v3.3.1 (2023/08/03)
 
 * Fix for Cloudflare verify checkbox
