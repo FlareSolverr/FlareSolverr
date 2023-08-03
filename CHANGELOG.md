@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.3.1 (2023/08/03)
+
+* Fix for Cloudflare verify checkbox
+* Fix HEADLESS=false in Windows binary
+* Fix Prometheus exporter for management and health endpoints
+* Remove misleading stack trace when the verify checkbox is not found
+* Revert "Update base Docker image to Debian Bookworm" #849
+* Revert "Install Chromium 115 from Debian testing" #849
+
 ## v3.3.0 (2023/08/02)
 
 * Fix for new Cloudflare detection. Thanks @cedric-bour for #845
