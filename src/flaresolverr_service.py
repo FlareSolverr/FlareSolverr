@@ -46,7 +46,7 @@ CHALLENGE_SELECTORS = [
     # Fairlane / pararius.com
     'div.vc div.text-box h2'
 ]
-SHORT_TIMEOUT = 10
+SHORT_TIMEOUT = 1
 SESSIONS_STORAGE = SessionsStorage()
 
 
@@ -297,8 +297,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     if method == 'POST':
         _post_request(req, driver)
     else:
-        with driver:
-            driver.get(req.url)
+        driver.get(req.url)
+        driver.start_session()  # required to bypass Cloudflare
 
     # set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
@@ -310,8 +310,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         if method == 'POST':
             _post_request(req, driver)
         else:
-            with driver:
-                driver.get(req.url)
+            driver.get(req.url)
+            driver.start_session()  # required to bypass Cloudflare
 
     # wait for the page
     if utils.get_config_log_html():
@@ -430,5 +430,5 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             <script>document.getElementById('hackForm').submit();</script>
         </body>
         </html>"""
-    with driver:
-        driver.get("data:text/html;charset=utf-8," + html_content)
+    driver.get("data:text/html;charset=utf-8," + html_content)
+    driver.start_session()  # required to bypass Cloudflare
