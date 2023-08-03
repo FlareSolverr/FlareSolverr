@@ -2,7 +2,8 @@ import logging
 import os
 import urllib.parse
 
-from dtos import V1ResponseBase
+from bottle import request
+from dtos import V1RequestBase, V1ResponseBase
 from metrics import start_metrics_http_server, REQUEST_COUNTER, REQUEST_DURATION
 
 PROMETHEUS_ENABLED = os.environ.get('PROMETHEUS_ENABLED', 'false').lower() == 'true'
@@ -39,8 +40,12 @@ def prometheus_plugin(callback):
 
         domain = "unknown"
         if res.solution and res.solution.url:
-            parsed_url = urllib.parse.urlparse(res.solution.url)
-            domain = parsed_url.hostname
+            domain = parse_domain_url(res.solution.url)
+        else:
+            # timeout error
+            req = V1RequestBase(request.json)
+            if req.url:
+                domain = parse_domain_url(req.url)
 
         run_time = (res.endTimestamp - res.startTimestamp) / 1000
         REQUEST_DURATION.labels(domain=domain).observe(run_time)
@@ -53,5 +58,9 @@ def prometheus_plugin(callback):
         elif res.message.startswith("Error"):
             result = "error"
         REQUEST_COUNTER.labels(domain=domain, result=result).inc()
+
+    def parse_domain_url(url):
+        parsed_url = urllib.parse.urlparse(url)
+        return parsed_url.hostname
 
     return wrapper
