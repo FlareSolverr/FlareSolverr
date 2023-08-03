@@ -264,8 +264,8 @@ def click_verify(driver: WebDriver):
             actions.click(checkbox)
             actions.perform()
             logging.debug("Cloudflare verify checkbox found and clicked!")
-    except Exception as e:
-        logging.debug("Cloudflare verify checkbox not found on the page. Error: " + str(e))
+    except Exception:
+        logging.debug("Cloudflare verify checkbox not found on the page.")
     finally:
         driver.switch_to.default_content()
 
@@ -281,8 +281,8 @@ def click_verify(driver: WebDriver):
             actions.click(button)
             actions.perform()
             logging.debug("The Cloudflare 'Verify you are human' button found and clicked!")
-    except Exception as e:
-        logging.debug("The Cloudflare 'Verify you are human' button not found on the page. Error: " + str(e))
+    except Exception:
+        logging.debug("The Cloudflare 'Verify you are human' button not found on the page.")
 
     time.sleep(2)
 
