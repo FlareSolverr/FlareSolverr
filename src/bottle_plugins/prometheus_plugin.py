@@ -33,6 +33,10 @@ def prometheus_plugin(callback):
     def export_metrics(actual_response):
         res = V1ResponseBase(actual_response)
 
+        if res.startTimestamp is None or res.endTimestamp is None:
+            # skip management and healthcheck endpoints
+            return
+
         domain = "unknown"
         if res.solution and res.solution.url:
             parsed_url = urllib.parse.urlparse(res.solution.url)
