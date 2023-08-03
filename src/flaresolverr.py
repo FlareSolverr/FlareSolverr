@@ -62,6 +62,12 @@ if __name__ == "__main__":
     if sys.version_info < (3, 9):
         raise Exception("The Python version is less than 3.9, a version equal to or higher is required.")
 
+    # fix for HEADLESS=false in Windows binary
+    # https://stackoverflow.com/a/27694505
+    if os.name == 'nt':
+        import multiprocessing
+        multiprocessing.freeze_support()
+
     # fix ssl certificates for compiled binaries
     # https://github.com/pyinstaller/pyinstaller/issues/7229
     # https://stackoverflow.com/questions/55736855/how-to-change-the-cafile-argument-in-the-ssl-module-in-python3
