@@ -111,18 +111,16 @@ class Patcher(object):
         Returns:
 
         """
-        # if self.user_multi_procs and \
-        #         self.user_multi_procs != -1:
-        #     # -1 being a skip value used later in this block
-        #
         p = pathlib.Path(self.data_path)
         if self.user_multi_procs:
             with Lock():
-                files = list(p.rglob("*chromedriver*?"))
-                for file in files:
-                    if self.is_binary_patched(file):
-                        self.executable_path = str(file)
-                        return True
+                files = list(p.rglob("*chromedriver*"))
+                most_recent = max(files, key=lambda f: f.stat().st_mtime)
+                files.remove(most_recent)
+                list(map(lambda f: f.unlink(), files))
+                if self.is_binary_patched(most_recent):
+                    self.executable_path = str(most_recent)
+                    return True
 
         if executable_path:
             self.executable_path = executable_path
