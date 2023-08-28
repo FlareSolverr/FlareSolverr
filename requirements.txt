@@ -8,6 +8,6 @@ requests==2.31.0
 certifi==2023.7.22
 websockets==11.0.3
 # only required for linux
-xvfbwrapper==0.2.9
+xvfbwrapper==0.2.9; platform_system == "Linux"
 # only required for windows
-pefile==2023.2.7
+pefile==2023.2.7; platform_system == "Windows"
