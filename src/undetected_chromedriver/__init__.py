@@ -17,11 +17,12 @@ by UltrafunkAmsterdam (https://github.com/ultrafunkamsterdam)
 from __future__ import annotations
 
 
-__version__ = "3.5.0"
+__version__ = "3.5.3"
 
 import json
 import logging
 import os
+import pathlib
 import re
 import shutil
 import subprocess
@@ -372,6 +373,18 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             options.binary_location = (
                 browser_executable_path or find_chrome_executable()
             )
+
+        if not options.binary_location or not \
+                pathlib.Path(options.binary_location).exists():
+                raise FileNotFoundError(
+                    "\n---------------------\n"
+                    "Could not determine browser executable."
+                    "\n---------------------\n"
+                    "Make sure your browser is installed in the default location (path).\n"
+                    "If you are sure about the browser executable, you can specify it using\n"
+                    "the `browser_executable_path='{}` parameter.\n\n"
+                    .format("/path/to/browser/executable" if IS_POSIX else "c:/path/to/your/browser.exe")
+                )
 
         self._delay = 3
 
@@ -895,8 +908,6 @@ def find_chrome_executable():
             if item is not None:
                 for subitem in (
                     "Google/Chrome/Application",
-                    "Google/Chrome Beta/Application",
-                    "Google/Chrome Canary/Application",
                 ):
                     candidates.add(os.sep.join((item, subitem, "chrome.exe")))
     for candidate in candidates:
