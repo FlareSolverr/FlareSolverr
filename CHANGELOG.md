@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.3 (2023/08/03)
+
+* Update undetected_chromedriver to v3.5.3
+
 ## v3.3.2 (2023/08/03)
 
 * Fix URL domain in Prometheus exporter
