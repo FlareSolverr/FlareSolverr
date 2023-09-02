@@ -1,6 +1,10 @@
 # Changelog
 
-## v3.3.3 (2023/08/03)
+## v3.3.4 (2023/09/02)
+
+* Update checkbox selector
+
+## v3.3.3 (2023/08/31)
 
 * Update undetected_chromedriver to v3.5.3
 
