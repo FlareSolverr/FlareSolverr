@@ -252,7 +252,7 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
 def click_verify(driver: WebDriver):
     try:
         logging.debug("Try to find the Cloudflare verify checkbox...")
-        iframe = driver.find_element(By.XPATH, "//iframe[@title='Widget containing a Cloudflare security challenge']")
+        iframe = driver.find_element(By.XPATH, "//iframe[starts-with(@id, 'cf-chl-widget-')]")
         driver.switch_to.frame(iframe)
         checkbox = driver.find_element(
             by=By.XPATH,
