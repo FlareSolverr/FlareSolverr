@@ -256,7 +256,7 @@ def click_verify(driver: WebDriver):
         driver.switch_to.frame(iframe)
         checkbox = driver.find_element(
             by=By.XPATH,
-            value='//*[@id="challenge-stage"]/div/label/map/img',
+            value='//*[@id="challenge-stage"]/div/label/input',
         )
         if checkbox:
             actions = ActionChains(driver)
