@@ -25,6 +25,10 @@ def get_config_headless() -> bool:
     return os.environ.get('HEADLESS', 'true').lower() == 'true'
 
 
+def get_config_extensions() -> list:
+    return os.environ.get('EXTENSIONS', '').split(',')
+
+
 def get_flaresolverr_version() -> str:
     global FLARESOLVERR_VERSION
     if FLARESOLVERR_VERSION is not None:
@@ -118,6 +122,11 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
 
     # undetected_chromedriver
     options = uc.ChromeOptions()
+    # load extensions (/path/to/ext.crx)
+    extensions = get_config_extensions()
+    if len(extensions) > 0:
+        for path in extensions:
+            options.add_extension(path)
     options.add_argument('--no-sandbox')
     options.add_argument('--window-size=1920,1080')
     # todo: this param shows a warning in chrome head-full
