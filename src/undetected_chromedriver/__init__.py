@@ -451,8 +451,9 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
                 options.binary_location, *options.arguments
             )
         else:
-            startupinfo = subprocess.STARTUPINFO()
+            startupinfo = None
             if os.name == 'nt' and windows_headless:
+                startupinfo = subprocess.STARTUPINFO()
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             browser = subprocess.Popen(
                 [options.binary_location, *options.arguments],
