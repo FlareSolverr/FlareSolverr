@@ -1,0 +1,1979 @@
+2023-11-02 17:18:36.663 | INFO     | libs.env:get_env:13 - MAX_TASK_NUMBER: 10
+2023-11-02 17:18:36.664 | INFO     | libs.env:get_env:13 - MITMPROXY: None
+2023-11-02 17:18:36.664 | INFO     | libs.env:get_env:13 - HOST: 0.0.0.0
+2023-11-02 17:18:36.665 | INFO     | libs.env:get_env:13 - PORT: 8191
+2023-11-02 17:18:37.460 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:37.462 | INFO     | libs.master:start:255 - master 初始化完成。
+2023-11-02 17:18:37.466 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:38.331 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: cdfb0a94-7960-11ee-909d-0242ac120002
+2023-11-02 17:18:38.331 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 17:18:38.337 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 17:18:38.461 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:38.473 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:39.462 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:39.474 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:40.464 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:40.475 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:41.465 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:41.476 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:42.466 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:42.477 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:43.468 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:43.480 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:44.470 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:44.480 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:45.471 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:45.482 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:46.472 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:46.483 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:47.473 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:47.484 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:48.474 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:48.486 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:49.474 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:49.487 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:50.475 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:50.488 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:51.476 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:51.488 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:52.477 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:52.489 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:53.478 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:53.490 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:54.480 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:18:54.491 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:18:54.575 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:18:54.576 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:18:54.577 | INFO     | libs.master:execute:191 - 获取线程id d82df030-7960-11ee-88da-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:18:54.578 | INFO     | libs.master:_execute:144 - 线程id: d82df030-7960-11ee-88da-0242ac120002 获取子进程成功
+2023-11-02 17:18:54.578 | INFO     | libs.master:execute:199 - 线程id: d82df030-7960-11ee-88da-0242ac120002 任务执行中。
+2023-11-02 17:18:54.579 | INFO     | libs.master:_execute:155 - 线程id: d82df030-7960-11ee-88da-0242ac120002 获取任务信息成功
+2023-11-02 17:18:54.580 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:18:54.581 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:18:55.481 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:18:55.496 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:18:56.398 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: d8ba4850-7960-11ee-860c-0242ac120002
+2023-11-02 17:18:56.416 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 17:18:56.422 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 17:18:56.482 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:18:56.498 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:18:57.487 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:18:57.499 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:18:58.487 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:18:58.500 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:18:59.488 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:18:59.501 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:00.489 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:00.502 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:01.359 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:19:01.373 | INFO     | libs.master:_execute:169 - 线程id: d82df030-7960-11ee-88da-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:19:01.376 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:19:01.407 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:19:01.408 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:19:01.409 | INFO     | libs.master:execute:191 - 获取线程id dc4076fc-7960-11ee-88da-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:19:01.410 | INFO     | libs.master:_execute:144 - 线程id: dc4076fc-7960-11ee-88da-0242ac120002 获取子进程成功
+2023-11-02 17:19:01.411 | INFO     | libs.master:execute:199 - 线程id: dc4076fc-7960-11ee-88da-0242ac120002 任务执行中。
+2023-11-02 17:19:01.412 | INFO     | libs.master:_execute:155 - 线程id: dc4076fc-7960-11ee-88da-0242ac120002 获取任务信息成功
+2023-11-02 17:19:01.414 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:19:01.415 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:19:01.490 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:01.503 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:02.491 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:02.504 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:03.492 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:03.506 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:04.493 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:04.507 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:04.832 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:19:04.843 | INFO     | libs.master:_execute:169 - 线程id: dc4076fc-7960-11ee-88da-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:19:04.845 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:19:04.871 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:19:04.872 | INFO     | libs.master:execute:191 - 获取线程id de50c230-7960-11ee-88da-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:19:04.871 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:19:04.872 | INFO     | libs.master:_execute:144 - 线程id: de50c230-7960-11ee-88da-0242ac120002 获取子进程成功
+2023-11-02 17:19:04.873 | INFO     | libs.master:execute:199 - 线程id: de50c230-7960-11ee-88da-0242ac120002 任务执行中。
+2023-11-02 17:19:04.874 | INFO     | libs.master:_execute:155 - 线程id: de50c230-7960-11ee-88da-0242ac120002 获取任务信息成功
+2023-11-02 17:19:04.876 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:19:04.877 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:19:05.494 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:05.509 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:06.495 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:06.510 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:07.496 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:07.510 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:07.956 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:19:07.963 | INFO     | libs.master:_execute:169 - 线程id: de50c230-7960-11ee-88da-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:19:07.965 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:19:08.000 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:19:08.000 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:19:08.002 | INFO     | libs.master:execute:191 - 获取线程id e02e7868-7960-11ee-88da-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:19:08.003 | INFO     | libs.master:_execute:144 - 线程id: e02e7868-7960-11ee-88da-0242ac120002 获取子进程成功
+2023-11-02 17:19:08.004 | INFO     | libs.master:execute:199 - 线程id: e02e7868-7960-11ee-88da-0242ac120002 任务执行中。
+2023-11-02 17:19:08.005 | INFO     | libs.master:_execute:155 - 线程id: e02e7868-7960-11ee-88da-0242ac120002 获取任务信息成功
+2023-11-02 17:19:08.006 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:19:08.008 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:19:08.497 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:08.511 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:09.498 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:09.512 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:10.499 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:10.515 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:10.977 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:19:10.982 | INFO     | libs.master:_execute:169 - 线程id: e02e7868-7960-11ee-88da-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:19:10.983 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:19:11.067 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:19:11.068 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:19:11.068 | INFO     | libs.master:execute:191 - 获取线程id e2024a52-7960-11ee-88da-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:19:11.073 | INFO     | libs.master:_execute:144 - 线程id: e2024a52-7960-11ee-88da-0242ac120002 获取子进程成功
+2023-11-02 17:19:11.073 | INFO     | libs.master:execute:199 - 线程id: e2024a52-7960-11ee-88da-0242ac120002 任务执行中。
+2023-11-02 17:19:11.074 | INFO     | libs.master:_execute:155 - 线程id: e2024a52-7960-11ee-88da-0242ac120002 获取任务信息成功
+2023-11-02 17:19:11.076 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:19:11.077 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:19:11.500 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:11.521 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:12.501 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:12.522 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:13.502 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:13.524 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:14.241 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:19:14.246 | INFO     | libs.master:_execute:169 - 线程id: e2024a52-7960-11ee-88da-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:19:14.247 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:19:14.268 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:19:14.270 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:19:14.272 | INFO     | libs.master:execute:191 - 获取线程id e3eb2ab4-7960-11ee-88da-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:19:14.273 | INFO     | libs.master:_execute:144 - 线程id: e3eb2ab4-7960-11ee-88da-0242ac120002 获取子进程成功
+2023-11-02 17:19:14.273 | INFO     | libs.master:execute:199 - 线程id: e3eb2ab4-7960-11ee-88da-0242ac120002 任务执行中。
+2023-11-02 17:19:14.274 | INFO     | libs.master:_execute:155 - 线程id: e3eb2ab4-7960-11ee-88da-0242ac120002 获取任务信息成功
+2023-11-02 17:19:14.276 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:19:14.276 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:19:14.502 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:14.540 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:15.504 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:15.545 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:16.504 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:16.567 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:17.505 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:17.573 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:17.637 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:19:17.643 | INFO     | libs.master:_execute:169 - 线程id: e3eb2ab4-7960-11ee-88da-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:19:17.644 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:19:17.666 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:19:17.667 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:19:17.669 | INFO     | libs.master:execute:191 - 获取线程id e5f190a0-7960-11ee-88da-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:19:17.671 | INFO     | libs.master:_execute:144 - 线程id: e5f190a0-7960-11ee-88da-0242ac120002 获取子进程成功
+2023-11-02 17:19:17.672 | INFO     | libs.master:_execute:155 - 线程id: e5f190a0-7960-11ee-88da-0242ac120002 获取任务信息成功
+2023-11-02 17:19:17.674 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:19:17.674 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:19:17.677 | INFO     | libs.master:execute:199 - 线程id: e5f190a0-7960-11ee-88da-0242ac120002 任务执行中。
+2023-11-02 17:19:18.506 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:18.585 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:19.507 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:19.587 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:20.508 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:20.589 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:20.964 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:19:20.970 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:19:20.971 | INFO     | libs.master:_execute:169 - 线程id: e5f190a0-7960-11ee-88da-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:19:21.053 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:19:21.054 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:19:21.055 | INFO     | libs.master:execute:191 - 获取线程id e7f624ec-7960-11ee-88da-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:19:21.056 | INFO     | libs.master:_execute:144 - 线程id: e7f624ec-7960-11ee-88da-0242ac120002 获取子进程成功
+2023-11-02 17:19:21.057 | INFO     | libs.master:execute:199 - 线程id: e7f624ec-7960-11ee-88da-0242ac120002 任务执行中。
+2023-11-02 17:19:21.057 | INFO     | libs.master:_execute:155 - 线程id: e7f624ec-7960-11ee-88da-0242ac120002 获取任务信息成功
+2023-11-02 17:19:21.058 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:19:21.059 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:19:21.509 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:21.590 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:22.510 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:22.591 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:23.511 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:23.593 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:24.335 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:19:24.339 | INFO     | libs.master:_execute:169 - 线程id: e7f624ec-7960-11ee-88da-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:19:24.341 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:19:24.380 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:19:24.380 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:19:24.381 | INFO     | libs.master:execute:191 - 获取线程id e9f1a67c-7960-11ee-88da-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:19:24.383 | INFO     | libs.master:_execute:144 - 线程id: e9f1a67c-7960-11ee-88da-0242ac120002 获取子进程成功
+2023-11-02 17:19:24.383 | INFO     | libs.master:execute:199 - 线程id: e9f1a67c-7960-11ee-88da-0242ac120002 任务执行中。
+2023-11-02 17:19:24.386 | INFO     | libs.master:_execute:155 - 线程id: e9f1a67c-7960-11ee-88da-0242ac120002 获取任务信息成功
+2023-11-02 17:19:24.387 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:19:24.388 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:19:24.512 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:24.594 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:25.512 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:25.595 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:26.513 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:26.596 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:27.514 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:27.599 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:27.879 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:19:27.890 | INFO     | libs.master:_execute:169 - 线程id: e9f1a67c-7960-11ee-88da-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:19:27.892 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:19:27.966 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:19:27.967 | INFO     | libs.master:execute:191 - 获取线程id ec14d564-7960-11ee-88da-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:19:27.967 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:19:27.968 | INFO     | libs.master:execute:199 - 线程id: ec14d564-7960-11ee-88da-0242ac120002 任务执行中。
+2023-11-02 17:19:27.968 | INFO     | libs.master:_execute:144 - 线程id: ec14d564-7960-11ee-88da-0242ac120002 获取子进程成功
+2023-11-02 17:19:27.969 | INFO     | libs.master:_execute:155 - 线程id: ec14d564-7960-11ee-88da-0242ac120002 获取任务信息成功
+2023-11-02 17:19:27.970 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:19:27.971 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:19:28.515 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:28.603 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:29.516 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:29.605 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:30.517 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:19:30.607 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:31.301 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:19:31.304 | INFO     | libs.master:_execute:169 - 线程id: ec14d564-7960-11ee-88da-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:19:31.306 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:19:31.518 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:31.608 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:32.519 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:32.609 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:33.520 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:33.610 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:34.521 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:34.611 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:35.522 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:35.612 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:36.523 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:36.613 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:37.524 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:37.614 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:19:38.047 | INFO     | __main__:main:19 - 主进程已启动
+2023-11-02 17:19:38.525 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:38.615 | INFO     | libs.master:_manager_subprocess:107 - 子进程 12 不存活，标记删除。
+2023-11-02 17:19:38.615 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:19:39.526 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:39.616 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:19:40.527 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:40.617 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:19:41.528 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:41.618 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:19:42.528 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:42.628 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:19:43.529 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:43.630 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:19:44.530 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:44.636 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:19:45.531 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:45.637 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:19:46.533 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:46.638 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:19:47.539 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:19:47.639 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:55:09.483 | INFO     | libs.env:get_env:13 - MAX_TASK_NUMBER: 10
+2023-11-02 17:55:09.485 | INFO     | libs.env:get_env:13 - MITMPROXY: None
+2023-11-02 17:55:09.486 | INFO     | libs.env:get_env:13 - HOST: 0.0.0.0
+2023-11-02 17:55:09.486 | INFO     | libs.env:get_env:13 - PORT: 8191
+2023-11-02 17:55:10.469 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:55:10.469 | INFO     | libs.master:start:255 - master 初始化完成。
+2023-11-02 17:55:10.474 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:55:11.347 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: e91d8504-7965-11ee-a471-0242ac120002
+2023-11-02 17:55:11.348 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 17:55:11.348 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 17:55:11.470 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:55:11.476 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:55:12.473 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:55:12.477 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:55:13.474 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:55:13.478 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:55:14.475 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:55:14.478 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:55:15.476 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:55:15.479 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:55:16.477 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:55:16.480 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:55:17.478 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:55:17.482 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:55:18.519 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:55:18.520 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:55:19.520 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:55:19.521 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:55:19.635 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:55:19.635 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:55:19.636 | INFO     | libs.master:execute:191 - 获取线程id ee93886c-7965-11ee-9966-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:55:19.637 | INFO     | libs.master:_execute:144 - 线程id: ee93886c-7965-11ee-9966-0242ac120002 获取子进程成功
+2023-11-02 17:55:19.638 | INFO     | libs.master:execute:199 - 线程id: ee93886c-7965-11ee-9966-0242ac120002 任务执行中。
+2023-11-02 17:55:19.639 | INFO     | libs.master:_execute:155 - 线程id: ee93886c-7965-11ee-9966-0242ac120002 获取任务信息成功
+2023-11-02 17:55:19.640 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:55:19.642 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:55:20.522 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:20.537 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:21.528 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:21.558 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:21.858 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: ef1da57e-7965-11ee-90fa-0242ac120002
+2023-11-02 17:55:21.859 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 17:55:21.860 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 17:55:22.530 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:22.593 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:23.531 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:23.595 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:24.532 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:24.597 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:25.534 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:25.602 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:25.657 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:55:25.668 | INFO     | libs.master:_execute:169 - 线程id: ee93886c-7965-11ee-9966-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:55:25.670 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:55:25.698 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:55:25.699 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:55:25.700 | INFO     | libs.master:execute:191 - 获取线程id f230c25a-7965-11ee-9966-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:55:25.701 | INFO     | libs.master:_execute:144 - 线程id: f230c25a-7965-11ee-9966-0242ac120002 获取子进程成功
+2023-11-02 17:55:25.701 | INFO     | libs.master:execute:199 - 线程id: f230c25a-7965-11ee-9966-0242ac120002 任务执行中。
+2023-11-02 17:55:25.702 | INFO     | libs.master:_execute:155 - 线程id: f230c25a-7965-11ee-9966-0242ac120002 获取任务信息成功
+2023-11-02 17:55:25.704 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:55:25.704 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:55:26.535 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:26.616 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:27.536 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:27.618 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:28.537 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:28.619 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:29.079 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:55:29.086 | INFO     | libs.master:_execute:169 - 线程id: f230c25a-7965-11ee-9966-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:55:29.089 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:55:29.164 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:55:29.165 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:55:29.168 | INFO     | libs.master:execute:191 - 获取线程id f442031a-7965-11ee-9966-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:55:29.172 | INFO     | libs.master:_execute:144 - 线程id: f442031a-7965-11ee-9966-0242ac120002 获取子进程成功
+2023-11-02 17:55:29.173 | INFO     | libs.master:execute:199 - 线程id: f442031a-7965-11ee-9966-0242ac120002 任务执行中。
+2023-11-02 17:55:29.174 | INFO     | libs.master:_execute:155 - 线程id: f442031a-7965-11ee-9966-0242ac120002 获取任务信息成功
+2023-11-02 17:55:29.175 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:55:29.175 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:55:29.538 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:29.621 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:30.539 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:30.622 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:31.540 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:31.623 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:32.541 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:32.624 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:32.787 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:55:32.815 | INFO     | libs.master:_execute:169 - 线程id: f442031a-7965-11ee-9966-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:55:32.816 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:55:32.845 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:55:32.846 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:55:32.847 | INFO     | libs.master:execute:191 - 获取线程id f6734004-7965-11ee-9966-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:55:32.848 | INFO     | libs.master:_execute:144 - 线程id: f6734004-7965-11ee-9966-0242ac120002 获取子进程成功
+2023-11-02 17:55:32.850 | INFO     | libs.master:_execute:155 - 线程id: f6734004-7965-11ee-9966-0242ac120002 获取任务信息成功
+2023-11-02 17:55:32.849 | INFO     | libs.master:execute:199 - 线程id: f6734004-7965-11ee-9966-0242ac120002 任务执行中。
+2023-11-02 17:55:32.853 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:55:32.855 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:55:33.541 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:33.629 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:34.542 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:34.647 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:35.543 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:35.648 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:36.515 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:55:36.525 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:55:36.525 | INFO     | libs.master:_execute:169 - 线程id: f6734004-7965-11ee-9966-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:55:36.601 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:55:36.615 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:55:36.615 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:55:36.617 | INFO     | libs.master:execute:191 - 获取线程id f8b280d2-7965-11ee-9966-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:55:36.617 | INFO     | libs.master:_execute:144 - 线程id: f8b280d2-7965-11ee-9966-0242ac120002 获取子进程成功
+2023-11-02 17:55:36.617 | INFO     | libs.master:execute:199 - 线程id: f8b280d2-7965-11ee-9966-0242ac120002 任务执行中。
+2023-11-02 17:55:36.618 | INFO     | libs.master:_execute:155 - 线程id: f8b280d2-7965-11ee-9966-0242ac120002 获取任务信息成功
+2023-11-02 17:55:36.618 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:55:36.619 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:55:36.650 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:37.608 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:37.652 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:38.609 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:38.653 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:39.611 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:39.655 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:40.230 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:55:40.235 | INFO     | libs.master:_execute:169 - 线程id: f8b280d2-7965-11ee-9966-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:55:40.238 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:55:40.265 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:55:40.268 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:55:40.269 | INFO     | libs.master:execute:191 - 获取线程id fadfd576-7965-11ee-9966-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:55:40.270 | INFO     | libs.master:_execute:144 - 线程id: fadfd576-7965-11ee-9966-0242ac120002 获取子进程成功
+2023-11-02 17:55:40.270 | INFO     | libs.master:_execute:155 - 线程id: fadfd576-7965-11ee-9966-0242ac120002 获取任务信息成功
+2023-11-02 17:55:40.271 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:55:40.271 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:55:40.272 | INFO     | libs.master:execute:199 - 线程id: fadfd576-7965-11ee-9966-0242ac120002 任务执行中。
+2023-11-02 17:55:40.612 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:40.656 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:41.613 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:41.659 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:42.615 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:42.697 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:43.616 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:43.699 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:44.090 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:55:44.095 | INFO     | libs.master:_execute:169 - 线程id: fadfd576-7965-11ee-9966-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:55:44.097 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:55:44.127 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:55:44.128 | INFO     | libs.master:execute:191 - 获取线程id fd2ca912-7965-11ee-9966-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:55:44.127 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:55:44.129 | INFO     | libs.master:_execute:144 - 线程id: fd2ca912-7965-11ee-9966-0242ac120002 获取子进程成功
+2023-11-02 17:55:44.129 | INFO     | libs.master:execute:199 - 线程id: fd2ca912-7965-11ee-9966-0242ac120002 任务执行中。
+2023-11-02 17:55:44.130 | INFO     | libs.master:_execute:155 - 线程id: fd2ca912-7965-11ee-9966-0242ac120002 获取任务信息成功
+2023-11-02 17:55:44.132 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:55:44.134 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:55:44.617 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:44.700 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:45.619 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:45.701 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:46.620 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:46.705 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:47.621 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:47.721 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:48.054 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:55:48.062 | INFO     | libs.master:_execute:169 - 线程id: fd2ca912-7965-11ee-9966-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:55:48.063 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:55:48.096 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:55:48.097 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:55:48.098 | INFO     | libs.master:execute:191 - 获取线程id ff8a73c4-7965-11ee-9966-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:55:48.100 | INFO     | libs.master:_execute:144 - 线程id: ff8a73c4-7965-11ee-9966-0242ac120002 获取子进程成功
+2023-11-02 17:55:48.100 | INFO     | libs.master:execute:199 - 线程id: ff8a73c4-7965-11ee-9966-0242ac120002 任务执行中。
+2023-11-02 17:55:48.101 | INFO     | libs.master:_execute:155 - 线程id: ff8a73c4-7965-11ee-9966-0242ac120002 获取任务信息成功
+2023-11-02 17:55:48.103 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:55:48.104 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:55:48.622 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:48.753 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:49.623 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:49.753 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:50.624 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:50.754 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:51.625 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:51.755 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:52.039 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:55:52.043 | INFO     | libs.master:_execute:169 - 线程id: ff8a73c4-7965-11ee-9966-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:55:52.044 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:55:52.079 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:55:52.079 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:55:52.080 | INFO     | libs.master:execute:191 - 获取线程id 01ea0b2a-7966-11ee-9966-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:55:52.081 | INFO     | libs.master:_execute:144 - 线程id: 01ea0b2a-7966-11ee-9966-0242ac120002 获取子进程成功
+2023-11-02 17:55:52.082 | INFO     | libs.master:execute:199 - 线程id: 01ea0b2a-7966-11ee-9966-0242ac120002 任务执行中。
+2023-11-02 17:55:52.082 | INFO     | libs.master:_execute:155 - 线程id: 01ea0b2a-7966-11ee-9966-0242ac120002 获取任务信息成功
+2023-11-02 17:55:52.084 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:55:52.085 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:55:52.626 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:52.756 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:53.626 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:53.757 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:54.628 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:54.758 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:55.628 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:55.759 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:56.086 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:55:56.093 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:55:56.094 | INFO     | libs.master:_execute:169 - 线程id: 01ea0b2a-7966-11ee-9966-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:55:56.128 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 17:55:56.129 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 17:55:56.131 | INFO     | libs.master:execute:191 - 获取线程id 04543336-7966-11ee-9966-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 17:55:56.132 | INFO     | libs.master:_execute:144 - 线程id: 04543336-7966-11ee-9966-0242ac120002 获取子进程成功
+2023-11-02 17:55:56.132 | INFO     | libs.master:execute:199 - 线程id: 04543336-7966-11ee-9966-0242ac120002 任务执行中。
+2023-11-02 17:55:56.135 | INFO     | libs.master:_execute:155 - 线程id: 04543336-7966-11ee-9966-0242ac120002 获取任务信息成功
+2023-11-02 17:55:56.136 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 17:55:56.136 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 17:55:56.629 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:56.760 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:57.630 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:57.761 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:58.631 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:58.761 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:55:59.631 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 17:55:59.763 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:00.071 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 17:56:00.078 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 17:56:00.078 | INFO     | libs.master:_execute:169 - 线程id: 04543336-7966-11ee-9966-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 17:56:00.632 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:00.773 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:01.633 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:01.774 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:02.635 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:02.775 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:03.636 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:03.776 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:04.637 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:04.777 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:05.639 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:05.778 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:06.640 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:06.786 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:07.641 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:07.788 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:08.642 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:08.803 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:09.643 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:09.805 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:10.644 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:10.806 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:11.645 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:11.807 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:12.646 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:12.814 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:13.648 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:13.815 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:14.649 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:14.823 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:15.650 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:15.825 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:16.651 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:16.831 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:17.652 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:17.832 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:18.653 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:18.834 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:19.654 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:19.844 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 17:56:20.655 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:20.846 | INFO     | libs.master:_manager_subprocess:107 - 子进程 11 不存活，标记删除。
+2023-11-02 17:56:20.846 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:56:20.969 | INFO     | __main__:main:19 - 主进程已启动
+2023-11-02 17:56:21.656 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:21.847 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:56:22.657 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:22.848 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:56:23.658 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:23.849 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:56:24.661 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:24.850 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:56:25.681 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:25.852 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:56:26.682 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:26.879 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:56:27.683 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:27.880 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:56:28.684 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:28.881 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:56:29.684 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 17:56:29.882 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 17:56:30.685 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:10:50.775 | INFO     | libs.env:get_env:13 - MAX_TASK_NUMBER: 10
+2023-11-02 18:10:50.776 | INFO     | libs.env:get_env:13 - MITMPROXY: None
+2023-11-02 18:10:50.777 | INFO     | libs.env:get_env:13 - HOST: 0.0.0.0
+2023-11-02 18:10:50.777 | INFO     | libs.env:get_env:13 - PORT: 8191
+2023-11-02 18:10:51.651 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:10:51.652 | INFO     | libs.master:start:255 - master 初始化完成。
+2023-11-02 18:10:51.656 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:10:52.652 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:10:52.659 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:10:53.280 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 1a1a9942-7968-11ee-97c7-0242ac120002
+2023-11-02 18:10:53.281 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:10:53.284 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:10:53.653 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:10:53.659 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:10:54.654 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:10:54.660 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:10:55.655 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:10:55.661 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:10:56.656 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:10:56.662 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:10:57.657 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:10:57.664 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:10:57.747 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:10:57.748 | INFO     | libs.master:execute:191 - 获取线程id 1dbc13f0-7968-11ee-b94a-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:10:57.748 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:10:57.750 | INFO     | libs.master:_execute:144 - 线程id: 1dbc13f0-7968-11ee-b94a-0242ac120002 获取子进程成功
+2023-11-02 18:10:57.750 | INFO     | libs.master:execute:199 - 线程id: 1dbc13f0-7968-11ee-b94a-0242ac120002 任务执行中。
+2023-11-02 18:10:57.751 | INFO     | libs.master:_execute:155 - 线程id: 1dbc13f0-7968-11ee-b94a-0242ac120002 获取任务信息成功
+2023-11-02 18:10:57.753 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:10:57.753 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:10:57.765 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:10:57.766 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:10:57.768 | INFO     | libs.master:execute:191 - 获取线程id 1dbf08e4-7968-11ee-b94a-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:10:57.769 | INFO     | libs.master:execute:199 - 线程id: 1dbf08e4-7968-11ee-b94a-0242ac120002 任务执行中。
+2023-11-02 18:10:57.781 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:10:57.787 | INFO     | libs.master:execute:191 - 获取线程id 1dc1e3b6-7968-11ee-b94a-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:10:57.782 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:10:57.788 | INFO     | libs.master:execute:199 - 线程id: 1dc1e3b6-7968-11ee-b94a-0242ac120002 任务执行中。
+2023-11-02 18:10:57.849 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:10:57.850 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:10:57.850 | INFO     | libs.master:execute:191 - 获取线程id 1dcb9208-7968-11ee-b94a-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:10:57.857 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:10:57.860 | INFO     | libs.master:execute:199 - 线程id: 1dcb9208-7968-11ee-b94a-0242ac120002 任务执行中。
+2023-11-02 18:10:57.868 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:10:57.872 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:10:57.869 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:10:57.874 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:10:57.892 | INFO     | libs.master:execute:191 - 获取线程id 1dd2073c-7968-11ee-b94a-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:10:57.895 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:10:57.896 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:10:57.898 | INFO     | libs.master:execute:199 - 线程id: 1dd2073c-7968-11ee-b94a-0242ac120002 任务执行中。
+2023-11-02 18:10:57.900 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:10:57.901 | INFO     | libs.master:execute:191 - 获取线程id 1dd36820-7968-11ee-b94a-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:10:57.902 | INFO     | libs.master:execute:199 - 线程id: 1dd36820-7968-11ee-b94a-0242ac120002 任务执行中。
+2023-11-02 18:10:57.903 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:10:57.903 | INFO     | libs.master:execute:191 - 获取线程id 1dd3b15e-7968-11ee-b94a-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:10:57.904 | INFO     | libs.master:execute:199 - 线程id: 1dd3b15e-7968-11ee-b94a-0242ac120002 任务执行中。
+2023-11-02 18:10:57.905 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:10:57.905 | INFO     | libs.master:execute:191 - 获取线程id 1dd408c0-7968-11ee-b94a-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:10:57.906 | INFO     | libs.master:execute:199 - 线程id: 1dd408c0-7968-11ee-b94a-0242ac120002 任务执行中。
+2023-11-02 18:10:57.907 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:10:57.908 | INFO     | libs.master:execute:191 - 获取线程id 1dd45b7c-7968-11ee-b94a-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:10:57.908 | INFO     | libs.master:execute:199 - 线程id: 1dd45b7c-7968-11ee-b94a-0242ac120002 任务执行中。
+2023-11-02 18:10:57.909 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:10:57.909 | INFO     | libs.master:execute:191 - 获取线程id 1dd4a104-7968-11ee-b94a-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:10:57.910 | INFO     | libs.master:execute:199 - 线程id: 1dd4a104-7968-11ee-b94a-0242ac120002 任务执行中。
+2023-11-02 18:10:58.658 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:10:58.669 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 18:10:58.835 | INFO     | libs.master:_execute:144 - 线程id: 1dd45b7c-7968-11ee-b94a-0242ac120002 获取子进程成功
+2023-11-02 18:10:58.836 | INFO     | libs.master:_execute:155 - 线程id: 1dd45b7c-7968-11ee-b94a-0242ac120002 获取任务信息成功
+2023-11-02 18:10:59.659 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:10:59.688 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 3
+2023-11-02 18:10:59.747 | INFO     | libs.master:_execute:144 - 线程id: 1dd2073c-7968-11ee-b94a-0242ac120002 获取子进程成功
+2023-11-02 18:10:59.802 | INFO     | libs.master:_execute:155 - 线程id: 1dd2073c-7968-11ee-b94a-0242ac120002 获取任务信息成功
+2023-11-02 18:10:59.897 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 1e48dab0-7968-11ee-8e99-0242ac120002
+2023-11-02 18:10:59.898 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:10:59.909 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:10:59.911 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:10:59.913 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:11:00.663 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:00.701 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 4
+2023-11-02 18:11:00.779 | INFO     | libs.master:_execute:144 - 线程id: 1dd408c0-7968-11ee-b94a-0242ac120002 获取子进程成功
+2023-11-02 18:11:00.792 | INFO     | libs.master:_execute:155 - 线程id: 1dd408c0-7968-11ee-b94a-0242ac120002 获取任务信息成功
+2023-11-02 18:11:00.950 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 1eeb39f4-7968-11ee-8e99-0242ac120002
+2023-11-02 18:11:00.952 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:11:00.959 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:11:00.960 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:11:00.961 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:11:01.668 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:01.706 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 5
+2023-11-02 18:11:01.721 | INFO     | libs.master:_execute:144 - 线程id: 1dcb9208-7968-11ee-b94a-0242ac120002 获取子进程成功
+2023-11-02 18:11:01.724 | INFO     | libs.master:_execute:155 - 线程id: 1dcb9208-7968-11ee-b94a-0242ac120002 获取任务信息成功
+2023-11-02 18:11:02.475 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 1f7ffdbe-7968-11ee-8e99-0242ac120002
+2023-11-02 18:11:02.481 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:11:02.496 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:11:02.543 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:11:02.559 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:11:02.670 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:02.775 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 6
+2023-11-02 18:11:03.185 | INFO     | libs.master:_execute:144 - 线程id: 1dc1e3b6-7968-11ee-b94a-0242ac120002 获取子进程成功
+2023-11-02 18:11:03.187 | INFO     | libs.master:_execute:155 - 线程id: 1dc1e3b6-7968-11ee-b94a-0242ac120002 获取任务信息成功
+2023-11-02 18:11:03.672 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:03.803 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 7
+2023-11-02 18:11:03.861 | INFO     | libs.master:_execute:144 - 线程id: 1dd36820-7968-11ee-b94a-0242ac120002 获取子进程成功
+2023-11-02 18:11:03.863 | INFO     | libs.master:_execute:155 - 线程id: 1dd36820-7968-11ee-b94a-0242ac120002 获取任务信息成功
+2023-11-02 18:11:04.674 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:04.810 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 8
+2023-11-02 18:11:05.088 | INFO     | libs.master:_execute:144 - 线程id: 1dd4a104-7968-11ee-b94a-0242ac120002 获取子进程成功
+2023-11-02 18:11:05.090 | INFO     | libs.master:_execute:155 - 线程id: 1dd4a104-7968-11ee-b94a-0242ac120002 获取任务信息成功
+2023-11-02 18:11:05.677 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:05.818 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:11:06.035 | INFO     | libs.master:_execute:144 - 线程id: 1dbf08e4-7968-11ee-b94a-0242ac120002 获取子进程成功
+2023-11-02 18:11:06.106 | INFO     | libs.master:_execute:155 - 线程id: 1dbf08e4-7968-11ee-b94a-0242ac120002 获取任务信息成功
+2023-11-02 18:11:06.246 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 201fe626-7968-11ee-8e99-0242ac120002
+2023-11-02 18:11:06.247 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:11:06.256 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:11:06.257 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:11:06.269 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:11:06.678 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:06.887 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:07.330 | INFO     | libs.master:_execute:144 - 线程id: 1dd3b15e-7968-11ee-b94a-0242ac120002 获取子进程成功
+2023-11-02 18:11:07.332 | INFO     | libs.master:_execute:155 - 线程id: 1dd3b15e-7968-11ee-b94a-0242ac120002 获取任务信息成功
+2023-11-02 18:11:07.673 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 20becf70-7968-11ee-8e99-0242ac120002
+2023-11-02 18:11:07.674 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:11:07.687 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:07.786 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:11:07.791 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:11:07.793 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:11:07.895 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:08.688 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:08.900 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:09.327 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 2158f3d4-7968-11ee-8e99-0242ac120002
+2023-11-02 18:11:09.327 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:11:09.335 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:11:09.335 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:11:09.337 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:11:09.688 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:09.901 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:10.326 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 220640ac-7968-11ee-8e99-0242ac120002
+2023-11-02 18:11:10.327 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:11:10.335 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:11:10.337 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:11:10.380 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:11:10.690 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:10.906 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:11.415 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 228c21ea-7968-11ee-8e99-0242ac120002
+2023-11-02 18:11:11.416 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:11:11.497 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:11:11.498 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:11:11.517 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:11:11.701 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:11.910 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:12.706 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:12.934 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:13.715 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:13.935 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:14.293 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 2345c0f0-7968-11ee-8e99-0242ac120002
+2023-11-02 18:11:14.294 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:11:14.304 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:11:14.305 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:11:14.308 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:11:14.718 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:14.937 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:15.719 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:15.938 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:16.720 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:16.939 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:17.721 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:17.963 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:18.723 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:19.000 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:19.724 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:11:20.001 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:20.334 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:11:20.463 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:11:20.619 | INFO     | libs.master:_execute:169 - 线程id: 1dbc13f0-7968-11ee-b94a-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:11:20.729 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:11:21.027 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:21.738 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:11:22.218 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:22.739 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:11:23.219 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:23.739 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:11:24.221 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:24.741 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:11:25.222 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:25.741 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:11:26.223 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:26.742 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:11:27.224 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:27.743 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:11:28.225 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:28.745 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:11:29.227 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:29.746 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:11:30.227 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:30.300 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:11:30.341 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:11:30.343 | INFO     | libs.master:_execute:169 - 线程id: 1dd45b7c-7968-11ee-b94a-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:11:30.747 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 8
+2023-11-02 18:11:31.228 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:31.750 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 8
+2023-11-02 18:11:31.880 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:11:31.909 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:11:32.210 | INFO     | libs.master:_execute:169 - 线程id: 1dd2073c-7968-11ee-b94a-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:11:32.230 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:32.751 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 7
+2023-11-02 18:11:33.230 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:33.760 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 7
+2023-11-02 18:11:34.233 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:34.769 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 7
+2023-11-02 18:11:35.239 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:35.453 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:11:35.535 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:11:35.539 | INFO     | libs.master:_execute:169 - 线程id: 1dd408c0-7968-11ee-b94a-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:11:35.774 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 6
+2023-11-02 18:11:36.241 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:36.778 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 6
+2023-11-02 18:11:37.242 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:37.587 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:11:37.601 | INFO     | libs.master:_execute:169 - 线程id: 1dd4a104-7968-11ee-b94a-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:11:37.604 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:11:37.931 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 5
+2023-11-02 18:11:38.080 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:11:38.099 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:11:38.204 | INFO     | libs.master:_execute:169 - 线程id: 1dcb9208-7968-11ee-b94a-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:11:38.251 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:38.934 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 4
+2023-11-02 18:11:39.252 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:39.332 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:11:39.353 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:11:39.392 | INFO     | libs.master:_execute:169 - 线程id: 1dc1e3b6-7968-11ee-b94a-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:11:39.901 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:11:39.927 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:11:40.030 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:11:40.060 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 2
+2023-11-02 18:11:39.928 | INFO     | libs.master:_execute:169 - 线程id: 1dd36820-7968-11ee-b94a-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:11:40.113 | INFO     | libs.master:_execute:169 - 线程id: 1dbf08e4-7968-11ee-b94a-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:11:40.119 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:11:40.168 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:11:40.250 | INFO     | libs.master:_execute:169 - 线程id: 1dd3b15e-7968-11ee-b94a-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:11:40.250 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:11:40.254 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:41.068 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:41.304 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:42.069 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:42.305 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:43.071 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:43.307 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:44.071 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:44.308 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:45.073 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:45.310 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:46.073 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:46.311 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:47.074 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:47.322 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:48.076 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:48.323 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:49.077 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:49.325 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:50.078 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:50.331 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:51.079 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:51.332 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:52.080 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:52.333 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:53.081 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:53.334 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:54.082 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:54.335 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:55.083 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:55.336 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:56.084 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:56.338 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:57.085 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:57.339 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:58.086 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:58.340 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:11:59.087 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:11:59.341 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:12:00.099 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:00.342 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:12:01.101 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:01.343 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:12:02.106 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:02.344 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:12:03.108 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:03.345 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:12:04.109 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:04.346 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:12:05.110 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:05.347 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:12:06.111 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:06.189 | INFO     | __main__:main:19 - 主进程已启动
+2023-11-02 18:12:06.349 | INFO     | libs.master:_manager_subprocess:107 - 子进程 11 不存活，标记删除。
+2023-11-02 18:12:06.350 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:12:07.112 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:07.352 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:12:08.114 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:08.358 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:12:09.126 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:09.368 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:12:10.127 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:10.369 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:12:11.129 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:11.370 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:12:12.130 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:12.371 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:12:13.131 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:13.373 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:12:14.132 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:14.373 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:12:15.133 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:12:15.374 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:17:50.757 | INFO     | libs.env:get_env:13 - MAX_TASK_NUMBER: 10
+2023-11-02 18:17:50.758 | INFO     | libs.env:get_env:13 - MITMPROXY: None
+2023-11-02 18:17:50.759 | INFO     | libs.env:get_env:13 - HOST: 0.0.0.0
+2023-11-02 18:17:50.759 | INFO     | libs.env:get_env:13 - PORT: 8191
+2023-11-02 18:17:51.763 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:17:51.764 | INFO     | libs.master:start:255 - master 初始化完成。
+2023-11-02 18:17:51.770 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:17:52.634 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 1482c4f4-7969-11ee-83af-0242ac120002
+2023-11-02 18:17:52.635 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:17:52.636 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:17:52.765 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:17:52.773 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:17:53.766 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:17:53.774 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:17:54.767 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:17:54.775 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:17:55.768 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:17:55.776 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:17:56.772 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:17:56.777 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:17:57.773 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:17:57.778 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 1
+2023-11-02 18:17:58.523 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:17:58.523 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:17:58.528 | INFO     | libs.master:execute:191 - 获取线程id 1889e2c6-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:17:58.529 | INFO     | libs.master:_execute:144 - 线程id: 1889e2c6-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:17:58.529 | INFO     | libs.master:execute:199 - 线程id: 1889e2c6-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:17:58.533 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:17:58.534 | INFO     | libs.master:execute:191 - 获取线程id 188aec16-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:17:58.533 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:17:58.532 | INFO     | libs.master:_execute:155 - 线程id: 1889e2c6-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:17:58.535 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:17:58.536 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:17:58.539 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:17:58.540 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:17:58.536 | INFO     | libs.master:execute:199 - 线程id: 188aec16-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:17:58.537 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:17:58.540 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:17:58.543 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:17:58.544 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:17:58.550 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:17:58.566 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:17:58.567 | INFO     | libs.master:execute:191 - 获取线程id 188f9518-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:17:58.568 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:17:58.571 | INFO     | libs.master:execute:199 - 线程id: 188f9518-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:17:58.571 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:17:58.572 | INFO     | libs.master:execute:191 - 获取线程id 1890a070-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:17:58.572 | INFO     | libs.master:execute:199 - 线程id: 1890a070-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:17:58.573 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:17:58.573 | INFO     | libs.master:execute:191 - 获取线程id 1890d34c-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:17:58.574 | INFO     | libs.master:execute:199 - 线程id: 1890d34c-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:17:58.574 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:17:58.574 | INFO     | libs.master:execute:191 - 获取线程id 18910920-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:17:58.575 | INFO     | libs.master:execute:199 - 线程id: 18910920-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:17:58.575 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:17:58.576 | INFO     | libs.master:execute:191 - 获取线程id 18914386-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:17:58.577 | INFO     | libs.master:execute:199 - 线程id: 18914386-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:17:58.578 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:17:58.579 | INFO     | libs.master:execute:191 - 获取线程id 1891c734-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:17:58.580 | INFO     | libs.master:execute:199 - 线程id: 1891c734-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:17:58.581 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:17:58.581 | INFO     | libs.master:execute:191 - 获取线程id 189219be-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:17:58.583 | INFO     | libs.master:execute:199 - 线程id: 189219be-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:17:58.583 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:17:58.584 | INFO     | libs.master:execute:191 - 获取线程id 18926f5e-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:17:58.585 | INFO     | libs.master:execute:199 - 线程id: 18926f5e-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:17:58.774 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:17:58.782 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 2
+2023-11-02 18:17:59.139 | INFO     | libs.master:_execute:144 - 线程id: 1890a070-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:17:59.140 | INFO     | libs.master:_execute:155 - 线程id: 1890a070-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:17:59.775 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:17:59.788 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 3
+2023-11-02 18:17:59.837 | INFO     | libs.master:_execute:144 - 线程id: 189219be-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:17:59.840 | INFO     | libs.master:_execute:155 - 线程id: 189219be-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:17:59.902 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 18b10202-7969-11ee-9b13-0242ac120002
+2023-11-02 18:17:59.904 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:17:59.905 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:17:59.906 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:17:59.908 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:18:00.776 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:00.796 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 4
+2023-11-02 18:18:00.854 | INFO     | libs.master:_execute:144 - 线程id: 18914386-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:18:00.883 | INFO     | libs.master:_execute:155 - 线程id: 18914386-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:18:01.276 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 194aadc6-7969-11ee-9b13-0242ac120002
+2023-11-02 18:18:01.279 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:18:01.306 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:18:01.307 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:18:01.315 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:18:01.779 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:01.803 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 5
+2023-11-02 18:18:02.006 | INFO     | libs.master:_execute:144 - 线程id: 188aec16-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:18:02.050 | INFO     | libs.master:_execute:155 - 线程id: 188aec16-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:18:02.780 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:02.810 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 6
+2023-11-02 18:18:02.996 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 19e77f98-7969-11ee-9b13-0242ac120002
+2023-11-02 18:18:02.997 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:18:03.001 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:18:03.002 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:18:03.010 | INFO     | libs.master:_execute:144 - 线程id: 188f9518-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:18:03.015 | INFO     | libs.master:_execute:155 - 线程id: 188f9518-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:18:03.016 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:18:03.782 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:03.817 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 7
+2023-11-02 18:18:03.945 | INFO     | libs.master:_execute:144 - 线程id: 1890d34c-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:18:03.954 | INFO     | libs.master:_execute:155 - 线程id: 1890d34c-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:18:04.471 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 1a812ec2-7969-11ee-9b13-0242ac120002
+2023-11-02 18:18:04.472 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:18:04.475 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:18:04.475 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:18:04.476 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:18:04.784 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:04.823 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 8
+2023-11-02 18:18:04.991 | INFO     | libs.master:_execute:144 - 线程id: 18910920-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:18:04.993 | INFO     | libs.master:_execute:155 - 线程id: 18910920-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:18:05.785 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:05.829 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:18:05.866 | INFO     | libs.master:_execute:144 - 线程id: 18926f5e-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:18:05.871 | INFO     | libs.master:_execute:155 - 线程id: 18926f5e-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:18:06.786 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:06.850 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:07.280 | INFO     | libs.master:_execute:144 - 线程id: 1891c734-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:18:07.282 | INFO     | libs.master:_execute:155 - 线程id: 1891c734-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:18:07.788 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:07.853 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:07.933 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 1b2f2c8e-7969-11ee-9b13-0242ac120002
+2023-11-02 18:18:07.934 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:18:08.076 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:18:08.077 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:18:08.084 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:18:08.570 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 1bb4f7ce-7969-11ee-9b13-0242ac120002
+2023-11-02 18:18:08.572 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:18:08.580 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 1c51ac36-7969-11ee-9b13-0242ac120002
+2023-11-02 18:18:08.581 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:18:08.583 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:18:08.583 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:18:08.584 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:18:08.625 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:18:08.630 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:18:08.672 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:18:08.789 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:08.854 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:09.790 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:09.855 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:10.791 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:10.856 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:11.792 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:11.861 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:11.940 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 1cf9e5ea-7969-11ee-9b13-0242ac120002
+2023-11-02 18:18:11.941 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:18:11.947 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:18:11.950 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:18:11.952 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:18:12.793 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:12.895 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:13.553 | INFO     | libs.worker:create:64 - 子进程创建浏览器。session_id: 1d953d9c-7969-11ee-9b13-0242ac120002
+2023-11-02 18:18:13.557 | INFO     | libs.worker:_init_session:53 - 子进程初始化浏览器完成。
+2023-11-02 18:18:13.627 | INFO     | libs.worker:watch_dog:121 - 子进程开始监测管道信息。
+2023-11-02 18:18:13.631 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:18:13.669 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:18:13.796 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:14.053 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:14.806 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:15.057 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:15.830 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:16.059 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:16.833 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:17.084 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:17.834 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:18.085 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:18.835 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:19.132 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:19.842 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:18:20.136 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:20.339 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:18:20.456 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:18:20.468 | INFO     | libs.master:_execute:169 - 线程id: 1889e2c6-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:18:20.848 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:18:21.142 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:21.853 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:18:22.144 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:22.855 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:18:23.146 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:23.883 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:18:24.150 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:24.885 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:18:25.154 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:25.895 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:18:26.177 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:26.902 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:18:27.180 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:27.904 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:18:28.185 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:28.906 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:18:28.940 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:18:28.984 | INFO     | libs.master:_execute:169 - 线程id: 1890a070-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:18:28.990 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:18:29.399 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:29.926 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 8
+2023-11-02 18:18:30.399 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:30.611 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:18:30.698 | INFO     | libs.master:_execute:169 - 线程id: 189219be-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:18:30.704 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:18:30.928 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 7
+2023-11-02 18:18:31.400 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:31.929 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 7
+2023-11-02 18:18:32.401 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:32.688 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:18:32.730 | INFO     | libs.master:_execute:169 - 线程id: 18914386-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:18:32.743 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:18:33.028 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 6
+2023-11-02 18:18:33.402 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:33.924 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:18:33.961 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:18:33.968 | INFO     | libs.master:_execute:169 - 线程id: 188aec16-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:18:34.194 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 5
+2023-11-02 18:18:34.403 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:35.019 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:18:35.118 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:18:35.119 | INFO     | libs.master:_execute:169 - 线程id: 1890d34c-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:18:35.281 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 4
+2023-11-02 18:18:35.404 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:35.849 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:18:35.867 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:18:35.868 | INFO     | libs.master:_execute:169 - 线程id: 188f9518-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:18:36.185 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:18:36.208 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:18:36.209 | INFO     | libs.master:_execute:169 - 线程id: 18926f5e-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:18:36.372 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 2
+2023-11-02 18:18:36.412 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:37.015 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:18:37.062 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:18:37.063 | INFO     | libs.master:_execute:169 - 线程id: 1891c734-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:18:37.374 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 18:18:37.448 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:37.849 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:18:37.857 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:18:37.857 | INFO     | libs.master:_execute:169 - 线程id: 18910920-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:18:38.375 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:38.459 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:39.376 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:39.460 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:40.377 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:40.461 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:41.378 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:41.462 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:42.379 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:42.463 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:43.381 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:43.464 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:44.384 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:44.464 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:45.385 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:45.465 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:46.386 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:46.466 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:47.387 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:47.467 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:48.388 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:48.468 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:49.390 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:49.471 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:50.405 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:50.478 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:51.422 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:51.480 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:52.437 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:52.481 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:53.438 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:53.483 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:54.440 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:54.484 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:55.441 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:55.484 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:56.442 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:56.487 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:57.443 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:57.506 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:58.454 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:58.507 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:18:59.455 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:18:59.507 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:00.456 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:19:00.509 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:01.457 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:19:01.510 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:02.458 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:19:02.511 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:03.459 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:19:03.512 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:04.461 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:19:04.513 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:05.462 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:19:05.516 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:06.463 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:19:06.517 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:07.464 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:19:07.518 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:08.466 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:19:08.519 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:09.467 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:19:09.521 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:10.468 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:19:10.522 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:10.871 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:19:10.871 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:19:10.873 | INFO     | libs.master:execute:191 - 获取线程id 43a8d796-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:19:10.873 | INFO     | libs.master:_execute:144 - 线程id: 43a8d796-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:19:10.874 | INFO     | libs.master:execute:199 - 线程id: 43a8d796-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:19:10.874 | INFO     | libs.master:_execute:155 - 线程id: 43a8d796-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:19:10.876 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:19:10.879 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:19:10.888 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:19:10.889 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:19:10.901 | INFO     | libs.master:execute:191 - 获取线程id 43ad3f48-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:19:10.903 | INFO     | libs.master:_execute:144 - 线程id: 43ad3f48-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:19:10.903 | INFO     | libs.master:execute:199 - 线程id: 43ad3f48-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:19:10.911 | INFO     | libs.master:_execute:155 - 线程id: 43ad3f48-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:19:10.924 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:19:10.927 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:19:10.929 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:19:10.929 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:19:10.930 | INFO     | libs.master:execute:191 - 获取线程id 43b1a06a-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:19:10.938 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:19:10.939 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:19:10.957 | INFO     | libs.master:_execute:144 - 线程id: 43b1a06a-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:19:10.959 | INFO     | libs.master:_execute:155 - 线程id: 43b1a06a-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:19:10.959 | INFO     | libs.master:execute:199 - 线程id: 43b1a06a-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:19:10.971 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:19:10.972 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:19:10.973 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:19:10.973 | INFO     | libs.master:execute:191 - 获取线程id 43b828d6-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:19:10.978 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:19:10.985 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:19:10.992 | INFO     | libs.master:_execute:144 - 线程id: 43b828d6-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:19:10.993 | INFO     | libs.master:execute:199 - 线程id: 43b828d6-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:19:11.021 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:19:11.022 | INFO     | libs.master:_execute:155 - 线程id: 43b828d6-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:19:11.022 | INFO     | libs.master:execute:191 - 获取线程id 43bfa098-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:19:11.024 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:19:11.025 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:19:11.270 | INFO     | libs.master:execute:199 - 线程id: 43bfa098-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:19:11.288 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:19:11.288 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:19:11.289 | INFO     | libs.master:execute:191 - 获取线程id 43e86514-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:19:11.222 | INFO     | libs.master:_execute:144 - 线程id: 43bfa098-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:19:11.295 | INFO     | libs.master:_execute:155 - 线程id: 43bfa098-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:19:11.297 | INFO     | libs.master:execute:199 - 线程id: 43e86514-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:19:11.303 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:19:11.303 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:19:11.304 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:19:11.304 | INFO     | libs.master:execute:191 - 获取线程id 43eaa70c-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:19:11.297 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:19:11.295 | INFO     | libs.master:_execute:144 - 线程id: 43e86514-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:19:11.305 | INFO     | libs.master:_execute:155 - 线程id: 43e86514-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:19:11.306 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:19:11.308 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:19:11.311 | INFO     | libs.master:_execute:144 - 线程id: 43eaa70c-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:19:11.312 | INFO     | libs.master:execute:199 - 线程id: 43eaa70c-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:19:11.314 | INFO     | libs.master:_execute:155 - 线程id: 43eaa70c-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:19:11.314 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:19:11.315 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:19:11.316 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:19:11.315 | INFO     | libs.master:execute:191 - 获取线程id 43ec6f1a-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:19:11.343 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:19:11.359 | INFO     | libs.master:execute:199 - 线程id: 43ec6f1a-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:19:11.362 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:19:11.364 | INFO     | libs.master:execute:191 - 获取线程id 43f3d606-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:19:11.351 | INFO     | libs.master:_execute:144 - 线程id: 43ec6f1a-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:19:11.369 | INFO     | libs.master:_execute:155 - 线程id: 43ec6f1a-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:19:11.372 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:19:11.374 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:19:11.444 | INFO     | libs.master:_execute:144 - 线程id: 43f3d606-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:19:11.444 | INFO     | libs.master:execute:199 - 线程id: 43f3d606-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:19:11.458 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:19:11.459 | INFO     | libs.master:execute:191 - 获取线程id 4402558c-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:19:11.463 | INFO     | libs.master:_execute:155 - 线程id: 43f3d606-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:19:11.469 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:11.477 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:19:11.479 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:19:11.525 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:11.549 | INFO     | libs.master:execute:199 - 线程id: 4402558c-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:19:11.541 | INFO     | libs.master:_execute:144 - 线程id: 4402558c-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:19:11.599 | INFO     | libs.master:_execute:155 - 线程id: 4402558c-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:19:11.601 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:19:11.603 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:19:12.485 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:12.529 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:13.497 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:13.539 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:14.505 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:14.546 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:15.507 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:15.594 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:16.509 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:16.599 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:17.511 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:17.600 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:18.518 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:18.604 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:19.545 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:19.631 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:20.549 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:20.634 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:21.583 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:21.635 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:22.602 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:22.639 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:23.610 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:23.642 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:24.613 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:24.649 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:25.615 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:25.651 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:26.616 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:26.654 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:27.617 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:27.655 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:28.631 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:28.662 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:29.632 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:29.664 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:30.635 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:30.665 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:31.639 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:31.666 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:32.655 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:32.667 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:33.706 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:33.667 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:34.708 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:34.709 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:35.714 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:35.715 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:36.716 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:36.720 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:37.718 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:37.728 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:38.719 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:38.729 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:39.720 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:39.731 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:40.722 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:40.732 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:41.724 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:41.736 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:42.727 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:42.738 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:43.728 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:43.744 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:44.733 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:44.752 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:45.734 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:45.753 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:46.735 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:46.757 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:47.738 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:47.766 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:48.744 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:48.818 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:49.750 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:49.823 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:50.752 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:50.824 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:51.761 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:51.826 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:52.762 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:52.827 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:53.763 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:53.829 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:54.764 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:54.836 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:55.765 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:55.837 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:56.766 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:56.839 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:57.767 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:57.840 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:58.768 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:58.850 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:19:59.772 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:19:59.851 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:00.773 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:00.860 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:01.842 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:01.896 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:02.843 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:02.871 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:02.880 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:02.880 | INFO     | libs.master:_execute:169 - 线程id: 43e86514-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:02.927 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:03.294 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:03.302 | INFO     | libs.master:_execute:169 - 线程id: 43f3d606-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:03.303 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:03.846 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 8
+2023-11-02 18:20:03.928 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:04.451 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:04.460 | INFO     | libs.master:_execute:169 - 线程id: 43b828d6-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:04.461 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:04.855 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 7
+2023-11-02 18:20:04.876 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:04.907 | INFO     | libs.master:_execute:169 - 线程id: 4402558c-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:04.908 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:04.956 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:05.802 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:05.826 | INFO     | libs.master:_execute:169 - 线程id: 43a8d796-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:05.827 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:05.856 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 5
+2023-11-02 18:20:05.891 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:05.900 | INFO     | libs.master:_execute:169 - 线程id: 43eaa70c-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:05.902 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:05.958 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:06.101 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:06.103 | INFO     | libs.master:_execute:169 - 线程id: 43bfa098-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:06.104 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:06.775 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:06.794 | INFO     | libs.master:_execute:169 - 线程id: 43ec6f1a-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:06.800 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:06.838 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:06.856 | INFO     | libs.master:_execute:169 - 线程id: 43b1a06a-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:06.858 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:06.858 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 18:20:06.885 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:06.900 | INFO     | libs.master:_execute:169 - 线程id: 43ad3f48-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:06.901 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:06.960 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:07.859 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:07.965 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:08.861 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:08.968 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:09.750 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:20:09.750 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:20:09.752 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:20:09.754 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:20:09.755 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:20:09.756 | INFO     | libs.master:execute:191 - 获取线程id 66c1b112-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:20:09.758 | INFO     | libs.master:_execute:144 - 线程id: 66c1b112-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:20:09.758 | INFO     | libs.master:execute:199 - 线程id: 66c1b112-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:20:09.759 | INFO     | libs.master:_execute:155 - 线程id: 66c1b112-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:20:09.773 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:20:09.770 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:20:09.774 | INFO     | libs.master:execute:191 - 获取线程id 66c474ec-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:20:09.774 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:20:09.773 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:20:09.778 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:20:09.778 | INFO     | libs.master:execute:199 - 线程id: 66c474ec-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:20:09.775 | INFO     | libs.master:_execute:144 - 线程id: 66c474ec-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:20:09.783 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:20:09.793 | INFO     | libs.master:execute:191 - 获取线程id 66c75f40-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:20:09.789 | INFO     | libs.master:_execute:155 - 线程id: 66c474ec-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:20:09.789 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:20:09.798 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:20:09.787 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:20:09.793 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:20:09.799 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:20:09.801 | INFO     | libs.master:_execute:144 - 线程id: 66c75f40-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:20:09.804 | INFO     | libs.master:execute:199 - 线程id: 66c75f40-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:20:09.805 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:20:09.806 | INFO     | libs.master:_execute:155 - 线程id: 66c75f40-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:20:09.807 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:20:09.808 | INFO     | libs.master:execute:191 - 获取线程id 66c9a75a-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:20:09.810 | INFO     | libs.master:_execute:144 - 线程id: 66c9a75a-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:20:09.813 | INFO     | libs.master:execute:199 - 线程id: 66c9a75a-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:20:09.815 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:20:09.815 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:20:09.815 | INFO     | libs.master:_execute:155 - 线程id: 66c9a75a-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:20:09.816 | INFO     | libs.master:execute:191 - 获取线程id 66cad756-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:20:09.818 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:20:09.822 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:20:09.821 | INFO     | libs.master:_execute:144 - 线程id: 66cad756-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:20:09.822 | INFO     | libs.master:execute:199 - 线程id: 66cad756-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:20:09.823 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:20:09.823 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:20:09.825 | INFO     | libs.master:_execute:155 - 线程id: 66cad756-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:20:09.825 | INFO     | libs.master:execute:191 - 获取线程id 66cc4190-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:20:09.836 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:20:09.837 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:20:09.837 | INFO     | libs.master:_execute:144 - 线程id: 66cc4190-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:20:09.838 | INFO     | libs.master:_execute:155 - 线程id: 66cc4190-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:20:09.839 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:20:09.839 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:20:09.840 | INFO     | libs.master:execute:199 - 线程id: 66cc4190-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:20:09.842 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:20:09.851 | INFO     | libs.master:execute:191 - 获取线程id 66d037a0-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:20:09.856 | INFO     | libs.master:_execute:144 - 线程id: 66d037a0-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:20:09.858 | INFO     | libs.master:_execute:155 - 线程id: 66d037a0-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:20:09.859 | INFO     | libs.master:execute:199 - 线程id: 66d037a0-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:20:09.859 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:20:09.860 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:20:09.859 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:20:09.863 | INFO     | libs.master:execute:191 - 获取线程id 66d224de-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:20:09.864 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 8
+2023-11-02 18:20:09.865 | INFO     | libs.master:_execute:144 - 线程id: 66d224de-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:20:09.865 | INFO     | libs.master:_execute:155 - 线程id: 66d224de-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:20:09.866 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:20:09.867 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:20:09.870 | INFO     | libs.master:execute:199 - 线程id: 66d224de-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:20:09.873 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:20:09.876 | INFO     | libs.master:execute:191 - 获取线程id 66d40b82-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:20:09.891 | INFO     | libs.master:_execute:144 - 线程id: 66d40b82-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:20:09.892 | INFO     | libs.master:execute:199 - 线程id: 66d40b82-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:20:09.896 | INFO     | libs.master:_execute:155 - 线程id: 66d40b82-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:20:09.899 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:20:09.901 | INFO     | libs.master:execute:191 - 获取线程id 66d7ed88-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:20:09.901 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:20:09.903 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:20:09.903 | INFO     | libs.master:_execute:144 - 线程id: 66d7ed88-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:20:09.904 | INFO     | libs.master:execute:199 - 线程id: 66d7ed88-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:20:09.906 | INFO     | libs.master:_execute:155 - 线程id: 66d7ed88-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:20:09.915 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:20:09.916 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:20:10.015 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:10.865 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:11.016 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:11.866 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:12.017 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:12.867 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:13.018 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:13.868 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:14.019 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:14.879 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:15.026 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:15.880 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:16.032 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:16.881 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:17.033 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:17.882 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:18.034 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:18.883 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:19.035 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:19.884 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:20.036 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:20.896 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:21.040 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:21.897 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:22.041 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:22.898 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:23.043 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:23.899 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:24.045 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:24.900 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:25.046 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:25.906 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:26.047 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:26.907 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:27.048 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:27.908 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:28.061 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:28.915 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:29.080 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:29.934 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:30.082 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:30.935 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:31.084 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:31.937 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:32.084 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:32.938 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:33.085 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:33.939 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:34.086 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:34.944 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:35.115 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:35.945 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:20:36.116 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:36.491 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:36.507 | INFO     | libs.master:_execute:169 - 线程id: 66c9a75a-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:36.508 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:36.946 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:20:37.056 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:37.094 | INFO     | libs.master:_execute:169 - 线程id: 66d40b82-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:37.095 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:37.118 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:37.947 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 8
+2023-11-02 18:20:37.967 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:37.971 | INFO     | libs.master:_execute:169 - 线程id: 66d037a0-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:37.972 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:38.014 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:38.018 | INFO     | libs.master:_execute:169 - 线程id: 66c1b112-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:38.018 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:38.103 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:38.111 | INFO     | libs.master:_execute:169 - 线程id: 66d7ed88-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:38.113 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:38.122 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:38.329 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:38.333 | INFO     | libs.master:_execute:169 - 线程id: 66c474ec-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:38.334 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:38.948 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 4
+2023-11-02 18:20:39.123 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:39.414 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:39.421 | INFO     | libs.master:_execute:169 - 线程id: 66d224de-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:39.422 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:39.620 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:39.623 | INFO     | libs.master:_execute:169 - 线程id: 66cc4190-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:39.627 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:39.924 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:39.929 | INFO     | libs.master:_execute:169 - 线程id: 66c75f40-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:39.931 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:40.008 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 1
+2023-11-02 18:20:40.136 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:40.906 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:20:40.910 | INFO     | libs.master:_execute:169 - 线程id: 66cad756-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:20:40.913 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:20:41.016 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:41.235 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:42.067 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:42.236 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:43.068 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:43.238 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:44.069 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:44.239 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:45.091 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:45.241 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:46.146 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:46.253 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:47.148 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:47.254 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:48.151 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:48.255 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:49.206 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:49.267 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:50.208 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:50.268 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:51.211 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:51.270 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:52.278 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:52.279 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:53.279 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:53.280 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:54.280 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:54.281 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:55.315 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:55.285 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:56.319 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:56.381 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:57.362 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:57.381 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:58.366 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:58.386 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:20:59.373 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:20:59.389 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:00.374 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:00.390 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:01.381 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:01.396 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:02.381 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:02.397 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:03.386 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:03.399 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:04.412 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:04.394 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:05.413 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:05.413 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:06.415 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:06.425 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:07.423 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:07.438 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:08.424 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:08.439 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:09.427 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:09.441 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:10.432 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:10.447 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:11.443 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:11.454 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:12.445 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:12.456 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:13.447 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:13.457 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:14.448 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:14.460 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:15.449 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:15.461 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:16.450 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:16.468 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:17.451 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:17.469 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:18.452 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:18.470 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:19.453 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:19.471 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:20.456 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:20.472 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:21.460 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:21.474 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:22.461 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:22.475 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:23.118 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:21:23.119 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:21:23.129 | INFO     | libs.master:execute:191 - 获取线程id 927d93d4-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:21:23.134 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:21:23.137 | INFO     | libs.master:_execute:144 - 线程id: 927d93d4-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:21:23.138 | INFO     | libs.master:execute:199 - 线程id: 927d93d4-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:21:23.148 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:21:23.151 | INFO     | libs.master:_execute:155 - 线程id: 927d93d4-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:21:23.165 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:21:23.166 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:21:23.169 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:21:23.144 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:21:23.151 | INFO     | libs.master:execute:191 - 获取线程id 9280ef66-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:21:23.155 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:21:23.149 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:21:23.190 | INFO     | libs.master:_execute:144 - 线程id: 9280ef66-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:21:23.195 | INFO     | libs.master:execute:199 - 线程id: 9280ef66-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:21:23.210 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:21:23.207 | INFO     | libs.master:_execute:155 - 线程id: 9280ef66-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:21:23.183 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:21:23.213 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:21:23.216 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:21:23.215 | INFO     | libs.master:execute:191 - 获取线程id 928aabdc-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:21:23.218 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:21:23.223 | INFO     | libs.master:_execute:144 - 线程id: 928aabdc-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:21:23.236 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:21:23.237 | INFO     | libs.master:execute:199 - 线程id: 928aabdc-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:21:23.239 | INFO     | libs.app:get_content:38 - 发送具体任务
+2023-11-02 18:21:23.304 | INFO     | libs.master:_execute:155 - 线程id: 928aabdc-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:21:23.355 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:21:23.415 | INFO     | libs.master:execute:191 - 获取线程id 92a92b48-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:21:23.416 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:21:23.417 | INFO     | libs.master:_execute:144 - 线程id: 92a92b48-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:21:23.418 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:21:23.417 | INFO     | libs.master:execute:199 - 线程id: 92a92b48-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:21:23.421 | INFO     | libs.master:_execute:155 - 线程id: 92a92b48-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:21:23.421 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:21:23.422 | INFO     | libs.master:execute:191 - 获取线程id 92aa4fe6-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:21:23.422 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:21:23.423 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:21:23.463 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 5
+2023-11-02 18:21:23.477 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:23.521 | INFO     | libs.master:_execute:144 - 线程id: 92aa4fe6-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:21:23.522 | INFO     | libs.master:execute:199 - 线程id: 92aa4fe6-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:21:23.550 | INFO     | libs.master:_execute:155 - 线程id: 92aa4fe6-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:21:23.550 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:21:23.553 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:21:23.553 | INFO     | libs.master:execute:191 - 获取线程id 92be49d8-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:21:23.554 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:21:23.610 | INFO     | libs.master:_execute:144 - 线程id: 92be49d8-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:21:23.610 | INFO     | libs.master:execute:199 - 线程id: 92be49d8-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:21:23.613 | INFO     | libs.master:_execute:155 - 线程id: 92be49d8-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:21:23.614 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:21:23.615 | INFO     | libs.master:execute:191 - 获取线程id 92c7c922-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:21:23.615 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:21:23.617 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:21:23.638 | INFO     | libs.master:_execute:144 - 线程id: 92c7c922-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:21:23.639 | INFO     | libs.master:execute:199 - 线程id: 92c7c922-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:21:23.645 | INFO     | libs.master:_execute:155 - 线程id: 92c7c922-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:21:23.645 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:21:23.648 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:21:23.648 | INFO     | libs.master:execute:191 - 获取线程id 92ccc1de-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:21:23.649 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:21:23.660 | INFO     | libs.master:_execute:144 - 线程id: 92ccc1de-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:21:23.664 | INFO     | libs.master:execute:199 - 线程id: 92ccc1de-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:21:23.667 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:21:23.669 | INFO     | libs.master:_execute:155 - 线程id: 92ccc1de-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:21:23.671 | INFO     | libs.master:execute:191 - 获取线程id 92d057cc-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:21:23.679 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:21:23.680 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:21:23.708 | INFO     | libs.master:_execute:144 - 线程id: 92d057cc-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:21:23.709 | INFO     | libs.master:execute:199 - 线程id: 92d057cc-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:21:23.734 | INFO     | libs.master:watch_dog:237 - 获取到api接口任务，准备执行任务。
+2023-11-02 18:21:23.746 | INFO     | libs.master:execute:191 - 获取线程id 92dbb5b8-7969-11ee-b409-0242ac120002 成功，创建子线程执行任务。
+2023-11-02 18:21:23.729 | INFO     | libs.master:_execute:155 - 线程id: 92d057cc-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:21:23.759 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:21:23.760 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:21:23.795 | INFO     | libs.master:_execute:144 - 线程id: 92dbb5b8-7969-11ee-b409-0242ac120002 获取子进程成功
+2023-11-02 18:21:23.798 | INFO     | libs.master:execute:199 - 线程id: 92dbb5b8-7969-11ee-b409-0242ac120002 任务执行中。
+2023-11-02 18:21:23.800 | INFO     | libs.master:_execute:155 - 线程id: 92dbb5b8-7969-11ee-b409-0242ac120002 获取任务信息成功
+2023-11-02 18:21:23.806 | INFO     | libs.worker:worker_watch_dog:114 - 子进程获取到请求任务。
+2023-11-02 18:21:23.811 | INFO     | libs.worker:execute:99 - 子进程开始执行请求任务。
+2023-11-02 18:21:24.464 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:21:24.478 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:25.465 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:21:25.479 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:26.466 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:21:26.480 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:27.473 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:21:27.482 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:28.473 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:21:28.486 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:29.478 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:21:29.487 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:30.479 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:21:30.492 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:31.479 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:21:31.497 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:32.480 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:21:32.499 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:33.481 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 10
+2023-11-02 18:21:33.500 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:34.409 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:21:34.417 | INFO     | libs.master:_execute:169 - 线程id: 92be49d8-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:21:34.418 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:21:34.482 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 9
+2023-11-02 18:21:34.502 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:35.076 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:21:35.088 | INFO     | libs.master:_execute:169 - 线程id: 9280ef66-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:21:35.138 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:21:35.277 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:21:35.283 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:21:35.283 | INFO     | libs.master:_execute:169 - 线程id: 92aa4fe6-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:21:35.339 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:21:35.343 | INFO     | libs.master:_execute:169 - 线程id: 928aabdc-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:21:35.344 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:21:35.485 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 6
+2023-11-02 18:21:35.503 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:35.520 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:21:35.530 | INFO     | libs.master:_execute:169 - 线程id: 92dbb5b8-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:21:35.531 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:21:35.564 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:21:35.572 | INFO     | libs.master:_execute:169 - 线程id: 92ccc1de-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:21:35.573 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:21:35.614 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:21:35.619 | INFO     | libs.master:_execute:169 - 线程id: 92a92b48-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:21:35.620 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:21:35.682 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:21:35.690 | INFO     | libs.master:_execute:169 - 线程id: 92d057cc-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:21:35.691 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:21:35.903 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:21:35.908 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:21:35.908 | INFO     | libs.master:_execute:169 - 线程id: 927d93d4-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:21:35.929 | INFO     | libs.worker:execute:101 - 子进程执行请求任务完成。
+2023-11-02 18:21:35.932 | INFO     | libs.master:_execute:169 - 线程id: 92c7c922-7969-11ee-b409-0242ac120002 获取到子进程执行结果，任务结束。
+2023-11-02 18:21:35.934 | INFO     | libs.app:get_content:46 - 任务执行成功
+2023-11-02 18:21:36.485 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:36.506 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:37.487 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:37.507 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:38.489 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:38.508 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:39.490 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:39.509 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:40.492 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:40.511 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:41.493 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:41.512 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:42.495 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:42.513 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:43.497 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:43.514 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:44.498 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:44.515 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:45.499 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:45.517 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:46.500 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:46.518 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:47.501 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:47.519 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:48.502 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:48.520 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:49.503 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:49.521 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:50.504 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:50.523 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:51.505 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:51.524 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:52.506 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:52.525 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:53.508 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:53.526 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:54.509 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:54.528 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:55.510 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:55.529 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:56.511 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:56.530 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:57.512 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:57.532 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:58.514 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:58.532 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:21:59.515 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:21:59.534 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:00.516 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:00.535 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:01.517 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:01.536 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:02.519 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:02.537 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:03.520 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:03.538 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:04.521 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:04.539 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:05.522 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:05.540 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:06.523 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:06.541 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:07.524 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:07.542 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:08.525 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:08.543 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:09.526 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:09.544 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:10.528 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:10.545 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:11.529 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:11.546 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:12.530 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:12.547 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:13.531 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:13.547 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:14.532 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:14.549 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:15.533 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:15.550 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:16.534 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:16.551 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:17.535 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:17.552 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:18.536 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:18.553 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:19.537 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:19.555 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:20.538 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:20.556 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:21.539 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:21.557 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:22.540 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:22.559 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:23.542 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:23.560 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:24.543 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:24.561 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:25.544 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:25.562 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:26.545 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:26.563 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:27.546 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:27.564 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:28.547 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:28.565 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:29.548 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:29.567 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:30.548 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:30.567 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:31.549 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:31.570 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:32.555 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:32.572 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:33.556 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:33.573 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:34.557 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:34.574 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:35.558 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:35.575 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:36.559 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:36.576 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:37.560 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:37.577 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:38.561 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:38.579 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:39.562 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:39.590 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:40.564 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:40.591 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:41.565 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:41.592 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:42.566 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:42.593 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:43.568 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:43.596 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:44.583 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:44.607 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:45.598 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:45.608 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:46.599 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:46.609 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:47.599 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:47.610 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:48.601 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:48.610 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:49.602 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:49.611 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:50.603 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:50.612 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:51.604 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:51.613 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:52.606 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:52.614 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:53.607 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:53.615 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:54.609 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:54.616 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:55.610 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:55.617 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:56.611 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:56.618 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:57.612 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:57.619 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:58.613 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:58.620 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:22:59.614 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:22:59.628 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:23:00.621 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:23:00.635 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:23:01.622 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:23:01.636 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 10
+2023-11-02 18:23:02.625 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:23:02.651 | INFO     | libs.master:_manager_subprocess:107 - 子进程 11 不存活，标记删除。
+2023-11-02 18:23:02.684 | INFO     | __main__:main:19 - 主进程已启动
+2023-11-02 18:23:02.685 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:23:03.658 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:23:03.691 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:23:04.659 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:23:04.691 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:23:05.660 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:23:05.693 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:23:06.661 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:23:06.693 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:23:07.662 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:23:07.694 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:23:08.663 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:23:08.695 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:23:09.664 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:23:09.697 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:23:10.665 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:23:10.698 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9
+2023-11-02 18:23:11.666 | INFO     | libs.master:_thread_task_manager:225 - current_task_number: 0
+2023-11-02 18:23:11.699 | INFO     | libs.master:_manager_subprocess:129 - current_task_number: 9

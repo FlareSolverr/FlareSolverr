@@ -1,0 +1,19 @@
+
+#FROM ccr.ccs.tencentyun.com/zhongbiao/flaresolverr:0.0.1
+FROM flaresolverr/flaresolverr:v3.3.6
+
+
+RUN pip install pydantic httpx "fastapi[all]" loguru
+
+COPY src/libs ./libs
+COPY src/utils.py .
+
+ENV PYTHONPATH=/app
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
+CMD ["/usr/local/bin/python", "-u", "/app/libs/main.py"]
+
+
+# docker build . -f DockerfileNew -t ccr.ccs.tencentyun.com/zhongbiao/flaresolverr:1.0.0
+

@@ -1,15 +1,18 @@
----
+
 version: "2.1"
 services:
   flaresolverr:
     # DockerHub mirror flaresolverr/flaresolverr:latest
-    image: ghcr.io/flaresolverr/flaresolverr:latest
+    image: ccr.ccs.tencentyun.com/zhongbiao/flaresolverr:1.0.2
     container_name: flaresolverr
     environment:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - LOG_HTML=${LOG_HTML:-false}
       - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
-      - TZ=Europe/London
+      - TZ=Asia/Shanghai
+      - MAX_TASK_NUMBER=10
     ports:
       - "${PORT:-8191}:8191"
     restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs

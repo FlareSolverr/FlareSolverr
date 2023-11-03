@@ -152,7 +152,8 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         if os.name == 'nt':
             windows_headless = True
         else:
-            start_xvfb_display()
+            if XVFB_DISPLAY is None:
+                start_xvfb_display()
 
     # if we are inside the Docker container, we avoid downloading the driver
     driver_exe_path = None
@@ -300,7 +301,8 @@ def get_user_agent(driver=None) -> str:
         raise Exception("Error getting browser User-Agent. " + str(e))
     finally:
         if driver is not None:
-            driver.quit()
+            pass
+            # driver.quit()
 
 
 def start_xvfb_display():
@@ -309,6 +311,8 @@ def start_xvfb_display():
         from xvfbwrapper import Xvfb
         XVFB_DISPLAY = Xvfb()
         XVFB_DISPLAY.start()
+
+        return XVFB_DISPLAY
 
 
 def object_to_dict(_object):
