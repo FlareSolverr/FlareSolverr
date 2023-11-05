@@ -1,6 +1,10 @@
 # Changelog
 
-## v3.3.5 (2023/09/15)
+## v3.3.7 (2023/11/05)
+
+* Bump to rebuild. Thanks @JoachimDorchies
+
+## v3.3.6 (2023/09/15)
 
 * Update checkbox selector, again
 
