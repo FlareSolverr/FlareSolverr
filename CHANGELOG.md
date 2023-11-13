@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.3.8 (2023/11/13)
+
+* Fix headless=true for Chrome 117+. Thanks @NabiKAZ
+* Support running Chrome 119 from source. Thanks @koleg and @Chris7X
+* Fix "OSError: [WinError 6] The handle is invalid" on exit. Thanks @enesgorkemgenc
+
 ## v3.3.7 (2023/11/05)
 
 * Bump to rebuild. Thanks @JoachimDorchies
