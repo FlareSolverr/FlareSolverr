@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.9 (2023/11/13)
+
+* Fix for Docker build, capture TypeError
+
 ## v3.3.8 (2023/11/13)
 
 * Fix headless=true for Chrome 117+. Thanks @NabiKAZ
