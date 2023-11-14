@@ -62,17 +62,17 @@ ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["/usr/local/bin/python", "-u", "/app/flaresolverr.py"]
 
 # Local build
-# docker build -t ngosang/flaresolverr:3.3.9 .
-# docker run -p 8191:8191 ngosang/flaresolverr:3.3.9
+# docker build -t ngosang/flaresolverr:3.3.10 .
+# docker run -p 8191:8191 ngosang/flaresolverr:3.3.10
 
 # Multi-arch build
 # docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 # docker buildx create --use
-# docker buildx build -t ngosang/flaresolverr:3.3.9 --platform linux/386,linux/amd64,linux/arm/v7,linux/arm64/v8 .
+# docker buildx build -t ngosang/flaresolverr:3.3.10 --platform linux/386,linux/amd64,linux/arm/v7,linux/arm64/v8 .
 #   add --push to publish in DockerHub
 
 # Test multi-arch build
 # docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 # docker buildx create --use
-# docker buildx build -t ngosang/flaresolverr:3.3.9 --platform linux/arm/v7 --load .
-# docker run -p 8191:8191 --platform linux/arm/v7 ngosang/flaresolverr:3.3.9
+# docker buildx build -t ngosang/flaresolverr:3.3.10 --platform linux/arm/v7 --load .
+# docker run -p 8191:8191 --platform linux/arm/v7 ngosang/flaresolverr:3.3.10
