@@ -232,6 +232,7 @@ This is the same as `request.get` but it takes one more param:
 | LOG_HTML           | false                  | Only for debugging. If `true` all HTML that passes through the proxy will be logged to the console in `debug` level.                                          |
 | CAPTCHA_SOLVER     | none                   | Captcha solving method. It is used when a captcha is encountered. See the Captcha Solvers section.                                                            |
 | TZ                 | UTC                    | Timezone used in the logs and the web browser. Example: `TZ=Europe/London`.                                                                                   |
+| LANG               | none                   | Language used in the web browser. Example: `LANG=fr_FR`.                                                                                   |
 | HEADLESS           | true                   | Only for debugging. To run the web browser in headless mode or visible.                                                                                       |
 | BROWSER_TIMEOUT    | 40000                  | If you are experiencing errors/timeouts because your system is slow, you can try to increase this value. Remember to increase the `maxTimeout` parameter too. |
 | TEST_URL           | https://www.google.com | FlareSolverr makes a request on start to make sure the web browser is working. You can change that URL if it is blocked in your country.                      |
