@@ -136,6 +136,10 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     # https://peter.sh/experiments/chromium-command-line-switches/#use-gl
     options.add_argument('--use-gl=swiftshader')
 
+    language = os.environ.get('LANG', None)
+    if language is not None:
+        options.add_argument('--lang=%s' % language)
+
     # Fix for Chrome 117 | https://github.com/FlareSolverr/FlareSolverr/issues/910
     if USER_AGENT is not None:
         options.add_argument('--user-agent=%s' % USER_AGENT)
