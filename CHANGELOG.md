@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.10 (2023/11/14)
+
+* Add LANG ENV - resolves issues with YGGtorrent
+
 ## v3.3.9 (2023/11/13)
 
 * Fix for Docker build, capture TypeError
