@@ -153,7 +153,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         logging.debug("Using webdriver proxy: %s", proxy_url)
         options.add_argument('--proxy-server=%s' % proxy_url)
 
-    # note: headless mode is detected (options.headless = True)
+    # note: headless mode is detected (headless = True)
     # we launch the browser in head-full mode with the window hidden
     windows_headless = False
     if get_config_headless():
@@ -161,6 +161,8 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
             windows_headless = True
         else:
             start_xvfb_display()
+    # For normal headless mode:
+    # options.add_argument('--headless')
 
     # if we are inside the Docker container, we avoid downloading the driver
     driver_exe_path = None
