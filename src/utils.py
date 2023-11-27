@@ -149,7 +149,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         proxy_extension_dir = create_proxy_extension(proxy)
         options.add_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
     elif proxy and 'url' in proxy:
-        proxy_url = proxy['url']
+        proxy_url = proxy['url'].rstrip("/")
         logging.debug("Using webdriver proxy: %s", proxy_url)
         options.add_argument('--proxy-server=%s' % proxy_url)
 
