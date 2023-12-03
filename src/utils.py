@@ -246,6 +246,7 @@ def get_chrome_major_version() -> int:
         # Example 1: 'Chromium 104.0.5112.79 Arch Linux\n'
         # Example 2: 'Google Chrome 104.0.5112.79 Arch Linux\n'
         complete_version = process.read()
+        complete_version = re.findall(r"\d+\.\d+\.\d+\.\d+", complete_version)[0]
         process.close()
 
     CHROME_MAJOR_VERSION = int(complete_version.split('.')[0].split(' ')[-1])
