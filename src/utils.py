@@ -225,7 +225,7 @@ def get_chrome_exe_path() -> str:
     return CHROME_EXE_PATH
 
 
-def get_chrome_major_version() -> str:
+def get_chrome_major_version() -> int:
     global CHROME_MAJOR_VERSION
     if CHROME_MAJOR_VERSION is not None:
         return CHROME_MAJOR_VERSION
@@ -248,7 +248,7 @@ def get_chrome_major_version() -> str:
         complete_version = process.read()
         process.close()
 
-    CHROME_MAJOR_VERSION = complete_version.split('.')[0].split(' ')[-1]
+    CHROME_MAJOR_VERSION = int(complete_version.split('.')[0].split(' ')[-1])
     return CHROME_MAJOR_VERSION
 
 

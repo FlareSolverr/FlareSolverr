@@ -66,7 +66,7 @@ def test_browser_installation():
         logging.error("Chrome / Chromium version not detected!")
         sys.exit(1)
     else:
-        logging.info("Chrome / Chromium major version: " + chrome_major_version)
+        logging.info(f"Chrome / Chromium major version: {chrome_major_version}")
 
     logging.info("Launching web browser...")
     user_agent = utils.get_user_agent()
