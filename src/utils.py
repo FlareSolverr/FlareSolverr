@@ -10,11 +10,12 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 import undetected_chromedriver as uc
 
 FLARESOLVERR_VERSION = None
-CHROME_EXE_PATH = None
+CHROME_EXE_PATH = os.environ.get("CHROME_EXE_PATH", None)
 CHROME_MAJOR_VERSION = None
 USER_AGENT = None
 XVFB_DISPLAY = None
-PATCHED_DRIVER_PATH = None
+PATCHED_DRIVER_PATH = os.environ.get("PATCHED_DRIVER_PATH", None)
+PATCHED_DRIVER_IS_PATCHED = re.match(r"true|1", os.environ.get("PATCHED_DRIVER_IS_PATCHED", ""), re.I) != None
 
 
 def get_config_log_html() -> bool:
@@ -162,6 +163,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         else:
             start_xvfb_display()
 
+    # TODO(milahu) remove. instead, docker containers should set the env PATCHED_DRIVER_PATH
     # if we are inside the Docker container, we avoid downloading the driver
     driver_exe_path = None
     version_main = None
@@ -173,6 +175,8 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         if PATCHED_DRIVER_PATH is not None:
             driver_exe_path = PATCHED_DRIVER_PATH
 
+    driver_executable_is_patched = PATCHED_DRIVER_IS_PATCHED
+
     # detect chrome path
     browser_executable_path = get_chrome_exe_path()
 
@@ -180,6 +184,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     # if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
     driver = uc.Chrome(options=options, browser_executable_path=browser_executable_path,
                        driver_executable_path=driver_exe_path, version_main=version_main,
+                       driver_executable_is_patched=driver_executable_is_patched,
                        windows_headless=windows_headless, headless=windows_headless)
 
     # save the patched driver to avoid re-downloads
