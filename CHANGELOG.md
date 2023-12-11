@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.11 (2023/12/11)
+
+* Update UC 3.5.4 & Selenium 4.15.2. Thanks @txtsd
+
 ## v3.3.10 (2023/11/14)
 
 * Add LANG ENV - resolves issues with YGGtorrent
