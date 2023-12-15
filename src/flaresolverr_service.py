@@ -314,6 +314,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             driver.start_session()  # required to bypass Cloudflare
 
     # wait for the page
+    # Workaround for "challenge not detected" caused by the devtools window
+    driver.get(req.url)
+    driver.start_session()
     if utils.get_config_log_html():
         logging.debug(f"Response HTML:\n{driver.page_source}")
     html_element = driver.find_element(By.TAG_NAME, "html")
@@ -339,9 +342,6 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             logging.info("Challenge detected. Title found: " + page_title)
             break
     if not challenge_found:
-        # Workaround for "challenge not detected" caused by the devtools window
-        driver.get(req.url)
-        driver.start_session()
         # find challenge by selectors
         for selector in CHALLENGE_SELECTORS:
             found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
