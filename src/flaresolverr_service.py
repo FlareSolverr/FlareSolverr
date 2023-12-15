@@ -339,9 +339,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             logging.info("Challenge detected. Title found: " + page_title)
             break
     if not challenge_found:
-        # find challenge by selectors
+        # Workaround for "challenge not detected" caused by the devtools window
         driver.get(req.url)
         driver.start_session()
+        # find challenge by selectors
         for selector in CHALLENGE_SELECTORS:
             found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
             if len(found_elements) > 0:
