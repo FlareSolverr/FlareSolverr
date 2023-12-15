@@ -2,7 +2,7 @@
 
 ## v3.3.12 (2023/12/15)
 
-* Fix issues with YGGTorrent challenge
+* Fix looping challenges and invalid cookies
 
 ## v3.3.11 (2023/12/11)
 
