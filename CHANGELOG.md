@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.12 (2023/12/15)
+
+* Fix looping challenges and invalid cookies
+
 ## v3.3.11 (2023/12/11)
 
 * Update UC 3.5.4 & Selenium 4.15.2. Thanks @txtsd
