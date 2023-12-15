@@ -340,6 +340,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             break
     if not challenge_found:
         # find challenge by selectors
+        driver.get(req.url)
+        driver.start_session()
         for selector in CHALLENGE_SELECTORS:
             found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
             if len(found_elements) > 0:
