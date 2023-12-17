@@ -294,7 +294,6 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
-    # Workaround for "challenge not detected" caused by the devtools window
     driver.get(req.url)
     driver.start_session() # required to bypass Cloudflare
     if method == 'POST':
