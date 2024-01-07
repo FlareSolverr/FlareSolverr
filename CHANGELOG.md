@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.13 (2024/01/07)
+
+* Fix too many open files error
+
 ## v3.3.12 (2023/12/15)
 
 * Fix looping challenges and invalid cookies
