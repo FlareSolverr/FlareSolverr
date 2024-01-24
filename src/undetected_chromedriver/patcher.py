@@ -62,7 +62,17 @@ class Patcher(object):
         prefix = "undetected"
         self.user_multi_procs = user_multi_procs
 
-        self.is_old_chromedriver = version_main and version_main <= 114
+        try:
+            # Try to convert version_main into an integer
+            version_main_int = int(version_main)
+            # check if version_main_int is less than or equal to e.g 114
+            self.is_old_chromedriver = version_main and version_main_int <= 114
+        except (ValueError,TypeError):
+            # If the conversion fails, print an error message
+            print("version_main cannot be converted to an integer")
+            # Set self.is_old_chromedriver to False if the conversion fails
+            self.is_old_chromedriver = False
+
         # Needs to be called before self.exe_name is accessed
         self._set_platform_name()
 
