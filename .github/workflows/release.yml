@@ -61,7 +61,7 @@ jobs:
       - name: Upload release artifacts
         uses: alexellis/upload-assets@0.4.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
         with:
           asset_paths: '["./dist/flaresolverr_*"]'
 
