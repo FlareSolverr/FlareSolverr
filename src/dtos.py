@@ -43,6 +43,9 @@ class V1RequestBase(object):
     returnOnlyCookies: bool = None
     download: bool = None   # deprecated v2.0.0, not used
     returnRawHtml: bool = None  # deprecated v2.0.0, not used
+    # Wait the specified amount in seconds after resolving the challenge and before returning the response
+    # this can be useful for loading dynamic content of the page
+    waitInSeconds: int = None
 
     def __init__(self, _dict):
         self.__dict__.update(_dict)
