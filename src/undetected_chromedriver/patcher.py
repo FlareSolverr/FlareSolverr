@@ -21,7 +21,7 @@ from multiprocessing import Lock
 
 logger = logging.getLogger(__name__)
 
-IS_POSIX = sys.platform.startswith(("darwin", "cygwin", "linux", "linux2"))
+IS_POSIX = sys.platform.startswith(("darwin", "cygwin", "linux", "linux2", "freebsd"))
 
 
 class Patcher(object):
@@ -80,9 +80,14 @@ class Patcher(object):
             os.makedirs(self.data_path, exist_ok=True)
 
         if not executable_path:
-            self.executable_path = os.path.join(
-                self.data_path, "_".join([prefix, self.exe_name])
-            )
+            if sys.platform.startswith("freebsd"):
+                self.executable_path = os.path.join(
+                    self.data_path, self.exe_name
+                )
+            else:
+                self.executable_path = os.path.join(
+                    self.data_path, "_".join([prefix, self.exe_name])
+                )
 
         if not IS_POSIX:
             if executable_path:
@@ -127,6 +132,9 @@ class Patcher(object):
             else:
                 self.platform_name = "mac-x64"
             self.exe_name %= ""
+        if self.platform.startswith("freebsd"):
+            self.platform_name = "freebsd"
+            self.exe_name %= ""
 
     def auto(self, executable_path=None, force=False, version_main=None, _=None):
         """
@@ -166,26 +174,56 @@ class Patcher(object):
         if force is True:
             self.force = force
 
-        try:
-            os.unlink(self.executable_path)
-        except PermissionError:
-            if self.force:
-                self.force_kill_instances(self.executable_path)
-                return self.auto(force=not self.force)
-            try:
-                if self.is_binary_patched():
-                    # assumes already running AND patched
-                    return True
-            except PermissionError:
-                pass
-            # return False
-        except FileNotFoundError:
-            pass
 
-        release = self.fetch_release_number()
-        self.version_main = release.version[0]
-        self.version_full = release
-        self.unzip_package(self.fetch_package())
+        if self.platform_name == "freebsd":
+            chromedriver_path = shutil.which("chromedriver")
+
+            if not os.path.isfile(chromedriver_path) or not os.access(chromedriver_path, os.X_OK):
+                logging.error("Chromedriver not installed!")
+                return
+
+            version_path = os.path.join(os.path.dirname(self.executable_path), "version.txt")
+
+            process = os.popen(f'"{chromedriver_path}" --version')
+            chromedriver_version = process.read().split(' ')[1].split(' ')[0]
+            process.close()
+
+            current_version = None
+            if os.path.isfile(version_path) or os.access(version_path, os.X_OK):
+                with open(version_path, 'r') as f:
+                    current_version = f.read()
+
+            if current_version != chromedriver_version:
+                logging.info("Copying chromedriver executable...")
+                shutil.copy(chromedriver_path, self.executable_path)
+                os.chmod(self.executable_path, 0o755)
+
+                with open(version_path, 'w') as f:
+                    f.write(chromedriver_version)
+
+                logging.info("Chromedriver executable copied!")
+        else:
+            try:
+                os.unlink(self.executable_path)
+            except PermissionError:
+                if self.force:
+                    self.force_kill_instances(self.executable_path)
+                    return self.auto(force=not self.force)
+                try:
+                    if self.is_binary_patched():
+                        # assumes already running AND patched
+                        return True
+                except PermissionError:
+                    pass
+                # return False
+            except FileNotFoundError:
+                pass
+
+            release = self.fetch_release_number()
+            self.version_main = release.version[0]
+            self.version_full = release
+            self.unzip_package(self.fetch_package())
+
         return self.patch()
 
     def driver_binary_in_use(self, path: str = None) -> bool:
