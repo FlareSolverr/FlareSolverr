@@ -12,7 +12,7 @@ import undetected_chromedriver as uc
 FLARESOLVERR_VERSION = None
 CHROME_EXE_PATH = None
 CHROME_MAJOR_VERSION = None
-USER_AGENT = None
+USER_AGENT = os.environ.get('USER_AGENT')
 XVFB_DISPLAY = None
 PATCHED_DRIVER_PATH = None
 

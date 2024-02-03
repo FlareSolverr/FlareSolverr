@@ -255,6 +255,7 @@ This is the same as `request.get` but it takes one more param:
 | HOST               | 0.0.0.0                | Listening interface. You don't need to change this if you are running on Docker.                                                                              |
 | PROMETHEUS_ENABLED | false                  | Enable Prometheus exporter. See the Prometheus section below.                                                                                                 |
 | PROMETHEUS_PORT    | 8192                   | Listening port for Prometheus exporter. See the Prometheus section below.                                                                                     |
+| USER_AGENT         | none                   | User-Agent to be used.                                                                                                                                        |
 
 Environment variables are set differently depending on the operating system. Some examples:
 * Docker: Take a look at the Docker section in this document. Environment variables can be set in the `docker-compose.yml` file or in the Docker CLI command.
