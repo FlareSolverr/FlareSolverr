@@ -297,20 +297,24 @@ def get_correct_window(driver: WebDriver) -> WebDriver:
     return driver
 
 
+def access_page(driver: WebDriver, url: str) -> None:
+    driver.get(url)
+    driver.start_session()
+
+
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
     res.message = ""
 
+
     # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
-    # Workaround for "challenge not detected" caused by the devtools window
-    driver.get(req.url)
-    driver.start_session() # required to bypass Cloudflare
     if method == 'POST':
+        access_page(driver, req.url)
         _post_request(req, driver)
     else:
-        driver.get(req.url)
+        access_page(driver, req.url)
         driver.start_session() # required to bypass Cloudflare
 
     driver = get_correct_window(driver)
