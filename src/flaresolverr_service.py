@@ -329,8 +329,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         if method == 'POST':
             _post_request(req, driver)
         else:
-            driver.get(req.url)
+            access_page(driver, req.url)
             driver.start_session()  # required to bypass Cloudflare
+        driver = get_correct_window(driver)
 
     # wait for the page
     if utils.get_config_log_html():
