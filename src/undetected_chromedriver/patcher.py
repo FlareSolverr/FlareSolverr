@@ -290,7 +290,7 @@ class Patcher(object):
             download_url = "%s/%s/%s" % (self.url_repo, self.version_full.vstring, zip_name)
         else:
             zip_name = zip_name.replace("_", "-", 1)
-            download_url = "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/%s/%s/%s"
+            download_url = "https://storage.googleapis.com/chrome-for-testing-public/%s/%s/%s"
             download_url %= (self.version_full.vstring, self.platform_name, zip_name)
 
         logger.debug("downloading from %s" % download_url)
