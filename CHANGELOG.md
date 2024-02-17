@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.14-hotfix (2024/02/17)
+
+* Hotfix for Linux build - some Chrome files no longer exist
+
 ## v3.3.14 (2024/02/17)
 
 * Update Chrome downloads. Thanks @opemvbs
