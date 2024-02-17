@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.14-hotfix2 (2024/02/17)
+
+* Hotfix 2 - bad Chromium build, instances failed to terminate
+
 ## v3.3.14-hotfix (2024/02/17)
 
 * Hotfix for Linux build - some Chrome files no longer exist
