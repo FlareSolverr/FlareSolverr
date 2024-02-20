@@ -158,7 +158,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     # we launch the browser in head-full mode with the window hidden
     windows_headless = False
     if get_config_headless():
-        if os.name == 'nt' or sys.platform.startswith('freebsd'):
+        if os.name == 'nt':
             windows_headless = True
         else:
             start_xvfb_display()
