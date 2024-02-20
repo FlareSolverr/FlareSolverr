@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.15 (2024/02/20)
+
+* Fix looping challenges
+
 ## v3.3.14-hotfix2 (2024/02/17)
 
 * Hotfix 2 - bad Chromium build, instances failed to terminate
