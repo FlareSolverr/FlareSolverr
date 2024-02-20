@@ -300,6 +300,7 @@ def get_correct_window(driver: WebDriver) -> WebDriver:
 def access_page(driver: WebDriver, url: str) -> None:
     driver.get(url)
     driver.start_session()
+    driver.start_session()  # required to bypass Cloudflare
 
 
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
@@ -311,12 +312,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
     if method == 'POST':
-        access_page(driver, req.url)
         _post_request(req, driver)
     else:
         access_page(driver, req.url)
-        driver.start_session() # required to bypass Cloudflare
-
     driver = get_correct_window(driver)
 
     # set cookies if required
@@ -330,7 +328,6 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             _post_request(req, driver)
         else:
             access_page(driver, req.url)
-            driver.start_session()  # required to bypass Cloudflare
         driver = get_correct_window(driver)
 
     # wait for the page
@@ -451,4 +448,5 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
         </body>
         </html>"""
     driver.get("data:text/html;charset=utf-8," + html_content)
+    driver.start_session()
     driver.start_session()  # required to bypass Cloudflare
