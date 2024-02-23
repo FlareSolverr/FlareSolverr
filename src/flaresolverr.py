@@ -2,8 +2,9 @@ import json
 import logging
 import os
 import sys
-
+import bottle
 import certifi
+import paste
 from bottle import run, response, Bottle, request, ServerAdapter
 
 from bottle_plugins.error_plugin import error_plugin
@@ -115,8 +116,8 @@ if __name__ == "__main__":
     # default server 'wsgiref' does not support concurrent requests
     # https://github.com/FlareSolverr/FlareSolverr/issues/680
     # https://github.com/Pylons/waitress/issues/31
-    class WaitressServerPoll(ServerAdapter):
-        def run(self, handler):
-            from waitress import serve
-            serve(handler, host=self.host, port=self.port, asyncore_use_poll=True)
-    run(app, host=server_host, port=server_port, quiet=True, server=WaitressServerPoll)
+    #class WaitressServerPoll(ServerAdapter):
+       #def run(self, handler):
+            #from waitress import serve
+            #serve(handler, host=self.host, port=self.port, asyncore_use_poll=True)
+    bottle.run(app, host=server_host, port=server_port, quiet=True, server='paste')
