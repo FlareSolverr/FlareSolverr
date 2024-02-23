@@ -266,6 +266,9 @@ This is the same as `request.get` but it takes one more param:
 | HOST               | 0.0.0.0                | Listening interface. You don't need to change this if you are running on Docker.                                                                              |
 | PROMETHEUS_ENABLED | false                  | Enable Prometheus exporter. See the Prometheus section below.                                                                                                 |
 | PROMETHEUS_PORT    | 8192                   | Listening port for Prometheus exporter. See the Prometheus section below.                                                                                     |
+| CHROME_EXE_PATH    | none                   | Path to the chrome executable. By default, use the chrome executable from the pyinstaller bundle or from the system PATH. |
+| PATCHED_DRIVER_PATH | none                  | Path to the patched chromedriver executable. By default, `undetected_chromedriver` will store the patched chromedriver executable in [data_path](https://github.com/ultrafunkamsterdam/undetected-chromedriver/blob/master/undetected_chromedriver/patcher.py) in the user's HOME folder. |
+| PATCHED_DRIVER_IS_PATCHED | false           | If `true` then skip patching the chromedriver executable. |
 
 Environment variables are set differently depending on the operating system. Some examples:
 * Docker: Take a look at the Docker section in this document. Environment variables can be set in the `docker-compose.yml` file or in the Docker CLI command.
