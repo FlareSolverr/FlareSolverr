@@ -95,7 +95,7 @@ curl -L -X POST 'http://localhost:8191/v1' \
 -H 'Content-Type: application/json' \
 --data-raw '{
   "cmd": "request.get",
-  "url":"http://www.google.com/",
+  "url": "http://www.google.com/",
   "maxTimeout": 60000
 }'
 ```
@@ -113,6 +113,17 @@ data = {
 }
 response = requests.post(url, headers=headers, json=data)
 print(response.text)
+```
+
+Example PowerShell request:
+```ps1
+$body = @{
+    cmd = "request.get"
+    url = "http://www.google.com/"
+    maxTimeout = 60000
+} | ConvertTo-Json
+
+irm -UseBasicParsing 'http://localhost:8191/v1' -Headers @{"Content-Type"="application/json"} -Method Post -Body $body
 ```
 
 ### Commands
