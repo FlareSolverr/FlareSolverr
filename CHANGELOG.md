@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.3.16 (2024/02/28)
+
+* Fix of the subprocess.STARTUPINFO() call. Thanks @ceconelo
+* Add FreeBSD support. Thanks @Asthowen
+* Use headless configuration properly. Thanks @hashworks
+
 ## v3.3.15 (2024/02/20)
 
 * Fix looping challenges
