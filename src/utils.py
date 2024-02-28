@@ -186,7 +186,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     try:
         driver = uc.Chrome(options=options, browser_executable_path=browser_executable_path,
                            driver_executable_path=driver_exe_path, version_main=version_main,
-                           windows_headless=windows_headless, headless=windows_headless)
+                           windows_headless=windows_headless, headless=get_config_headless())
     except Exception as e:
         logging.error("Error starting Chrome: %s" % e)
 
