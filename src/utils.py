@@ -5,6 +5,7 @@ import re
 import shutil
 import urllib.parse
 import tempfile
+import sys
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 import undetected_chromedriver as uc
@@ -182,9 +183,12 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
 
     # downloads and patches the chromedriver
     # if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
-    driver = uc.Chrome(options=options, browser_executable_path=browser_executable_path,
-                       driver_executable_path=driver_exe_path, version_main=version_main,
-                       windows_headless=windows_headless, headless=windows_headless)
+    try:
+        driver = uc.Chrome(options=options, browser_executable_path=browser_executable_path,
+                           driver_executable_path=driver_exe_path, version_main=version_main,
+                           windows_headless=windows_headless, headless=windows_headless)
+    except Exception as e:
+        logging.error("Error starting Chrome: %s" % e)
 
     # save the patched driver to avoid re-downloads
     if driver_exe_path is None:
