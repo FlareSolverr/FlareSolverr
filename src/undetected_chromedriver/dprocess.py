@@ -41,6 +41,7 @@ def start_detached(executable, *args):
     # close pipes
     writer.close()
     reader.close()
+    process.close()
 
     return pid
 

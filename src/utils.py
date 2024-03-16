@@ -5,6 +5,7 @@ import re
 import shutil
 import urllib.parse
 import tempfile
+import sys
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 import undetected_chromedriver as uc
@@ -153,7 +154,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         logging.debug("Using webdriver proxy: %s", proxy_url)
         options.add_argument('--proxy-server=%s' % proxy_url)
 
-    # note: headless mode is detected (options.headless = True)
+    # note: headless mode is detected (headless = True)
     # we launch the browser in head-full mode with the window hidden
     windows_headless = False
     if get_config_headless():
@@ -161,6 +162,10 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
             windows_headless = True
         else:
             start_xvfb_display()
+    # For normal headless mode:
+    # options.add_argument('--headless')
+
+    options.add_argument("--auto-open-devtools-for-tabs")
 
     # if we are inside the Docker container, we avoid downloading the driver
     driver_exe_path = None
@@ -178,9 +183,12 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
 
     # downloads and patches the chromedriver
     # if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
-    driver = uc.Chrome(options=options, browser_executable_path=browser_executable_path,
-                       driver_executable_path=driver_exe_path, version_main=version_main,
-                       windows_headless=windows_headless, headless=windows_headless)
+    try:
+        driver = uc.Chrome(options=options, browser_executable_path=browser_executable_path,
+                           driver_executable_path=driver_exe_path, version_main=version_main,
+                           windows_headless=windows_headless, headless=get_config_headless())
+    except Exception as e:
+        logging.error("Error starting Chrome: %s" % e)
 
     # save the patched driver to avoid re-downloads
     if driver_exe_path is None:

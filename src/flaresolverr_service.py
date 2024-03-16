@@ -293,18 +293,35 @@ def click_verify(driver: WebDriver):
     time.sleep(2)
 
 
+def get_correct_window(driver: WebDriver) -> WebDriver:
+    if len(driver.window_handles) > 1:
+        for window_handle in driver.window_handles:
+            driver.switch_to.window(window_handle)
+            current_url = driver.current_url
+            if not current_url.startswith("devtools://devtools"):
+                return driver
+    return driver
+
+
+def access_page(driver: WebDriver, url: str) -> None:
+    driver.get(url)
+    driver.start_session()
+    driver.start_session()  # required to bypass Cloudflare
+
+
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
     res.message = ""
+
 
     # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
     if method == 'POST':
         res.response = _post_request(req, driver)
     else:
-        driver.get(req.url)
-        driver.start_session()  # required to bypass Cloudflare
+        access_page(driver, req.url)
+    driver = get_correct_window(driver)
 
     # set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
@@ -316,8 +333,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         if method == 'POST':
             res.response = _post_request(req, driver)
         else:
-            driver.get(req.url)
-            driver.start_session()  # required to bypass Cloudflare
+            access_page(driver, req.url)
+        driver = get_correct_window(driver)
 
     # wait for the page
     if utils.get_config_log_html():

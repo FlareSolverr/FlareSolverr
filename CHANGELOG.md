@@ -1,5 +1,39 @@
 # Changelog
 
+## v3.3.16 (2024/02/28)
+
+* Fix of the subprocess.STARTUPINFO() call. Thanks @ceconelo
+* Add FreeBSD support. Thanks @Asthowen
+* Use headless configuration properly. Thanks @hashworks
+
+## v3.3.15 (2024/02/20)
+
+* Fix looping challenges
+
+## v3.3.14-hotfix2 (2024/02/17)
+
+* Hotfix 2 - bad Chromium build, instances failed to terminate
+
+## v3.3.14-hotfix (2024/02/17)
+
+* Hotfix for Linux build - some Chrome files no longer exist
+
+## v3.3.14 (2024/02/17)
+
+* Update Chrome downloads. Thanks @opemvbs
+
+## v3.3.13 (2024/01/07)
+
+* Fix too many open files error
+
+## v3.3.12 (2023/12/15)
+
+* Fix looping challenges and invalid cookies
+
+## v3.3.11 (2023/12/11)
+
+* Update UC 3.5.4 & Selenium 4.15.2. Thanks @txtsd
+
 ## v3.3.10 (2023/11/14)
 
 * Add LANG ENV - resolves issues with YGGtorrent

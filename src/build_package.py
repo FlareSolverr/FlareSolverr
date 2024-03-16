@@ -25,7 +25,7 @@ def clean_files():
 
 def download_chromium():
     # https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/
-    revision = "1140001" if os.name == 'nt' else '1140000'
+    revision = "1260008" if os.name == 'nt' else '1260015'
     arch = 'Win_x64' if os.name == 'nt' else 'Linux_x64'
     dl_file = 'chrome-win' if os.name == 'nt' else 'chrome-linux'
     dl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'dist_chrome')
@@ -59,8 +59,7 @@ def download_chromium():
         # Give executable permissions for *nix
         # file * | grep executable | cut -d: -f1
         print("Giving executable permissions...")
-        execs = ['chrome', 'chrome_crashpad_handler', 'chrome_sandbox', 'chrome-wrapper', 'nacl_helper',
-                 'nacl_helper_bootstrap', 'nacl_irt_x86_64.nexe', 'xdg-mime', 'xdg-settings']
+        execs = ['chrome', 'chrome_crashpad_handler', 'chrome_sandbox', 'chrome-wrapper', 'xdg-mime', 'xdg-settings']
         for exec_file in execs:
             exec_path = os.path.join(chrome_path, exec_file)
             os.chmod(exec_path, 0o755)

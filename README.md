@@ -83,21 +83,54 @@ This is the recommended way for Windows users.
 * Run `pip install -r requirements.txt` command to install FlareSolverr dependencies.
 * Run `python src/flaresolverr.py` command to start FlareSolverr.
 
+### From source code (FreeBSD/TrueNAS CORE)
+
+* Run `pkg install chromium python39 py39-pip xorg-vfbserver` command to install the required dependencies.
+* Clone this repository and open a shell in that path.
+* Run `python3.9 -m pip install -r requirements.txt` command to install FlareSolverr dependencies.
+* Run `python3.9 src/flaresolverr.py` command to start FlareSolverr.
+
 ### Systemd service
 
 We provide an example Systemd unit file `flaresolverr.service` as reference. You have to modify the file to suit your needs: paths, user and environment variables.
 
 ## Usage
 
-Example request:
+Example Bash request:
 ```bash
 curl -L -X POST 'http://localhost:8191/v1' \
 -H 'Content-Type: application/json' \
 --data-raw '{
   "cmd": "request.get",
-  "url":"http://www.google.com/",
+  "url": "http://www.google.com/",
   "maxTimeout": 60000
 }'
+```
+
+Example Python request:
+```py
+import requests
+
+url = "http://localhost:8191/v1"
+headers = {"Content-Type": "application/json"}
+data = {
+    "cmd": "request.get",
+    "url": "http://www.google.com/",
+    "maxTimeout": 60000
+}
+response = requests.post(url, headers=headers, json=data)
+print(response.text)
+```
+
+Example PowerShell request:
+```ps1
+$body = @{
+    cmd = "request.get"
+    url = "http://www.google.com/"
+    maxTimeout = 60000
+} | ConvertTo-Json
+
+irm -UseBasicParsing 'http://localhost:8191/v1' -Headers @{"Content-Type"="application/json"} -Method Post -Body $body
 ```
 
 ### Commands
