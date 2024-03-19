@@ -437,6 +437,9 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             value = unquote(parts[1])
         except Exception:
             value = parts[1]
+        # Protection of " character, for syntax
+        value=value.replace('"','&quot;')
+
         post_form += f'<input type="text" name="{name}" value="{value}"><br>'
     post_form += '</form>'
     html_content = f"""
