@@ -1,0 +1,17 @@
+---
+version: "2.1"
+services:
+  flaresolverr:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: flaresolverr
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Europe/London
+    ports:
+      - "${PORT:-8191}:8191"
+    restart: unless-stopped

@@ -3,6 +3,7 @@ import platform
 import sys
 import time
 from datetime import timedelta
+import json
 from urllib.parse import unquote
 
 from func_timeout import FunctionTimedOut, func_timeout
@@ -19,6 +20,7 @@ from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
                   ChallengeResolutionT, HealthResponse, IndexResponse,
                   V1RequestBase, V1ResponseBase)
 from sessions import SessionsStorage
+from selenium_fetch import fetch, Options, get_browser_user_agent
 
 ACCESS_DENIED_TITLES = [
     # Cloudflare
@@ -146,6 +148,8 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
         raise Exception("Request parameter 'url' is mandatory in 'request.get' command.")
     if req.postData is not None:
         raise Exception("Cannot use 'postBody' when sending a GET request.")
+    if req.contentType is not None:
+        raise Exception("Cannot use 'contentType' when sending a GET request.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
@@ -163,6 +167,8 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     # do some validations
     if req.postData is None:
         raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
+    if req.contentType is None:
+        raise Exception("Request parameter 'contentType' is mandatory in 'request.post' command.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
@@ -312,7 +318,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
     if method == 'POST':
-        _post_request(req, driver)
+        res.response = _post_request(req, driver)
     else:
         access_page(driver, req.url)
     driver = get_correct_window(driver)
@@ -325,7 +331,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             driver.add_cookie(cookie)
         # reload the page
         if method == 'POST':
-            _post_request(req, driver)
+            res.response = _post_request(req, driver)
         else:
             access_page(driver, req.url)
         driver = get_correct_window(driver)
@@ -412,41 +418,53 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     challenge_res.userAgent = utils.get_user_agent(driver)
 
     if not req.returnOnlyCookies:
+        content = driver.page_source
+        content = driver.find_element(By.TAG_NAME, "pre").text
+        parsed_json = json.loads(content)
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
-        challenge_res.response = driver.page_source
+        challenge_res.response = res.response if res.response is not None else parsed_json
 
     res.result = challenge_res
     return res
 
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
-    post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
-    pairs = query_string.split('&')
-    for pair in pairs:
-        parts = pair.split('=')
-        # noinspection PyBroadException
-        try:
-            name = unquote(parts[0])
-        except Exception:
-            name = parts[0]
-        if name == 'submit':
-            continue
-        # noinspection PyBroadException
-        try:
-            value = unquote(parts[1])
-        except Exception:
-            value = parts[1]
-        post_form += f'<input type="text" name="{name}" value="{value}"><br>'
-    post_form += '</form>'
-    html_content = f"""
-        <!DOCTYPE html>
-        <html>
-        <body>
-            {post_form}
-            <script>document.getElementById('hackForm').submit();</script>
-        </body>
-        </html>"""
-    driver.get("data:text/html;charset=utf-8," + html_content)
-    driver.start_session()
-    driver.start_session()  # required to bypass Cloudflare
+    if req.contentType == 'application/x-www-form-urlencoded':
+        post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
+        query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
+        pairs = query_string.split('&')
+        for pair in pairs:
+            parts = pair.split('=')
+            # noinspection PyBroadException
+            try:
+                name = unquote(parts[0])
+            except Exception:
+                name = parts[0]
+            if name == 'submit':
+                continue
+            # noinspection PyBroadException
+            try:
+                value = unquote(parts[1])
+            except Exception:
+                value = parts[1]
+            post_form += f'<input type="text" name="{name}" value="{value}"><br>'
+        post_form += '</form>'
+        html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <body>
+                {post_form}
+                <script>document.getElementById('hackForm').submit();</script>
+            </body>
+            </html>"""
+        driver.get("data:text/html;charset=utf-8," + html_content)
+        driver.start_session()  # required to bypass Cloudflare
+        return "Success"
+    elif req.contentType == 'application/json':
+        post_data = json.loads(unquote(req.postData))
+        options = Options(method="POST", body=post_data)
+        response = fetch(driver, req.url, options)
+        driver.start_session()  # required to bypass Cloudflare
+        return response.text
+    else:
+        raise Exception(f"Request parameter 'contentType' = '{req.contentType}' is invalid.")
