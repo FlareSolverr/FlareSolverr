@@ -410,7 +410,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     challenge_res.status = 200  # todo: fix, selenium not provides this info
     challenge_res.cookies = driver.get_cookies()
     challenge_res.userAgent = utils.get_user_agent(driver)
-
+    if req.execjs:
+        r = driver.execute_script(req.execjs)
+        challenge_res.jsrespond = r
+        logging.info(f"executing {req.execjs} and got an output {r}")
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
         challenge_res.response = driver.page_source
