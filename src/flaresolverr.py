@@ -80,6 +80,7 @@ if __name__ == "__main__":
     headless = utils.get_config_headless()
     server_host = os.environ.get('HOST', '0.0.0.0')
     server_port = int(os.environ.get('PORT', 8191))
+    threads = int(os.environ.get('THREADS', 4))
 
     # configure logger
     logger_format = '%(asctime)s %(levelname)-8s %(message)s'
@@ -118,5 +119,5 @@ if __name__ == "__main__":
     class WaitressServerPoll(ServerAdapter):
         def run(self, handler):
             from waitress import serve
-            serve(handler, host=self.host, port=self.port, asyncore_use_poll=True)
+            serve(handler, host=self.host, port=self.port, asyncore_use_poll=True, threads=threads)
     run(app, host=server_host, port=server_port, quiet=True, server=WaitressServerPoll)
