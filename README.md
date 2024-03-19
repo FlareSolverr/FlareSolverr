@@ -76,7 +76,7 @@ This is the recommended way for Windows users.
 > **Warning**
 > Installing from source code only works for x64 architecture. For other architectures see Docker images.
 
-* Install [Python 3.11](https://www.python.org/downloads/).
+* Install [Python 3.12](https://www.python.org/downloads/).
 * Install [Chrome](https://www.google.com/intl/en_us/chrome/) (all OS) or [Chromium](https://www.chromium.org/getting-involved/download-chromium/) (just Linux, it doesn't work in Windows) web browser.
 * (Only in Linux / macOS) Install [Xvfb](https://en.wikipedia.org/wiki/Xvfb) package.
 * Clone this repository and open a shell in that path.
@@ -85,10 +85,10 @@ This is the recommended way for Windows users.
 
 ### From source code (FreeBSD/TrueNAS CORE)
 
-* Run `pkg install chromium python39 py39-pip xorg-vfbserver` command to install the required dependencies.
+* Run `pkg install chromium python312 py312-pip xorg-vfbserver` command to install the required dependencies.
 * Clone this repository and open a shell in that path.
-* Run `python3.9 -m pip install -r requirements.txt` command to install FlareSolverr dependencies.
-* Run `python3.9 src/flaresolverr.py` command to start FlareSolverr.
+* Run `python3.12 -m pip install -r requirements.txt` command to install FlareSolverr dependencies.
+* Run `python3.12 src/flaresolverr.py` command to start FlareSolverr.
 
 ### Systemd service
 
