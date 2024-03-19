@@ -278,6 +278,10 @@ Environment variables are set differently depending on the operating system. Som
 * Docker: Take a look at the Docker section in this document. Environment variables can be set in the `docker-compose.yml` file or in the Docker CLI command.
 * Linux: Run `export LOG_LEVEL=debug` and then start FlareSolverr in the same shell.
 * Windows: Open `cmd.exe`, run `set LOG_LEVEL=debug` and then start FlareSolverr in the same shell.
+  * So, if you want to change the `HOST` you simply:
+    1. Open `CMD.exe`
+    2. cmd> `set HOST=127.0.0.1`
+    3. cmd> `flaresolverr.exe`
 
 ## Prometheus exporter
 
