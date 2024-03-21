@@ -83,21 +83,54 @@ This is the recommended way for Windows users.
 * Run `pip install -r requirements.txt` command to install FlareSolverr dependencies.
 * Run `python src/flaresolverr.py` command to start FlareSolverr.
 
+### From source code (FreeBSD/TrueNAS CORE)
+
+* Run `pkg install chromium python39 py39-pip xorg-vfbserver` command to install the required dependencies.
+* Clone this repository and open a shell in that path.
+* Run `python3.9 -m pip install -r requirements.txt` command to install FlareSolverr dependencies.
+* Run `python3.9 src/flaresolverr.py` command to start FlareSolverr.
+
 ### Systemd service
 
 We provide an example Systemd unit file `flaresolverr.service` as reference. You have to modify the file to suit your needs: paths, user and environment variables.
 
 ## Usage
 
-Example request:
+Example Bash request:
 ```bash
 curl -L -X POST 'http://localhost:8191/v1' \
 -H 'Content-Type: application/json' \
 --data-raw '{
   "cmd": "request.get",
-  "url":"http://www.google.com/",
+  "url": "http://www.google.com/",
   "maxTimeout": 60000
 }'
+```
+
+Example Python request:
+```py
+import requests
+
+url = "http://localhost:8191/v1"
+headers = {"Content-Type": "application/json"}
+data = {
+    "cmd": "request.get",
+    "url": "http://www.google.com/",
+    "maxTimeout": 60000
+}
+response = requests.post(url, headers=headers, json=data)
+print(response.text)
+```
+
+Example PowerShell request:
+```ps1
+$body = @{
+    cmd = "request.get"
+    url = "http://www.google.com/"
+    maxTimeout = 60000
+} | ConvertTo-Json
+
+irm -UseBasicParsing 'http://localhost:8191/v1' -Headers @{"Content-Type"="application/json"} -Method Post -Body $body
 ```
 
 ### Commands
@@ -239,6 +272,7 @@ Also you can set xpathWaitTimeout parameter to control how much browser will wai
 | LOG_HTML           | false                  | Only for debugging. If `true` all HTML that passes through the proxy will be logged to the console in `debug` level.                                          |
 | CAPTCHA_SOLVER     | none                   | Captcha solving method. It is used when a captcha is encountered. See the Captcha Solvers section.                                                            |
 | TZ                 | UTC                    | Timezone used in the logs and the web browser. Example: `TZ=Europe/London`.                                                                                   |
+| LANG               | none                   | Language used in the web browser. Example: `LANG=en_GB`.                                                                                   |
 | HEADLESS           | true                   | Only for debugging. To run the web browser in headless mode or visible.                                                                                       |
 | BROWSER_TIMEOUT    | 40000                  | If you are experiencing errors/timeouts because your system is slow, you can try to increase this value. Remember to increase the `maxTimeout` parameter too. |
 | TEST_URL           | https://www.google.com | FlareSolverr makes a request on start to make sure the web browser is working. You can change that URL if it is blocked in your country.                      |
@@ -249,8 +283,8 @@ Also you can set xpathWaitTimeout parameter to control how much browser will wai
 
 Environment variables are set differently depending on the operating system. Some examples:
 * Docker: Take a look at the Docker section in this document. Environment variables can be set in the `docker-compose.yml` file or in the Docker CLI command.
-* Linux: Run `export LOG_LEVEL=debug` and then start FlareSolverr in the same shell.
-* Windows: Open `cmd.exe`, run `set LOG_LEVEL=debug` and then start FlareSolverr in the same shell.
+* Linux: Run `export LOG_LEVEL=debug` and then run `flaresolverr` in the same shell.
+* Windows: Open `cmd.exe`, run `set LOG_LEVEL=debug` and then run `flaresolverr.exe` in the same shell.
 
 ## Prometheus exporter
 
