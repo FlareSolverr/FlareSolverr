@@ -121,6 +121,8 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
     # set default values
     if req.maxTimeout is None or req.maxTimeout < 1:
         req.maxTimeout = 60000
+    if req.xpathWaitTimeout is None or req.xpathWaitTimeout < 1:
+        req.xpathWaitTimeout = 60000
 
     # execute the command
     res: V1ResponseBase
@@ -413,6 +415,12 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
+        if req.xpath:
+            try:
+                WebDriverWait(driver, req.xpathWaitTimeout / 1000)\
+                    .until(presence_of_element_located((By.XPATH, req.xpath)))
+            except TimeoutException:
+                raise Exception(f'JS render timeout. Specified selector was not found in time.')
         challenge_res.response = driver.page_source
 
     res.result = challenge_res
