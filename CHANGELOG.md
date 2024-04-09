@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.17 (2024/04/09)
+
+* Fix file descriptor leak in service on quit(). Thanks @zkulis
+
 ## v3.3.16 (2024/02/28)
 
 * Fix of the subprocess.STARTUPINFO() call. Thanks @ceconelo
