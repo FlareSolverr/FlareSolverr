@@ -139,7 +139,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
 
     language = os.environ.get('LANG', None)
     if language is not None:
-        options.add_argument('--lang=%s' % language)
+        options.add_argument('--accept-lang=%s' % language)
 
     # Fix for Chrome 117 | https://github.com/FlareSolverr/FlareSolverr/issues/910
     if USER_AGENT is not None:
