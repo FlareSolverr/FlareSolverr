@@ -136,6 +136,9 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     # https://github.com/microsoft/vscode/issues/127800#issuecomment-873342069
     # https://peter.sh/experiments/chromium-command-line-switches/#use-gl
     options.add_argument('--use-gl=swiftshader')
+    # required to bypass Cloudflare
+    # https://github.com/FlareSolverr/FlareSolverr/issues/1036
+    options.add_argument("--disable-popup-blocking")
 
     language = os.environ.get('LANG', None)
     if language is not None:
@@ -164,8 +167,6 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
             start_xvfb_display()
     # For normal headless mode:
     # options.add_argument('--headless')
-
-    options.add_argument("--auto-open-devtools-for-tabs")
 
     # if we are inside the Docker container, we avoid downloading the driver
     driver_exe_path = None
