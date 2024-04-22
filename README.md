@@ -79,7 +79,8 @@ This is the recommended way for Windows users.
 
 * Install [Python 3.11](https://www.python.org/downloads/).
 * Install [Chrome](https://www.google.com/intl/en_us/chrome/) (all OS) or [Chromium](https://www.chromium.org/getting-involved/download-chromium/) (just Linux, it doesn't work in Windows) web browser.
-* (Only in Linux / macOS) Install [Xvfb](https://en.wikipedia.org/wiki/Xvfb) package.
+* (Only in Linux) Install [Xvfb](https://en.wikipedia.org/wiki/Xvfb) package.
+* (Only in macOS) Install [XQuartz](https://www.xquartz.org/) package.
 * Clone this repository and open a shell in that path.
 * Run `pip install -r requirements.txt` command to install FlareSolverr dependencies.
 * Run `python src/flaresolverr.py` command to start FlareSolverr.
