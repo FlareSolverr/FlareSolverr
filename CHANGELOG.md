@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.3.20 (2024/05/24)
+* Refacotr the docker image. Thanks @Gauvino
+
 ## v3.3.19 (2024/05/23)
 * Fix occasional headless issue on Linux when set to "false". Thanks @21hsmw
 
