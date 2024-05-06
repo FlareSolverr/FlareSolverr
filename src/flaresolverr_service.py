@@ -46,7 +46,7 @@ CHALLENGE_SELECTORS = [
     # Fairlane / pararius.com
     'div.vc div.text-box h2'
 ]
-SHORT_TIMEOUT = 1
+SHORT_TIMEOUT = 10
 SESSIONS_STORAGE = SessionsStorage()
 
 
