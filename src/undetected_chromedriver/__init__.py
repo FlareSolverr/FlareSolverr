@@ -788,15 +788,6 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             logger.debug("gracefully closed browser")
         except Exception as e:  # noqa
             pass
-        # Force kill Chrome process in Windows
-        # https://github.com/FlareSolverr/FlareSolverr/issues/772
-        if os.name == 'nt':
-            try:
-                subprocess.call(['taskkill', '/f', '/pid', str(self.browser_pid)],
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL)
-            except Exception:
-                pass
         if (
             hasattr(self, "keep_user_data_dir")
             and hasattr(self, "user_data_dir")
