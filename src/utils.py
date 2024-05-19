@@ -314,6 +314,7 @@ def get_user_agent(driver=None) -> str:
         raise Exception("Error getting browser User-Agent. " + str(e))
     finally:
         if driver is not None:
+            driver.close()
             driver.quit()
 
 
