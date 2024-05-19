@@ -187,4 +187,5 @@ def test():
 
     time.sleep(10)
 
+    driver.close()
     driver.quit()

@@ -66,6 +66,7 @@ class SessionsStorage:
             return False
 
         session = self.sessions.pop(session_id)
+        session.driver.close()
         session.driver.quit()
         return True
 
