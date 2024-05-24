@@ -1,7 +1,7 @@
 # Changelog
 
 ## v3.3.19 (2024/05/23)
-* Fix occasional headless issue on Linux when set to "false"
+* Fix occasional headless issue on Linux when set to "false". Thanks @21hsmw
 
 ## v3.3.18 (2024/05/20)
 
