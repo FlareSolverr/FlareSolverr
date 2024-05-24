@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.3.19 (2024/05/23)
+* Fix occasional headless issue on Linux when set to "false". Thanks @21hsmw
+
+## v3.3.18 (2024/05/20)
+
+* Fix LANG ENV for Linux
+* Fix Chrome v124+ not closing on Windows. Thanks @RileyXX
+
 ## v3.3.17 (2024/04/09)
 
 * Fix file descriptor leak in service on quit(). Thanks @zkulis

@@ -245,6 +245,8 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
         raise Exception('Error solving the challenge. ' + str(e).replace('\n', '\\n'))
     finally:
         if not req.session and driver is not None:
+            if utils.PLATFORM_VERSION == "nt":
+                driver.close()
             driver.quit()
             logging.debug('A used instance of webdriver has been destroyed')
 

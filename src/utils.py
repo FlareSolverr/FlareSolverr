@@ -11,6 +11,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 import undetected_chromedriver as uc
 
 FLARESOLVERR_VERSION = None
+PLATFORM_VERSION = None
 CHROME_EXE_PATH = None
 CHROME_MAJOR_VERSION = None
 USER_AGENT = None
@@ -37,6 +38,13 @@ def get_flaresolverr_version() -> str:
     with open(package_path) as f:
         FLARESOLVERR_VERSION = json.loads(f.read())['version']
         return FLARESOLVERR_VERSION
+
+def get_current_platform() -> str:
+    global PLATFORM_VERSION
+    if PLATFORM_VERSION is not None:
+        return PLATFORM_VERSION
+    PLATFORM_VERSION = os.name
+    return PLATFORM_VERSION
 
 
 def create_proxy_extension(proxy: dict) -> str:
@@ -314,6 +322,8 @@ def get_user_agent(driver=None) -> str:
         raise Exception("Error getting browser User-Agent. " + str(e))
     finally:
         if driver is not None:
+            if PLATFORM_VERSION == "nt":
+                driver.close()
             driver.quit()
 
 
