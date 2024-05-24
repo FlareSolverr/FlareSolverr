@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # get all commits, branches and tags (required for the changelog)
 
@@ -26,12 +26,12 @@ jobs:
 
       - name: Create release
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          name: ${{ github.ref }}
           body: ${{ steps.github_changelog.outputs.changelog }}
           draft: false
           prerelease: false
@@ -42,24 +42,24 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # get all commits, branches and tags (required for the changelog)
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Build artifacts
         run: |
           python -m pip install -r requirements.txt
-          python -m pip install pyinstaller==5.13.0
+          python -m pip install pyinstaller==6.6.0
           cd src
           python build_package.py
 
       - name: Upload release artifacts
-        uses: alexellis/upload-assets@0.4.0
+        uses: alexellis/upload-assets@0.4.1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         with:
@@ -71,24 +71,24 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # get all commits, branches and tags (required for the changelog)
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Build artifacts
         run: |
           python -m pip install -r requirements.txt
-          python -m pip install pyinstaller==5.13.0
+          python -m pip install pyinstaller==6.6.0
           cd src
           python build_package.py
 
       - name: Upload release artifacts
-        uses: alexellis/upload-assets@0.4.0
+        uses: alexellis/upload-assets@0.4.1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         with:

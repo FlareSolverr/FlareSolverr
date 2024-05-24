@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.3.20 (2024/05/24)
+* Refactor docker image and action building. Thanks @Gauvino
+
 ## v3.3.19 (2024/05/23)
 * Fix occasional headless issue on Linux when set to "false". Thanks @21hsmw
 
