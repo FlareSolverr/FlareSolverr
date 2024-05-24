@@ -2,6 +2,7 @@ import asyncio
 from collections.abc import Mapping
 from collections.abc import Sequence
 from functools import wraps
+import os
 import logging
 import threading
 import time
@@ -187,5 +188,6 @@ def test():
 
     time.sleep(10)
 
-    driver.close()
+    if os.name == "nt":
+        driver.close()
     driver.quit()
