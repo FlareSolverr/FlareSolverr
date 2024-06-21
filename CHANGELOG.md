@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.3.20 (2024/06/21)
+* maxTimeout should always be int
+* Check not running in Docker before logging version_main error
+* Update Cloudflare challenge and checkbox selectors. Thanks @tenettow & @21hsmw
+
 ## v3.3.19 (2024/05/23)
 * Fix occasional headless issue on Linux when set to "false". Thanks @21hsmw
 
