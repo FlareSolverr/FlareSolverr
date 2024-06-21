@@ -40,7 +40,7 @@ CHALLENGE_TITLES = [
 ]
 CHALLENGE_SELECTORS = [
     # Cloudflare
-    '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js',
+    '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js', '#turnstile-wrapper',
     # Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
     'td.info #js_info',
     # Fairlane / pararius.com
@@ -258,7 +258,7 @@ def click_verify(driver: WebDriver):
         driver.switch_to.frame(iframe)
         checkbox = driver.find_element(
             by=By.XPATH,
-            value='//*[@id="challenge-stage"]/div/label/input',
+            value='//*[@id="content"]/div/div/label/input',
         )
         if checkbox:
             actions = ActionChains(driver)
