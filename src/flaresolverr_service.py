@@ -3,7 +3,8 @@ import platform
 import sys
 import time
 from datetime import timedelta
-from urllib.parse import unquote
+from html import escape
+from urllib.parse import unquote, quote
 
 from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
@@ -439,7 +440,7 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             value = unquote(parts[1])
         except Exception:
             value = parts[1]
-        post_form += f'<input type="text" name="{name}" value="{value}"><br>'
+        post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
     post_form += '</form>'
     html_content = f"""
         <!DOCTYPE html>
@@ -449,6 +450,6 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             <script>document.getElementById('hackForm').submit();</script>
         </body>
         </html>"""
-    driver.get("data:text/html;charset=utf-8," + html_content)
+    driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
     driver.start_session()
     driver.start_session()  # required to bypass Cloudflare
