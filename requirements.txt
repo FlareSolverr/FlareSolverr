@@ -11,3 +11,4 @@ websockets==11.0.3
 xvfbwrapper==0.2.9; platform_system != "Windows"
 # only required for windows
 pefile==2023.2.7; platform_system == "Windows"
+selenium_fetch

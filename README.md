@@ -253,11 +253,30 @@ Example response from running the `curl` above:
 
 ### + `request.post`
 
-This is the same as `request.get` but it takes one more param:
-
 | Parameter | Notes                                                                    |
 |-----------|--------------------------------------------------------------------------|
-| postData  | Must be a string with `application/x-www-form-urlencoded`. Eg: `a=b&c=d` |
+| contentType  | Supported types: `application/x-www-form-urlencoded`, `application/json`|
+| postData  | Encoded json object or a string with `application/x-www-form-urlencoded`. Eg: `a=b&c=d` |
+
+Example request to post `application/json`:
+```json
+{
+  "cmd": "request.post",
+  "url":"http://example.com",
+  "contentType": "application/json",
+  "postData": "{\"key\":\"myKey\", \"value\": \"epicValue\"}"
+}
+```
+
+Example request to post `application/x-www-form-urlencoded`:
+```json
+{
+  "cmd": "request.post",
+  "url":"http://example.com",
+  "contentType": "application/x-www-form-urlencoded",
+  "postData": "a=b&c=d"
+}
+```
 
 ## Environment variables
 
