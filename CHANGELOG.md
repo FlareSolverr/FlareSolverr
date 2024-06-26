@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.21 (2024/06/26)
+* Add challenge selector to catch reloading page on non-English systems
+* Escape values for generated form used in request.post. Thanks @mynameisbogdan
+
 ## v3.3.20 (2024/06/21)
 * maxTimeout should always be int
 * Check not running in Docker before logging version_main error
