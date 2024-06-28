@@ -68,8 +68,10 @@ class Patcher(object):
             # check if version_main_int is less than or equal to e.g 114
             self.is_old_chromedriver = version_main and version_main_int <= 114
         except (ValueError,TypeError):
-            # If the conversion fails, print an error message
-            print("version_main cannot be converted to an integer")
+            # Check not running inside Docker
+            if not os.path.exists("/app/chromedriver"):
+                # If the conversion fails, log an error message
+                logging.info("version_main cannot be converted to an integer")
             # Set self.is_old_chromedriver to False if the conversion fails
             self.is_old_chromedriver = False
 
