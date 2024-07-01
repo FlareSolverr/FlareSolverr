@@ -319,7 +319,7 @@ def get_user_agent(driver=None) -> str:
         USER_AGENT = re.sub('HEADLESS', '', USER_AGENT, flags=re.IGNORECASE)
         return USER_AGENT
     except Exception as e:
-        raise Exception("Error getting browser User-Agent. " + str(e))
+        raise Exception("Error getting browser User-Agent. " + str(e)) from e
     finally:
         if driver is not None:
             if PLATFORM_VERSION == "nt":
