@@ -240,10 +240,10 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
             driver = utils.get_webdriver(req.proxy)
             logging.debug('New instance of webdriver has been created to perform the request')
         return func_timeout(timeout, _evil_logic, (req, driver, method))
-    except FunctionTimedOut:
-        raise Exception(f'Error solving the challenge. Timeout after {timeout} seconds.')
+    except FunctionTimedOut as exc:
+        raise Exception(f'Error solving the challenge. Timeout after {timeout} seconds.') from exc
     except Exception as e:
-        raise Exception('Error solving the challenge. ' + str(e).replace('\n', '\\n'))
+        raise Exception('Error solving the challenge. ' + str(e).replace('\n', '\\n')) from e
     finally:
         if not req.session and driver is not None:
             if utils.PLATFORM_VERSION == "nt":
