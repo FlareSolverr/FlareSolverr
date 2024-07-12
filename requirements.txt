@@ -4,8 +4,8 @@ selenium==4.15.2
 func-timeout==4.3.5
 prometheus-client==0.17.1
 # required by undetected_chromedriver
-requests==2.31.0
-certifi==2023.7.22
+requests==2.32.0
+certifi==2024.07.04
 websockets==11.0.3
 # only required for linux and macos
 xvfbwrapper==0.2.9; platform_system != "Windows"
