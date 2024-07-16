@@ -180,22 +180,44 @@ class Patcher(object):
         if self.platform_name == "freebsd":
             chromedriver_path = shutil.which("chromedriver")
 
-            if not os.path.isfile(chromedriver_path) or not os.access(chromedriver_path, os.X_OK):
+            if not chromedriver_path or not os.path.isfile(chromedriver_path):
                 logging.error("Chromedriver not installed!")
                 return
+            if not os.access(chromedriver_path, os.X_OK):
+                logging.error(
+                    f"Execution permissions are not granted for the file {chromedriver_path}.",
+                )
+                return
 
-            version_path = os.path.join(os.path.dirname(self.executable_path), "version.txt")
+            destination_path = os.path.dirname(self.executable_path)
+            if not os.access(destination_path, os.R_OK | os.W_OK | os.X_OK):
+                logging.error(
+                    f"Read/write/execution permissions are not granted for the folder {destination_path}.",
+                )
+                return
 
-            process = os.popen(f'"{chromedriver_path}" --version')
-            chromedriver_version = process.read().split(' ')[1].split(' ')[0]
-            process.close()
+            try:
+                process = os.popen(f'"{chromedriver_path}" --version')
+                chromedriver_version = process.read().split(' ')[1].split(' ')[0]
+                process.close()
+            except Exception as e:
+                logging.error(f"Failed to retrieve chromedriver version: {str(e)}")
+                return
 
+            version_path = os.path.join(destination_path, "version.txt")
             current_version = None
-            if os.path.isfile(version_path) or os.access(version_path, os.X_OK):
+            if os.path.isfile(version_path):
+                if not os.access(version_path, os.W_OK):
+                    logging.error(f"Write permissions are not granted for the file {version_path}.")
+                    return
                 with open(version_path, 'r') as f:
                     current_version = f.read()
 
-            if current_version != chromedriver_version:
+            if current_version == chromedriver_version:
+                logging.info(f"The patched version of chromedriver in {destination_path} is the latest version on the system ({current_version}).")
+                if self.is_binary_patched():
+                    return True
+            else:
                 logging.info("Copying chromedriver executable...")
                 shutil.copy(chromedriver_path, self.executable_path)
                 os.chmod(self.executable_path, 0o755)
