@@ -256,7 +256,9 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             user_multi_procs=user_multi_procs,
         )
         # self.patcher.auto(user_multiprocess = user_multi_num_procs)
-        self.patcher.auto()
+        if not self.patcher.auto():
+            logging.error("Unable to patch chromedriver.")
+            sys.exit(1)
 
         # self.patcher = patcher
         if not options:

@@ -182,19 +182,19 @@ class Patcher(object):
 
             if not chromedriver_path or not os.path.isfile(chromedriver_path):
                 logging.error("Chromedriver not installed!")
-                return
+                return False
             if not os.access(chromedriver_path, os.X_OK):
                 logging.error(
                     f"Execution permissions are not granted for the file {chromedriver_path}.",
                 )
-                return
+                return False
 
             destination_path = os.path.dirname(self.executable_path)
             if not os.access(destination_path, os.R_OK | os.W_OK | os.X_OK):
                 logging.error(
                     f"Read/write/execution permissions are not granted for the folder {destination_path}.",
                 )
-                return
+                return False
 
             try:
                 process = os.popen(f'"{chromedriver_path}" --version')
@@ -202,18 +202,22 @@ class Patcher(object):
                 process.close()
             except Exception as e:
                 logging.error(f"Failed to retrieve chromedriver version: {str(e)}")
-                return
+                return False
 
             version_path = os.path.join(destination_path, "version.txt")
             current_version = None
-            if os.path.isfile(version_path):
-                if not os.access(version_path, os.W_OK):
-                    logging.error(f"Write permissions are not granted for the file {version_path}.")
-                    return
+            if os.path.isfile(version_path) and os.path.isfile(self.executable_path):
+                if not os.access(version_path, os.R_OK | os.W_OK):
+                    logging.error(f"Read/write permissions are not granted for the file {version_path}.")
+                    return False
                 with open(version_path, 'r') as f:
                     current_version = f.read()
 
             if current_version == chromedriver_version:
+                if not os.access(self.executable_path, os.R_OK | os.W_OK | os.X_OK):
+                    logging.error(f"Read/write/execution permissions are not granted for the file {self.executable_path}.")
+                    return False
+
                 logging.info(f"The patched version of chromedriver in {destination_path} is the latest version on the system ({current_version}).")
                 if self.is_binary_patched():
                     return True
