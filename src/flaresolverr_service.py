@@ -288,11 +288,12 @@ def click_verify(driver: WebDriver):
             return document.querySelector('body');
         """)
         if iframe_body:
+            iframe_body.click()
             actions = ActionChains(driver)
             actions.move_to_element_with_offset(iframe_body, 10, 10)
             actions.click(iframe_body)
             actions.perform()
-            logging.debug("Cloudflare verify checkbox found and clicked!")
+            logging.debug("Attempted to click on iframe body")
     except Exception as e:
         logging.debug("Cloudflare verify checkbox not found on the page. %s", repr(e))
     finally:
