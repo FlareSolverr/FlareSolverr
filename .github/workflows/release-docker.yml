@@ -14,6 +14,7 @@ concurrency:
 
 jobs:
   build-docker-images:
+    if: ${{ !github.event.pull_request.head.repo.fork }}
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
