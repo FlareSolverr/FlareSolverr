@@ -282,11 +282,9 @@ def get_shadowed_iframe(driver: WebDriver, css_selector: str):
 def click_verify(driver: WebDriver):
     try:
         logging.debug("Try to find the Cloudflare verify checkbox...")
-        iframe = get_shadowed_iframe(driver, "div.cf-turnstile-wrapper")
+        iframe = get_shadowed_iframe(driver, "div:not(:has(div))")
         driver.switch_to.frame(iframe)
-        iframe_body = driver.execute_script("""
-            return document.querySelector('body');
-        """)
+        iframe_body = driver.find_element(By.CSS_SELECTOR, "body")
         if iframe_body:
             iframe_body.click()
             actions = ActionChains(driver)
