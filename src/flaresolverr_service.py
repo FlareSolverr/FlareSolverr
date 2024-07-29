@@ -7,13 +7,8 @@ from html import escape
 from urllib.parse import unquote, quote
 
 from func_timeout import FunctionTimedOut, func_timeout
-from selenium.common import TimeoutException
-from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.expected_conditions import (
-    presence_of_element_located, staleness_of, title_is)
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support.wait import WebDriverWait
+from DrissionPage import ChromiumPage
+from DrissionPage._units.listener import DataPacket
 
 import utils
 from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
@@ -251,178 +246,128 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
             driver.quit()
             logging.debug('A used instance of webdriver has been destroyed')
 
-
-def click_verify(driver: WebDriver):
+def click_verify(driver: ChromiumPage) -> DataPacket:
     try:
-        logging.debug("Try to find the Cloudflare verify checkbox...")
-        iframe = driver.find_element(By.XPATH, "//iframe[starts-with(@id, 'cf-chl-widget-')]")
-        driver.switch_to.frame(iframe)
-        checkbox = driver.find_element(
-            by=By.XPATH,
-            value='//*[@id="content"]/div/div/label/input',
+        bde = (
+            driver
+            .ele("@Style=border: 0px; margin: 0px; padding: 0px;", timeout=10)
+            .shadow_root
+            .ele("tag:iframe", timeout=10)
+            .ele('tag:body', timeout=10)
+            .shadow_root
         )
-        if checkbox:
-            actions = ActionChains(driver)
-            actions.move_to_element_with_offset(checkbox, 5, 7)
-            actions.click(checkbox)
-            actions.perform()
-            logging.debug("Cloudflare verify checkbox found and clicked!")
-    except Exception:
-        logging.debug("Cloudflare verify checkbox not found on the page.")
-    finally:
-        driver.switch_to.default_content()
+        ve = bde.ele("text:Verify you are human", timeout=10)
 
-    try:
-        logging.debug("Try to find the Cloudflare 'Verify you are human' button...")
-        button = driver.find_element(
-            by=By.XPATH,
-            value="//input[@type='button' and @value='Verify you are human']",
-        )
-        if button:
-            actions = ActionChains(driver)
-            actions.move_to_element_with_offset(button, 5, 7)
-            actions.click(button)
-            actions.perform()
-            logging.debug("The Cloudflare 'Verify you are human' button found and clicked!")
-    except Exception:
-        logging.debug("The Cloudflare 'Verify you are human' button not found on the page.")
+        driver.listen.start(driver.url)
+        ve.click()
+        data = driver.listen.wait(count=1)
 
-    time.sleep(2)
+        if isinstance(data, DataPacket):
+            return data
+
+        return None
+
+    except Exception as e:
+        logging.debug("Cloudflare verify checkbox not found on the page. %s", repr(e))
 
 
-def get_correct_window(driver: WebDriver) -> WebDriver:
-    if len(driver.window_handles) > 1:
-        for window_handle in driver.window_handles:
-            driver.switch_to.window(window_handle)
-            current_url = driver.current_url
-            if not current_url.startswith("devtools://devtools"):
-                return driver
-    return driver
+def search_challenge(driver: ChromiumPage) -> bool:
+    page_title = driver.title.lower()
+
+    # find challenge by title
+    for title in CHALLENGE_TITLES:
+        if title.lower() == page_title:
+            logging.debug("Challenge detected. Title found: %s", page_title)
+            return True
+    # find challenge by selectors
+    if driver.wait.eles_loaded(locators=CHALLENGE_SELECTORS, timeout=SHORT_TIMEOUT, any_one=True):
+        logging.debug("Challenge detected. One of selectors found")
+        return True
+    return False
 
 
-def access_page(driver: WebDriver, url: str) -> None:
-    driver.get(url)
-    driver.start_session()
-    driver.start_session()  # required to bypass Cloudflare
-
-
-def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
+def _evil_logic(req: V1RequestBase, driver: ChromiumPage, method: str) -> ChallengeResolutionT:
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
     res.message = ""
 
 
     # navigate to the page
-    logging.debug(f'Navigating to... {req.url}')
+    logging.debug('Navigating to... %s', req.url)
     if method == 'POST':
         _post_request(req, driver)
     else:
-        access_page(driver, req.url)
-    driver = get_correct_window(driver)
+        driver.get(req.url)
 
     # set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
-        logging.debug(f'Setting cookies...')
+        logging.debug('Setting cookies...')
         for cookie in req.cookies:
-            driver.delete_cookie(cookie['name'])
-            driver.add_cookie(cookie)
+            driver.set.cookies.remove(cookie['name'])
+            driver.set.cookies(cookie)
         # reload the page
         if method == 'POST':
             _post_request(req, driver)
         else:
-            access_page(driver, req.url)
-        driver = get_correct_window(driver)
+            driver.get(req.url)
 
     # wait for the page
     if utils.get_config_log_html():
-        logging.debug(f"Response HTML:\n{driver.page_source}")
-    html_element = driver.find_element(By.TAG_NAME, "html")
-    page_title = driver.title
+        logging.debug("Response HTML:\n%s", driver.page_source)
 
+    page_title = driver.title
     # find access denied titles
     for title in ACCESS_DENIED_TITLES:
         if title == page_title:
             raise Exception('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
     # find access denied selectors
-    for selector in ACCESS_DENIED_SELECTORS:
-        found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
-        if len(found_elements) > 0:
-            raise Exception('Cloudflare has blocked this request. '
-                            'Probably your IP is banned for this site, check in your web browser.')
-
-    # find challenge by title
-    challenge_found = False
-    for title in CHALLENGE_TITLES:
-        if title.lower() == page_title.lower():
-            challenge_found = True
-            logging.info("Challenge detected. Title found: " + page_title)
-            break
-    if not challenge_found:
-        # find challenge by selectors
-        for selector in CHALLENGE_SELECTORS:
-            found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
-            if len(found_elements) > 0:
-                challenge_found = True
-                logging.info("Challenge detected. Selector found: " + selector)
-                break
+    if driver.wait.eles_loaded(locators=ACCESS_DENIED_SELECTORS, timeout=SHORT_TIMEOUT, any_one=True):
+        raise Exception('Cloudflare has blocked this request. '
+                        'Probably your IP is banned for this site, check in your web browser.')
 
     attempt = 0
-    if challenge_found:
-        while True:
-            try:
-                attempt = attempt + 1
-                # wait until the title changes
-                for title in CHALLENGE_TITLES:
-                    logging.debug("Waiting for title (attempt " + str(attempt) + "): " + title)
-                    WebDriverWait(driver, SHORT_TIMEOUT).until_not(title_is(title))
+    data = DataPacket
+    challenge_found = True
+    while challenge_found:
+        try:
+            attempt += 1
 
-                # then wait until all the selectors disappear
-                for selector in CHALLENGE_SELECTORS:
-                    logging.debug("Waiting for selector (attempt " + str(attempt) + "): " + selector)
-                    WebDriverWait(driver, SHORT_TIMEOUT).until_not(
-                        presence_of_element_located((By.CSS_SELECTOR, selector)))
+            if search_challenge(driver):
+                if attempt == 1:
+                    logging.info("Challenge detected.")
 
-                # all elements not found
+                data = click_verify(driver)
+            else:
+                if attempt == 1:
+                    logging.info("Challenge not detected!")
+                    res.message = "Challenge not detected!"
+                else:
+                    logging.info("Challenge solved!")
+                    res.message = "Challenge solved!"
                 break
 
-            except TimeoutException:
-                logging.debug("Timeout waiting for selector")
+        except Exception as e:
+            logging.debug("Cloudflare check exception")
+            raise e
 
-                click_verify(driver)
-
-                # update the html (cloudflare reloads the page every 5 s)
-                html_element = driver.find_element(By.TAG_NAME, "html")
-
-        # waits until cloudflare redirection ends
-        logging.debug("Waiting for redirect")
-        # noinspection PyBroadException
-        try:
-            WebDriverWait(driver, SHORT_TIMEOUT).until(staleness_of(html_element))
-        except Exception:
-            logging.debug("Timeout waiting for redirect")
-
-        logging.info("Challenge solved!")
-        res.message = "Challenge solved!"
-    else:
-        logging.info("Challenge not detected!")
-        res.message = "Challenge not detected!"
 
     challenge_res = ChallengeResolutionResultT({})
-    challenge_res.url = driver.current_url
-    challenge_res.status = 200  # todo: fix, selenium not provides this info
-    challenge_res.cookies = driver.get_cookies()
+    challenge_res.url = driver.url
+    challenge_res.cookies = driver.cookies()
     challenge_res.userAgent = utils.get_user_agent(driver)
 
-    if not req.returnOnlyCookies:
-        challenge_res.headers = {}  # todo: fix, selenium not provides this info
-        challenge_res.response = driver.page_source
+    if data is not None and data.response is not None:
+        challenge_res.status = data.response.status
+        if not req.returnOnlyCookies:
+            challenge_res.response = data.response.body
+            challenge_res.headers = data.response.headers.copy()
 
     res.result = challenge_res
     return res
 
 
-def _post_request(req: V1RequestBase, driver: WebDriver):
+def _post_request(req: V1RequestBase, driver: ChromiumPage):
     post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
     query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
     pairs = query_string.split('&')
@@ -451,5 +396,3 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
         </body>
         </html>"""
     driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
-    driver.start_session()
-    driver.start_session()  # required to bypass Cloudflare
