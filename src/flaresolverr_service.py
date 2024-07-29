@@ -258,9 +258,9 @@ def click_verify(driver: ChromiumPage) -> DataPacket:
         )
         ve = bde.ele("text:Verify you are human", timeout=10)
 
-        driver.listen.start(driver.url)
+        driver.listen.resume()
         ve.click()
-        data = driver.listen.wait(count=1)
+        data = driver.listen.wait(count=1,timeout=5)
 
         if isinstance(data, DataPacket):
             return data
@@ -294,10 +294,13 @@ def _evil_logic(req: V1RequestBase, driver: ChromiumPage, method: str) -> Challe
 
     # navigate to the page
     logging.debug('Navigating to... %s', req.url)
+    driver.listen.start(req.url)
     if method == 'POST':
         _post_request(req, driver)
     else:
         driver.get(req.url)
+    data = driver.listen.wait(count=1,timeout=5)
+    driver.listen.pause()
 
     # set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
@@ -306,10 +309,13 @@ def _evil_logic(req: V1RequestBase, driver: ChromiumPage, method: str) -> Challe
             driver.set.cookies.remove(cookie['name'])
             driver.set.cookies(cookie)
         # reload the page
+        driver.listen.resume()
         if method == 'POST':
             _post_request(req, driver)
         else:
             driver.get(req.url)
+        data = driver.listen.wait(count=1, timeout=5)
+        driver.listen.pause()
 
     # wait for the page
     if utils.get_config_log_html():
@@ -327,7 +333,6 @@ def _evil_logic(req: V1RequestBase, driver: ChromiumPage, method: str) -> Challe
                         'Probably your IP is banned for this site, check in your web browser.')
 
     attempt = 0
-    data = DataPacket
     challenge_found = True
     while challenge_found:
         try:
@@ -354,14 +359,14 @@ def _evil_logic(req: V1RequestBase, driver: ChromiumPage, method: str) -> Challe
 
     challenge_res = ChallengeResolutionResultT({})
     challenge_res.url = driver.url
-    challenge_res.cookies = driver.cookies()
-    challenge_res.userAgent = utils.get_user_agent(driver)
-
     if data is not None and data.response is not None:
         challenge_res.status = data.response.status
         if not req.returnOnlyCookies:
             challenge_res.response = data.response.body
             challenge_res.headers = data.response.headers.copy()
+
+    challenge_res.cookies = driver.cookies()
+    challenge_res.userAgent = utils.get_user_agent(driver)
 
     res.result = challenge_res
     return res
