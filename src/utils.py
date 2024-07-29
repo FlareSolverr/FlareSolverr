@@ -156,7 +156,7 @@ def get_webdriver(proxy: dict = None) -> ChromiumPage:
     proxy_extension_dir = None
     if proxy and all(key in proxy for key in ['url', 'username', 'password']):
         proxy_extension_dir = create_proxy_extension(proxy)
-        options.set_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
+        options.add_extension(proxy_extension_dir)
     elif proxy and 'url' in proxy:
         proxy_url = proxy['url']
         logging.debug("Using webdriver proxy: %s", proxy_url)
@@ -174,11 +174,11 @@ def get_webdriver(proxy: dict = None) -> ChromiumPage:
     if CHROME_EXE_PATH is not None:
         options.set_paths(browser_path=CHROME_EXE_PATH)
 
+    driver = ChromiumPage(addr_or_opts=options)
+
     # clean up proxy extension directory
     if proxy_extension_dir is not None:
         shutil.rmtree(proxy_extension_dir)
-
-    driver = ChromiumPage(addr_or_opts=options)
 
     return driver
 
