@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bullseye as builder
+FROM python:3.12-slim-bookworm AS builder
 
 # Build dummy packages to skip installing them and their dependencies
 RUN apt-get update \
@@ -12,7 +12,7 @@ RUN apt-get update \
     && equivs-build adwaita-icon-theme \
     && mv adwaita-icon-theme_*.deb /adwaita-icon-theme.deb
 
-FROM python:3.11-slim-bullseye
+FROM python:3.12-slim-bookworm
 
 # Copy dummy packages
 COPY --from=builder /*.deb /
