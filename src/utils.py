@@ -136,6 +136,9 @@ def remove_user_data(user_data_path: Path):
         shutil.rmtree(user_data_path)
 
 def remove_all_subfolders(parent_folder: str):
+    if not os.path.exists(parent_folder):
+        return
+    
     for item in os.listdir(parent_folder):
         item_path = os.path.join(parent_folder, item)
         
@@ -194,6 +197,7 @@ def get_webdriver(proxy: dict = None, user_data_path: str = None) -> ChromiumPag
 
     if user_data_path:
         options.set_user_data_path(user_data_path)
+    options.auto_port(True)
 
     if CHROME_EXE_PATH is not None:
         options.set_paths(browser_path=CHROME_EXE_PATH)
