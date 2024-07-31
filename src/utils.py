@@ -7,6 +7,10 @@ import urllib.parse
 import tempfile
 import sys
 
+from uuid import uuid1
+from pathlib import Path
+from tempfile import gettempdir
+
 from DrissionPage import ChromiumPage, ChromiumOptions
 # from DrissionPage.common import Settings
 
@@ -120,8 +124,25 @@ def create_proxy_extension(proxy: dict) -> str:
 
     return proxy_extension_dir
 
+def get_webdriver_data_path() -> Path:
+    return Path(gettempdir()) / 'FlareSolverr'
 
-def get_webdriver(proxy: dict = None) -> ChromiumPage:
+def get_user_data_path(user_name: str = None) -> Path:
+    user_name = user_name or str(uuid1())
+    return get_webdriver_data_path() / user_name
+
+def remove_user_data(user_data_path: Path):
+    if user_data_path.exists():
+        shutil.rmtree(user_data_path)
+
+def remove_all_subfolders(parent_folder: str):
+    for item in os.listdir(parent_folder):
+        item_path = os.path.join(parent_folder, item)
+        
+        if os.path.isdir(item_path):
+            shutil.rmtree(item_path)
+
+def get_webdriver(proxy: dict = None, user_data_path: str = None) -> ChromiumPage:
     global CHROME_EXE_PATH, USER_AGENT
     logging.debug('Launching web browser...')
 
@@ -156,7 +177,7 @@ def get_webdriver(proxy: dict = None) -> ChromiumPage:
     proxy_extension_dir = None
     if proxy and all(key in proxy for key in ['url', 'username', 'password']):
         proxy_extension_dir = create_proxy_extension(proxy)
-        options.set_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
+        options.add_extension(proxy_extension_dir)
     elif proxy and 'url' in proxy:
         proxy_url = proxy['url']
         logging.debug("Using webdriver proxy: %s", proxy_url)
@@ -171,14 +192,16 @@ def get_webdriver(proxy: dict = None) -> ChromiumPage:
     options.headless(windows_headless)
     options.set_argument("--auto-open-devtools-for-tabs")
 
+    if user_data_path:
+        options.set_user_data_path(user_data_path)
+
     if CHROME_EXE_PATH is not None:
         options.set_paths(browser_path=CHROME_EXE_PATH)
 
+    driver = ChromiumPage(addr_or_opts=options)
     # clean up proxy extension directory
     if proxy_extension_dir is not None:
         shutil.rmtree(proxy_extension_dir)
-
-    driver = ChromiumPage(addr_or_opts=options)
 
     return driver
 
@@ -319,8 +342,9 @@ def get_user_agent(driver=None) -> str:
         return USER_AGENT
 
     try:
+        user_path = get_user_data_path("DefaultUserAgent")
         if driver is None:
-            driver = get_webdriver()
+            driver = get_webdriver(user_data_path=user_path)
         USER_AGENT = driver.user_agent
         # Fix for Chrome 117 | https://github.com/FlareSolverr/FlareSolverr/issues/910
         USER_AGENT = re.sub('HEADLESS', '', USER_AGENT, flags=re.IGNORECASE)
@@ -332,6 +356,8 @@ def get_user_agent(driver=None) -> str:
             if PLATFORM_VERSION == "nt":
                 driver.close()
             driver.quit()
+        if user_path:
+            remove_user_data(user_path)
 
 
 def start_xvfb_display():

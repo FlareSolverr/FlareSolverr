@@ -218,6 +218,7 @@ def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
 def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
     timeout = int(req.maxTimeout) / 1000
     driver = None
+    user_data_path = None
     try:
         if req.session:
             session_id = req.session
@@ -232,7 +233,8 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
 
             driver = session.driver
         else:
-            driver = utils.get_webdriver(req.proxy)
+            user_data_path = utils.get_user_data_path()
+            driver = utils.get_webdriver(req.proxy, user_data_path)
             logging.debug('New instance of webdriver has been created to perform the request')
         return func_timeout(timeout, _evil_logic, (req, driver, method))
     except FunctionTimedOut:
@@ -245,6 +247,8 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
                 driver.close()
             driver.quit()
             logging.debug('A used instance of webdriver has been destroyed')
+        if user_data_path:
+            utils.remove_user_data(user_data_path)
 
 def click_verify(driver: ChromiumPage) -> DataPacket:
     try:

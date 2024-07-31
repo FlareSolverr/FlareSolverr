@@ -45,7 +45,7 @@ class SessionsStorage:
         if self.exists(session_id):
             return self.sessions[session_id], False
 
-        driver = utils.get_webdriver(proxy)
+        driver = utils.get_webdriver(proxy, utils.get_user_data_path(session_id))
         created_at = datetime.now()
         session = Session(session_id, driver, created_at)
 
@@ -69,6 +69,10 @@ class SessionsStorage:
         if utils.PLATFORM_VERSION == "nt":
             session.driver.close()
         session.driver.quit()
+
+        session_data = utils.get_user_data_path(session_id)
+        utils.remove_user_data(session_data)
+
         return True
 
     def get(self, session_id: str, ttl: Optional[timedelta] = None) -> Tuple[Session, bool]:
