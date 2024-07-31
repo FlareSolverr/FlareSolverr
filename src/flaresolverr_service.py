@@ -363,7 +363,7 @@ def _evil_logic(req: V1RequestBase, driver: ChromiumPage, method: str) -> Challe
 
     challenge_res = ChallengeResolutionResultT({})
     challenge_res.url = driver.url
-    if data is not None and data.response is not None:
+    if data is not None and data.response is not None: # Fixed #1162
         challenge_res.status = data.response.status
         if not req.returnOnlyCookies:
             challenge_res.response = data.response.body
