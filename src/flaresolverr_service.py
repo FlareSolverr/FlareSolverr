@@ -370,7 +370,7 @@ def _evil_logic(req: V1RequestBase, driver: ChromiumPage, method: str) -> Challe
             challenge_res.response = data.response.body
             challenge_res.headers = dict(data.response.headers)
 
-    challenge_res.cookies = driver.cookies()
+    challenge_res.cookies = driver.cookies(all_info=True)
     challenge_res.userAgent = req.userAgent or utils.get_user_agent(driver)
 
     if old_user_agent:
