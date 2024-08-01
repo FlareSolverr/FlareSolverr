@@ -111,8 +111,6 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
         raise Exception("Request parameter 'cmd' is mandatory.")
     if req.headers is not None:
         logging.warning("Request parameter 'headers' was removed in FlareSolverr v2.")
-    if req.userAgent is not None:
-        logging.warning("Request parameter 'userAgent' was removed in FlareSolverr v2.")
 
     # set default values
     if req.maxTimeout is None or int(req.maxTimeout) < 1:
