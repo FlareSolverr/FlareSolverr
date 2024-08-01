@@ -326,7 +326,7 @@ def _evil_logic(req: V1RequestBase, driver: ChromiumPage, method: str) -> Challe
 
     # wait for the page
     if utils.get_config_log_html():
-        logging.debug("Response HTML:\n%s", driver.page_source)
+        logging.debug("Response HTML:\n%s", driver.html)
 
     page_title = driver.title
     # find access denied titles
