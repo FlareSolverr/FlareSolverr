@@ -295,6 +295,9 @@ def _evil_logic(req: V1RequestBase, driver: ChromiumPage, method: str) -> Challe
     res.status = STATUS_OK
     res.message = ""
 
+    old_user_agent = utils.get_user_agent(driver)
+    if req.userAgent is not None and req.userAgent != "":
+        driver.set.user_agent(ua=req.userAgent)
 
     # navigate to the page
     logging.debug('Navigating to... %s', req.url)
@@ -370,7 +373,10 @@ def _evil_logic(req: V1RequestBase, driver: ChromiumPage, method: str) -> Challe
             challenge_res.headers = data.response.headers.copy()
 
     challenge_res.cookies = driver.cookies()
-    challenge_res.userAgent = utils.get_user_agent(driver)
+    challenge_res.userAgent = req.userAgent or utils.get_user_agent(driver)
+
+    if old_user_agent:
+        driver.set.user_agent(ua=old_user_agent)
 
     res.result = challenge_res
     return res
