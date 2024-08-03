@@ -1,6 +1,6 @@
 bottle==0.12.25
 waitress==2.1.2
-DrissionPage==4.1.0.0b19
+DrissionPage==4.1.0.0b14
 func-timeout==4.3.5
 prometheus-client==0.17.1
 # required by undetected_chromedriver
