@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bookworm AS builder
+FROM debian:trixie-slim AS builder
 
 # Build dummy packages to skip installing them and their dependencies
 RUN apt-get update \
@@ -10,41 +10,38 @@ RUN apt-get update \
     && equivs-control adwaita-icon-theme \
     && printf 'Section: misc\nPriority: optional\nStandards-Version: 3.9.2\nPackage: adwaita-icon-theme\nVersion: 99.0.0\nDescription: Dummy package for adwaita-icon-theme\n' >> adwaita-icon-theme \
     && equivs-build adwaita-icon-theme \
-    && mv adwaita-icon-theme_*.deb /adwaita-icon-theme.deb
+    && mv adwaita-icon-theme_*.deb /adwaita-icon-theme.deb \
+    && apt-get purge -y --auto-remove equivs \
+    && rm -rf /var/lib/apt/lists/*
 
-FROM python:3.12-slim-bookworm
+FROM debian:trixie-slim
 
 # Copy dummy packages
-COPY --from=builder /*.deb /
+COPY --from=builder /libgl1-mesa-dri.deb /adwaita-icon-theme.deb /
 
 # Install dependencies and create flaresolverr user
-# You can test Chromium running this command inside the container:
-#    xvfb-run -s "-screen 0 1600x1200x24" chromium --no-sandbox
-# The error traces is like this: "*** stack smashing detected ***: terminated"
-# To check the package versions available you can use this command:
-#    apt-cache madison chromium
 WORKDIR /app
+COPY requirements.txt .
+RUN apt-get update \
     # Install dummy packages
-RUN dpkg -i /libgl1-mesa-dri.deb \
+    && dpkg -i /libgl1-mesa-dri.deb \
     && dpkg -i /adwaita-icon-theme.deb \
+    && apt-get install -f \
     # Install dependencies
-    && apt-get update \
-    && apt-get install -y --no-install-recommends chromium chromium-common chromium-driver xvfb dumb-init \
-        procps curl vim xauth \
+    && apt-get install -y --no-install-recommends chromium xvfb dumb-init \
+        procps curl vim xauth python3 python3-pip \
     # Remove temporary files and hardware decoding libraries
     && rm -rf /var/lib/apt/lists/* \
     && rm -f /usr/lib/x86_64-linux-gnu/libmfxhw* \
     && rm -f /usr/lib/x86_64-linux-gnu/mfx/* \
     # Create flaresolverr user
     && useradd --home-dir /app --shell /bin/sh flaresolverr \
-    && mv /usr/bin/chromedriver chromedriver \
-    && chown -R flaresolverr:flaresolverr .
-
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install -r requirements.txt \
+    && chown -R flaresolverr:flaresolverr . \
+    # Set up Python and install dependencies
+    && ln -s /usr/bin/python3 /usr/local/bin/python \
+    && pip install --break-system-packages -r requirements.txt \
     # Remove temporary files
-    && rm -rf /root/.cache
+    && rm -rf /root/.cache /tmp/*
 
 USER flaresolverr
 
