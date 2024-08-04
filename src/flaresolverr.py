@@ -101,6 +101,9 @@ if __name__ == "__main__":
     logging.info(f'FlareSolverr {utils.get_flaresolverr_version()}')
     logging.debug('Debug log enabled')
 
+    # Get current OS for global variable
+    utils.get_current_platform()
+
     # test browser installation
     flaresolverr_service.test_browser_installation()
 

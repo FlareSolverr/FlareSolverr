@@ -3,7 +3,8 @@ import platform
 import sys
 import time
 from datetime import timedelta
-from urllib.parse import unquote
+from html import escape
+from urllib.parse import unquote, quote
 
 from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
@@ -40,7 +41,7 @@ CHALLENGE_TITLES = [
 ]
 CHALLENGE_SELECTORS = [
     # Cloudflare
-    '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js',
+    '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js', '#turnstile-wrapper', '.lds-ring',
     # Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
     'td.info #js_info',
     # Fairlane / pararius.com
@@ -119,7 +120,7 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
         logging.warning("Request parameter 'userAgent' was removed in FlareSolverr v2.")
 
     # set default values
-    if req.maxTimeout is None or req.maxTimeout < 1:
+    if req.maxTimeout is None or int(req.maxTimeout) < 1:
         req.maxTimeout = 60000
 
     # execute the command
@@ -220,7 +221,7 @@ def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
 
 
 def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
-    timeout = req.maxTimeout / 1000
+    timeout = int(req.maxTimeout) / 1000
     driver = None
     try:
         if req.session:
@@ -245,6 +246,8 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
         raise Exception('Error solving the challenge. ' + str(e).replace('\n', '\\n'))
     finally:
         if not req.session and driver is not None:
+            if utils.PLATFORM_VERSION == "nt":
+                driver.close()
             driver.quit()
             logging.debug('A used instance of webdriver has been destroyed')
 
@@ -256,7 +259,7 @@ def click_verify(driver: WebDriver):
         driver.switch_to.frame(iframe)
         checkbox = driver.find_element(
             by=By.XPATH,
-            value='//*[@id="challenge-stage"]/div/label/input',
+            value='//*[@id="content"]/div/div/label/input',
         )
         if checkbox:
             actions = ActionChains(driver)
@@ -287,20 +290,35 @@ def click_verify(driver: WebDriver):
     time.sleep(2)
 
 
+def get_correct_window(driver: WebDriver) -> WebDriver:
+    if len(driver.window_handles) > 1:
+        for window_handle in driver.window_handles:
+            driver.switch_to.window(window_handle)
+            current_url = driver.current_url
+            if not current_url.startswith("devtools://devtools"):
+                return driver
+    return driver
+
+
+def access_page(driver: WebDriver, url: str) -> None:
+    driver.get(url)
+    driver.start_session()
+    driver.start_session()  # required to bypass Cloudflare
+
+
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
     res.message = ""
 
+
     # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
-    driver.get(req.url)
-    driver.start_session() # required to bypass Cloudflare
     if method == 'POST':
         _post_request(req, driver)
     else:
-        driver.get(req.url)
-        driver.start_session()  # required to bypass Cloudflare
+        access_page(driver, req.url)
+    driver = get_correct_window(driver)
 
     # set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
@@ -312,8 +330,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         if method == 'POST':
             _post_request(req, driver)
         else:
-            driver.get(req.url)
-            driver.start_session()  # required to bypass Cloudflare
+            access_page(driver, req.url)
+        driver = get_correct_window(driver)
 
     # wait for the page
     if utils.get_config_log_html():
@@ -427,7 +445,7 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             value = unquote(parts[1])
         except Exception:
             value = parts[1]
-        post_form += f'<input type="text" name="{name}" value="{value}"><br>'
+        post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
     post_form += '</form>'
     html_content = f"""
         <!DOCTYPE html>
@@ -437,5 +455,6 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             <script>document.getElementById('hackForm').submit();</script>
         </body>
         </html>"""
-    driver.get("data:text/html;charset=utf-8," + html_content)
+    driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
+    driver.start_session()
     driver.start_session()  # required to bypass Cloudflare

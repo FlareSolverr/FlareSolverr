@@ -17,7 +17,7 @@ by UltrafunkAmsterdam (https://github.com/ultrafunkamsterdam)
 from __future__ import annotations
 
 
-__version__ = "3.5.4"
+__version__ = "3.5.5"
 
 import json
 import logging
@@ -451,8 +451,10 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
                 options.binary_location, *options.arguments
             )
         else:
-            startupinfo = subprocess.STARTUPINFO()
+            startupinfo = None
             if os.name == 'nt' and windows_headless:
+                # STARTUPINFO() is Windows only
+                startupinfo = subprocess.STARTUPINFO()
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             browser = subprocess.Popen(
                 [options.binary_location, *options.arguments],
@@ -769,7 +771,9 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
 
     def quit(self):
         try:
+            self.service.stop()
             self.service.process.kill()
+            self.command_executor.close()
             self.service.process.wait(5)
             logger.debug("webdriver process ended")
         except (AttributeError, RuntimeError, OSError):
@@ -784,15 +788,6 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             logger.debug("gracefully closed browser")
         except Exception as e:  # noqa
             pass
-        # Force kill Chrome process in Windows
-        # https://github.com/FlareSolverr/FlareSolverr/issues/772
-        if os.name == 'nt':
-            try:
-                subprocess.call(['taskkill', '/f', '/pid', str(self.browser_pid)],
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL)
-            except Exception:
-                pass
         if (
             hasattr(self, "keep_user_data_dir")
             and hasattr(self, "user_data_dir")

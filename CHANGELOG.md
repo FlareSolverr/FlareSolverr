@@ -1,5 +1,48 @@
 # Changelog
 
+## v3.3.21 (2024/06/26)
+* Add challenge selector to catch reloading page on non-English systems
+* Escape values for generated form used in request.post. Thanks @mynameisbogdan
+
+## v3.3.20 (2024/06/21)
+* maxTimeout should always be int
+* Check not running in Docker before logging version_main error
+* Update Cloudflare challenge and checkbox selectors. Thanks @tenettow & @21hsmw
+
+## v3.3.19 (2024/05/23)
+* Fix occasional headless issue on Linux when set to "false". Thanks @21hsmw
+
+## v3.3.18 (2024/05/20)
+
+* Fix LANG ENV for Linux
+* Fix Chrome v124+ not closing on Windows. Thanks @RileyXX
+
+## v3.3.17 (2024/04/09)
+
+* Fix file descriptor leak in service on quit(). Thanks @zkulis
+
+## v3.3.16 (2024/02/28)
+
+* Fix of the subprocess.STARTUPINFO() call. Thanks @ceconelo
+* Add FreeBSD support. Thanks @Asthowen
+* Use headless configuration properly. Thanks @hashworks
+
+## v3.3.15 (2024/02/20)
+
+* Fix looping challenges
+
+## v3.3.14-hotfix2 (2024/02/17)
+
+* Hotfix 2 - bad Chromium build, instances failed to terminate
+
+## v3.3.14-hotfix (2024/02/17)
+
+* Hotfix for Linux build - some Chrome files no longer exist
+
+## v3.3.14 (2024/02/17)
+
+* Update Chrome downloads. Thanks @opemvbs
+
 ## v3.3.13 (2024/01/07)
 
 * Fix too many open files error
