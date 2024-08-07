@@ -307,17 +307,6 @@ flaresolverr_request_duration_sum{domain="nowsecure.nl"} 5.858
 flaresolverr_request_duration_created{domain="nowsecure.nl"} 1.6901416571570296e+09
 ```
 
-## Captcha Solvers
-
-> **Warning**
-> At this time none of the captcha solvers work. You can check the status in the open issues. Any help is welcome.
-
-Sometimes CloudFlare not only gives mathematical computations and browser tests, sometimes they also require the user to
-solve a captcha.
-If this is the case, FlareSolverr will return the error `Captcha detected but no automatic solver is configured.`
-
-FlareSolverr can be customized to solve the CAPTCHA automatically by setting the environment variable `CAPTCHA_SOLVER`
-to the file name of one of the adapters inside the [/captcha](src/captcha) directory.
 
 ## Related projects
 
