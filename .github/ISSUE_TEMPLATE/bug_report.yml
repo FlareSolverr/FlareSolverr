@@ -34,8 +34,8 @@ body:
     label: Have you ACTUALLY checked all these?
     description: Please do not waste our time and yours; these checks are there for a reason, it is not just so you can tick boxes for fun. If you select <b>Yes</b> and it is clear you are lying or have put in no effort, your issue will be closed and locked without comment. If you select <b>No</b> but still open this issue, you will be permanently blocked for timewasting.
     options:
-      - Yes
-      - No
+      - 'Yes'
+      - 'No'
   validations:
     required: true
 - type: textarea
