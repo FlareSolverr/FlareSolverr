@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from typing import Optional, Tuple
 from uuid import uuid1
 
-from selenium.webdriver.chrome.webdriver import WebDriver
+from DrissionPage import ChromiumPage
 
 import utils
 
@@ -12,7 +12,7 @@ import utils
 @dataclass
 class Session:
     session_id: str
-    driver: WebDriver
+    driver: ChromiumPage
     created_at: datetime
 
     def lifetime(self) -> timedelta:
@@ -27,13 +27,13 @@ class SessionsStorage:
 
     def create(self, session_id: Optional[str] = None, proxy: Optional[dict] = None,
                force_new: Optional[bool] = False) -> Tuple[Session, bool]:
-        """create creates new instance of WebDriver if necessary,
+        """create creates new instance of ChromiumPage if necessary,
         assign defined (or newly generated) session_id to the instance
         and returns the session object. If a new session has been created
         second argument is set to True.
 
         Note: The function is idempotent, so in case if session_id
-        already exists in the storage a new instance of WebDriver won't be created
+        already exists in the storage a new instance of ChromiumPage won't be created
         and existing session will be returned. Second argument defines if 
         new session has been created (True) or an existing one was used (False).
         """
@@ -45,7 +45,7 @@ class SessionsStorage:
         if self.exists(session_id):
             return self.sessions[session_id], False
 
-        driver = utils.get_webdriver(proxy)
+        driver = utils.get_webdriver(proxy, utils.get_user_data_path(session_id))
         created_at = datetime.now()
         session = Session(session_id, driver, created_at)
 
@@ -69,6 +69,10 @@ class SessionsStorage:
         if utils.PLATFORM_VERSION == "nt":
             session.driver.close()
         session.driver.quit()
+
+        session_data = utils.get_user_data_path(session_id)
+        utils.remove_user_data(session_data)
+
         return True
 
     def get(self, session_id: str, ttl: Optional[timedelta] = None) -> Tuple[Session, bool]:

@@ -7,16 +7,20 @@ import urllib.parse
 import tempfile
 import sys
 
-from selenium.webdriver.chrome.webdriver import WebDriver
-import undetected_chromedriver as uc
+from uuid import uuid1
+from pathlib import Path
+from tempfile import gettempdir
+
+from DrissionPage import ChromiumPage, ChromiumOptions
+# from DrissionPage.common import Settings
 
 FLARESOLVERR_VERSION = None
 PLATFORM_VERSION = None
-CHROME_EXE_PATH = None
 CHROME_MAJOR_VERSION = None
-USER_AGENT = None
 XVFB_DISPLAY = None
-PATCHED_DRIVER_PATH = None
+
+CHROME_EXE_PATH = os.environ.get('CHROME_EXE_PATH', None)
+USER_AGENT = os.environ.get('USER_AGENT', None)
 
 
 def get_config_log_html() -> bool:
@@ -120,101 +124,88 @@ def create_proxy_extension(proxy: dict) -> str:
 
     return proxy_extension_dir
 
+def get_webdriver_data_path() -> Path:
+    return Path(gettempdir()) / 'FlareSolverr'
 
-def get_webdriver(proxy: dict = None) -> WebDriver:
-    global PATCHED_DRIVER_PATH, USER_AGENT
+def get_user_data_path(user_name: str = None) -> Path:
+    user_name = user_name or str(uuid1())
+    return get_webdriver_data_path() / user_name
+
+def remove_user_data(user_data_path: Path):
+    if user_data_path.exists():
+        shutil.rmtree(user_data_path)
+
+def remove_all_subfolders(parent_folder: str):
+    if not os.path.exists(parent_folder):
+        return
+    
+    for item in os.listdir(parent_folder):
+        item_path = os.path.join(parent_folder, item)
+        
+        if os.path.isdir(item_path):
+            shutil.rmtree(item_path)
+
+def get_webdriver(proxy: dict = None, user_data_path: str = None) -> ChromiumPage:
+    global CHROME_EXE_PATH, USER_AGENT
     logging.debug('Launching web browser...')
 
     # undetected_chromedriver
-    options = uc.ChromeOptions()
-    options.add_argument('--no-sandbox')
-    options.add_argument('--window-size=1920,1080')
+    options = ChromiumOptions()
+    options.set_argument('--no-sandbox')
+    options.set_argument('--window-size=1920,1080')
     # todo: this param shows a warning in chrome head-full
-    options.add_argument('--disable-setuid-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
+    options.set_argument('--disable-setuid-sandbox')
+    options.set_argument('--disable-dev-shm-usage')
     # this option removes the zygote sandbox (it seems that the resolution is a bit faster)
-    options.add_argument('--no-zygote')
+    options.set_argument('--no-zygote')
     # attempt to fix Docker ARM32 build
-    options.add_argument('--disable-gpu-sandbox')
-    options.add_argument('--disable-software-rasterizer')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--ignore-ssl-errors')
+    options.set_argument('--disable-gpu-sandbox')
+    options.set_argument('--disable-software-rasterizer')
+    options.set_argument('--ignore-certificate-errors')
+    options.set_argument('--ignore-ssl-errors')
     # fix GL errors in ASUSTOR NAS
     # https://github.com/FlareSolverr/FlareSolverr/issues/782
     # https://github.com/microsoft/vscode/issues/127800#issuecomment-873342069
     # https://peter.sh/experiments/chromium-command-line-switches/#use-gl
-    options.add_argument('--use-gl=swiftshader')
+    options.set_argument('--use-gl=swiftshader')
 
     language = os.environ.get('LANG', None)
     if language is not None:
-        options.add_argument('--accept-lang=%s' % language)
+        options.set_argument('--accept-lang=%s' % language)
 
     # Fix for Chrome 117 | https://github.com/FlareSolverr/FlareSolverr/issues/910
     if USER_AGENT is not None:
-        options.add_argument('--user-agent=%s' % USER_AGENT)
+        options.set_argument('--user-agent=%s' % USER_AGENT)
 
     proxy_extension_dir = None
     if proxy and all(key in proxy for key in ['url', 'username', 'password']):
         proxy_extension_dir = create_proxy_extension(proxy)
-        options.add_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
+        options.add_extension(proxy_extension_dir)
     elif proxy and 'url' in proxy:
         proxy_url = proxy['url']
         logging.debug("Using webdriver proxy: %s", proxy_url)
-        options.add_argument('--proxy-server=%s' % proxy_url)
+        options.set_argument('--proxy-server=%s' % proxy_url)
 
-    # note: headless mode is detected (headless = True)
-    # we launch the browser in head-full mode with the window hidden
     windows_headless = False
     if get_config_headless():
         if os.name == 'nt':
             windows_headless = True
         else:
             start_xvfb_display()
-    # For normal headless mode:
-    # options.add_argument('--headless')
+    options.headless(windows_headless)
+    options.set_argument("--auto-open-devtools-for-tabs")
 
-    options.add_argument("--auto-open-devtools-for-tabs")
+    if user_data_path:
+        options.set_user_data_path(user_data_path)
+    options.auto_port(True)
 
-    # if we are inside the Docker container, we avoid downloading the driver
-    driver_exe_path = None
-    version_main = None
-    if os.path.exists("/app/chromedriver"):
-        # running inside Docker
-        driver_exe_path = "/app/chromedriver"
-    else:
-        version_main = get_chrome_major_version()
-        if PATCHED_DRIVER_PATH is not None:
-            driver_exe_path = PATCHED_DRIVER_PATH
+    if CHROME_EXE_PATH is not None:
+        options.set_paths(browser_path=CHROME_EXE_PATH)
 
-    # detect chrome path
-    browser_executable_path = get_chrome_exe_path()
-
-    # downloads and patches the chromedriver
-    # if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
-    try:
-        driver = uc.Chrome(options=options, browser_executable_path=browser_executable_path,
-                           driver_executable_path=driver_exe_path, version_main=version_main,
-                           windows_headless=windows_headless, headless=get_config_headless())
-    except Exception as e:
-        logging.error("Error starting Chrome: %s" % e)
-
-    # save the patched driver to avoid re-downloads
-    if driver_exe_path is None:
-        PATCHED_DRIVER_PATH = os.path.join(driver.patcher.data_path, driver.patcher.exe_name)
-        if PATCHED_DRIVER_PATH != driver.patcher.executable_path:
-            shutil.copy(driver.patcher.executable_path, PATCHED_DRIVER_PATH)
-
+    driver = ChromiumPage(addr_or_opts=options)
     # clean up proxy extension directory
     if proxy_extension_dir is not None:
         shutil.rmtree(proxy_extension_dir)
-
-    # selenium vanilla
-    # options = webdriver.ChromeOptions()
-    # options.add_argument('--no-sandbox')
-    # options.add_argument('--window-size=1920,1080')
-    # options.add_argument('--disable-setuid-sandbox')
-    # options.add_argument('--disable-dev-shm-usage')
-    # driver = webdriver.Chrome(options=options)
 
     return driver
 
@@ -237,8 +228,51 @@ def get_chrome_exe_path() -> str:
         CHROME_EXE_PATH = chrome_path
         return CHROME_EXE_PATH
     # system
-    CHROME_EXE_PATH = uc.find_chrome_executable()
+    CHROME_EXE_PATH = find_chrome_executable()
     return CHROME_EXE_PATH
+
+
+def find_chrome_executable():
+    """
+    Finds the chrome, chrome beta, chrome canary, chromium executable
+
+    Returns
+    -------
+    executable_path :  str
+        the full file path to found executable
+
+    """
+    candidates = set()
+    if sys.platform.startswith(("darwin", "cygwin", "linux", "linux2", "freebsd")):
+        for item in os.environ.get("PATH").split(os.pathsep):
+            for subitem in (
+                "google-chrome",
+                "chromium",
+                "chromium-browser",
+                "chrome",
+                "google-chrome-stable",
+            ):
+                candidates.add(os.sep.join((item, subitem)))
+        if "darwin" in sys.platform:
+            candidates.update(
+                [
+                    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+                    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+                ]
+            )
+    else:
+        for item in map(
+            os.environ.get,
+            ("PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA", "PROGRAMW6432"),
+        ):
+            if item is not None:
+                for subitem in (
+                    "Google/Chrome/Application",
+                ):
+                    candidates.add(os.sep.join((item, subitem, "chrome.exe")))
+    for candidate in candidates:
+        if os.path.exists(candidate) and os.access(candidate, os.X_OK):
+            return os.path.normpath(candidate)
 
 
 def get_chrome_major_version() -> str:
@@ -298,7 +332,7 @@ def extract_version_nt_folder() -> str:
             paths = [f.path for f in os.scandir(path) if f.is_dir()]
             for path in paths:
                 filename = os.path.basename(path)
-                pattern = '\d+\.\d+\.\d+\.\d+'
+                pattern = r'\d+\.\d+\.\d+\.\d+'
                 match = re.search(pattern, filename)
                 if match and match.group():
                     # Found a Chrome version.
@@ -312,9 +346,10 @@ def get_user_agent(driver=None) -> str:
         return USER_AGENT
 
     try:
+        user_path = get_user_data_path("DefaultUserAgent")
         if driver is None:
-            driver = get_webdriver()
-        USER_AGENT = driver.execute_script("return navigator.userAgent")
+            driver = get_webdriver(user_data_path=user_path)
+        USER_AGENT = driver.user_agent
         # Fix for Chrome 117 | https://github.com/FlareSolverr/FlareSolverr/issues/910
         USER_AGENT = re.sub('HEADLESS', '', USER_AGENT, flags=re.IGNORECASE)
         return USER_AGENT
@@ -325,6 +360,8 @@ def get_user_agent(driver=None) -> str:
             if PLATFORM_VERSION == "nt":
                 driver.close()
             driver.quit()
+        if user_path:
+            remove_user_data(user_path)
 
 
 def start_xvfb_display():

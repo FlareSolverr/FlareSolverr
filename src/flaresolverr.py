@@ -114,6 +114,9 @@ if __name__ == "__main__":
     prometheus_plugin.setup()
     app.install(prometheus_plugin.prometheus_plugin)
 
+    webdriver_data = utils.get_webdriver_data_path()
+    utils.remove_all_subfolders(webdriver_data)
+
     # start webserver
     # default server 'wsgiref' does not support concurrent requests
     # https://github.com/FlareSolverr/FlareSolverr/issues/680
