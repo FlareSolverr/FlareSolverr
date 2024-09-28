@@ -36,7 +36,7 @@ body:
     options:
       - 'Yes'
       - 'No'
-      default: 0
+    default: 0
   validations:
     required: true
 - type: textarea
