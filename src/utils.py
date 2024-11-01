@@ -6,6 +6,7 @@ import shutil
 import urllib.parse
 import tempfile
 import sys
+import platform
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 import undetected_chromedriver as uc
@@ -135,8 +136,11 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     # this option removes the zygote sandbox (it seems that the resolution is a bit faster)
     options.add_argument('--no-zygote')
     # attempt to fix Docker ARM32 build
-    options.add_argument('--disable-gpu-sandbox')
-    options.add_argument('--disable-software-rasterizer')
+    IS_ARMARCH = platform.machine().startswith(('arm', 'aarch'))
+    if IS_ARMARCH:
+        options.add_argument('--disable-gpu-sandbox')
+        options.add_argument('--disable-software-rasterizer')
+
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
     # fix GL errors in ASUSTOR NAS
