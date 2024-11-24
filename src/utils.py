@@ -1,12 +1,12 @@
 import json
 import logging
 import os
+import platform
 import re
 import shutil
-import urllib.parse
-import tempfile
 import sys
-import platform
+import tempfile
+import urllib.parse
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 import undetected_chromedriver as uc
@@ -130,6 +130,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     options = uc.ChromeOptions()
     options.add_argument('--no-sandbox')
     options.add_argument('--window-size=1920,1080')
+    options.add_argument('--disable-search-engine-choice-screen')
     # todo: this param shows a warning in chrome head-full
     options.add_argument('--disable-setuid-sandbox')
     options.add_argument('--disable-dev-shm-usage')
@@ -140,7 +141,6 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     if IS_ARMARCH:
         options.add_argument('--disable-gpu-sandbox')
         options.add_argument('--disable-software-rasterizer')
-
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
     # fix GL errors in ASUSTOR NAS
