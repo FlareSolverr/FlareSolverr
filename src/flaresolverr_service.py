@@ -2,8 +2,9 @@ import logging
 import platform
 import sys
 import time
+import json
+import base64
 from datetime import timedelta
-from html import escape
 from urllib.parse import unquote, quote
 
 from func_timeout import FunctionTimedOut, func_timeout
@@ -423,33 +424,53 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
-    post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
-    pairs = query_string.split('&')
-    for pair in pairs:
-        parts = pair.split('=')
-        # noinspection PyBroadException
-        try:
-            name = unquote(parts[0])
-        except Exception:
-            name = parts[0]
-        if name == 'submit':
-            continue
-        # noinspection PyBroadException
-        try:
-            value = unquote(parts[1])
-        except Exception:
-            value = parts[1]
-        post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
-    post_form += '</form>'
+    payload = dict()
+    try:
+        payload = json.loads(req.postData)
+    except json.JSONDecodeError:
+        query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
+        pairs = query_string.split('&')
+        for pair in pairs:
+            parts = pair.split('=')
+            # noinspection PyBroadException
+            try:
+                name = unquote(parts[0])
+            except Exception:
+                name = parts[0]
+            if name == 'submit':
+                continue
+            # noinspection PyBroadException
+            try:
+                value = unquote(parts[1])
+            except Exception:
+                value = parts[1]
+            payload[name] = value
+    data = json.dumps({ "payload": payload, "referer": req.referer or '', "url": req.url }).replace('<', '\\<').replace('>', '\\>')
     html_content = f"""
         <!DOCTYPE html>
         <html>
         <body>
-            {post_form}
-            <script>document.getElementById('hackForm').submit();</script>
+            <form id="hackForm" method="POST"></form>
+            <script>
+                const data = {data};
+                try {{
+                    if (data.referer) window.history.replaceState('', null, data.referer);
+                }} catch (e) {{
+                    // this requires --disable-web-security flag
+                }}
+                const form = document.getElementById('hackForm');
+                form.action = data.url;
+                for (const key in data.payload) {{
+                    const input = document.createElement('textarea');
+                    input.name = key;
+                    input.value = data.payload[key];
+                    form.appendChild(input);
+                }}
+                form.submit();
+            </script>
         </body>
         </html>"""
-    driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
+    b64_content = base64.b64encode(html_content.encode('utf-8')).decode('ascii')
+    driver.get("data:text/html;base64,{b64_content}".format(b64_content=b64_content))
     driver.start_session()
     driver.start_session()  # required to bypass Cloudflare
