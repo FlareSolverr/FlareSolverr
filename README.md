@@ -317,7 +317,7 @@ solve a captcha.
 If this is the case, FlareSolverr will return the error `Captcha detected but no automatic solver is configured.`
 
 FlareSolverr can be customized to solve the CAPTCHA automatically by setting the environment variable `CAPTCHA_SOLVER`
-to the file name of one of the adapters inside the [/captcha](src/captcha) directory.
+to the file name of one of the adapters inside the `/captcha` directory.
 
 ## Related projects
 
