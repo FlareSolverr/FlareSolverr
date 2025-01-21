@@ -87,10 +87,10 @@ This is the recommended way for Windows users.
 
 ### From source code (FreeBSD/TrueNAS CORE)
 
-* Run `pkg install chromium python39 py39-pip xorg-vfbserver` command to install the required dependencies.
+* Run `pkg install chromium python311 py311-pip xorg-vfbserver` command to install the required dependencies.
 * Clone this repository and open a shell in that path.
-* Run `python3.9 -m pip install -r requirements.txt` command to install FlareSolverr dependencies.
-* Run `python3.9 src/flaresolverr.py` command to start FlareSolverr.
+* Run `python3.11 -m pip install -r requirements.txt` command to install FlareSolverr dependencies.
+* Run `python3.11 src/flaresolverr.py` command to start FlareSolverr.
 
 ### Systemd service
 
