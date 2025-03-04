@@ -254,23 +254,16 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
 
 def click_verify(driver: WebDriver):
     try:
-        logging.debug("Try to find the Cloudflare verify checkbox...")
-        iframe = driver.find_element(By.XPATH, "//iframe[starts-with(@id, 'cf-chl-widget-')]")
-        driver.switch_to.frame(iframe)
-        checkbox = driver.find_element(
-            by=By.XPATH,
-            value='//*[@id="content"]/div/div/label/input',
-        )
-        if checkbox:
+        logging.debug("Try to check the Cloudflare verify checkbox...")
+        turnstileDiv = driver.find_element(By.XPATH, "//*[@id='cf-turnstile']")
+        if turnstileDiv:
             actions = ActionChains(driver)
-            actions.move_to_element_with_offset(checkbox, 5, 7)
-            actions.click(checkbox)
+            actions.move_to_element_with_offset(turnstileDiv, 34, 38)
+            actions.click()
             actions.perform()
-            logging.debug("Cloudflare verify checkbox found and clicked!")
+            logging.debug("Cloudflare verify checkbox click attempted!")
     except Exception:
-        logging.debug("Cloudflare verify checkbox not found on the page.")
-    finally:
-        driver.switch_to.default_content()
+        logging.debug("Cloudflare verify checkbox turnstile not found on the page.")
 
     try:
         logging.debug("Try to find the Cloudflare 'Verify you are human' button...")
