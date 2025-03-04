@@ -149,6 +149,9 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     # https://peter.sh/experiments/chromium-command-line-switches/#use-gl
     options.add_argument('--use-gl=swiftshader')
 
+    if (os.environ.get('DISABLE_WEB_SECURITY', None) is not None):
+        options.add_argument('--disable-web-security')
+
     language = os.environ.get('LANG', None)
     if language is not None:
         options.add_argument('--accept-lang=%s' % language)
@@ -172,7 +175,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     if get_config_headless():
         if os.name == 'nt':
             windows_headless = True
-        else:
+        elif not os.environ.get('DISPLAY', '') and not os.environ.get('WAYLAND_DISPLAY', ''):
             start_xvfb_display()
     # For normal headless mode:
     # options.add_argument('--headless')
