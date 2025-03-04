@@ -1,4 +1,3 @@
-name: Bug report
 description: Create a report of your issue
 body:
 - type: checkboxes
@@ -32,7 +31,7 @@ body:
 - type: input
   attributes:
     label: Have you ACTUALLY checked all these?
-    description: Please do not waste our time and yours; these checks are there for a reason, it is not just so you can tick boxes for fun. If you type <b>YES</b> and it is clear you are lying or have put in no effort, your issue will be closed and locked without comment. If you type <b>NO</b> but still open this issue, you will be permanently blocked for timewasting.
+    description: Please do not waste our time and yours; these checks are there for a reason, it is not just so you can tick boxes for fun. If you type <b>YES</b> and it is clear you did not or have put in no effort, your issue will be closed and locked without comment. If you type <b>NO</b> but still open this issue, you will be permanently blocked for timewasting.
     placeholder: YES or NO
   validations:
     required: true
