@@ -1,3 +1,4 @@
+name: Bug report
 description: Create a report of your issue
 body:
 - type: checkboxes
