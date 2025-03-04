@@ -219,6 +219,20 @@ def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
         "message": "The session has been removed."
     })
 
+def _init_driver(driver):
+    try:
+        driver.execute_cdp_cmd('Page.enable', {})
+        driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
+            'source': """
+                Element.prototype._as = Element.prototype.attachShadow;
+                Element.prototype.attachShadow = function (params) {
+                    return this._as({mode: "open"})
+                };
+            """
+        })
+    except Exception as e:
+        logging.debug("Driver init exception: %s", repr(e))
+
 
 def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
     timeout = int(req.maxTimeout) / 1000
@@ -239,6 +253,7 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
         else:
             driver = utils.get_webdriver(req.proxy)
             logging.debug('New instance of webdriver has been created to perform the request')
+        _init_driver(driver)
         return func_timeout(timeout, _evil_logic, (req, driver, method))
     except FunctionTimedOut:
         raise Exception(f'Error solving the challenge. Timeout after {timeout} seconds.')
@@ -252,23 +267,33 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
             logging.debug('A used instance of webdriver has been destroyed')
 
 
+def get_shadowed_iframe(driver: WebDriver, css_selector: str):
+    logging.debug("Getting ShadowRoot by selector: %s", css_selector)
+    shadow_element = driver.execute_script("""
+        return document.querySelector(arguments[0]).shadowRoot.firstChild;
+    """, css_selector)
+    if shadow_element:
+        logging.debug("iframe found")
+    else:
+        logging.debug("iframe not found")
+    return shadow_element
+
+
 def click_verify(driver: WebDriver):
     try:
         logging.debug("Try to find the Cloudflare verify checkbox...")
-        iframe = driver.find_element(By.XPATH, "//iframe[starts-with(@id, 'cf-chl-widget-')]")
+        iframe = get_shadowed_iframe(driver, "div:not(:has(div))")
         driver.switch_to.frame(iframe)
-        checkbox = driver.find_element(
-            by=By.XPATH,
-            value='//*[@id="content"]/div/div/label/input',
-        )
-        if checkbox:
+        iframe_body = driver.find_element(By.CSS_SELECTOR, "body")
+        if iframe_body:
+            iframe_body.click()
             actions = ActionChains(driver)
-            actions.move_to_element_with_offset(checkbox, 5, 7)
-            actions.click(checkbox)
+            actions.move_to_element_with_offset(iframe_body, 10, 10)
+            actions.click(iframe_body)
             actions.perform()
-            logging.debug("Cloudflare verify checkbox found and clicked!")
-    except Exception:
-        logging.debug("Cloudflare verify checkbox not found on the page.")
+            logging.debug("Attempted to click on iframe body")
+    except Exception as e:
+        logging.debug("Cloudflare verify checkbox not found on the page. %s", repr(e))
     finally:
         driver.switch_to.default_content()
 
