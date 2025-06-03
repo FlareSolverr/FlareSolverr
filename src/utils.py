@@ -177,8 +177,6 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     # For normal headless mode:
     # options.add_argument('--headless')
 
-    options.add_argument("--auto-open-devtools-for-tabs")
-
     # if we are inside the Docker container, we avoid downloading the driver
     driver_exe_path = None
     version_main = None
