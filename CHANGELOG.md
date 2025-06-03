@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.3.22 (2025/06/03)
+* Disable search engine choice screen
+* Fix headless=false stalling. Thanks @MAKMED1337
+* Change from click to keys. Thanks @sh4dowb
+* Don't open devtools
+* Bump Chromium to v137 for build
+* Bump requirements
+
 ## v3.3.21 (2024/06/26)
 * Add challenge selector to catch reloading page on non-English systems
 * Escape values for generated form used in request.post. Thanks @mynameisbogdan
