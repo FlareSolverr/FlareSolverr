@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.3.24 (2025/06/04)
+* Remove hidden character
+
 ## v3.3.23 (2025/06/04)
 * Update base image to bookworm. Thanks @rwjack
 
