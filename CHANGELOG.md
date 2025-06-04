@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.3.23 (2025/06/04)
+* Update base image to bookworm. Thanks @rwjack
+
 ## v3.3.22 (2025/06/03)
 * Disable search engine choice screen
 * Fix headless=false stalling. Thanks @MAKMED1337
