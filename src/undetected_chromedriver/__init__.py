@@ -507,8 +507,6 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
                     "Page.addScriptToEvaluateOnNewDocument",
                     {
                         "source": """
-
-                           Object.defineProperty(window, "navigator", {
                                 Object.defineProperty(window, "navigator", {
                                   value: new Proxy(navigator, {
                                     has: (target, key) => (key === "webdriver" ? false : key in target),
