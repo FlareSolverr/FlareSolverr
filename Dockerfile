@@ -38,7 +38,12 @@ RUN dpkg -i /libgl1-mesa-dri.deb \
     # Create flaresolverr user
     && useradd --home-dir /app --shell /bin/sh flaresolverr \
     && mv /usr/bin/chromedriver chromedriver \
-    && chown -R flaresolverr:flaresolverr .
+    && chown -R flaresolverr:flaresolverr . \
+    # Create config dir
+    && mkdir /config \
+    && chown flaresolverr:flaresolverr /config
+
+VOLUME /config
 
 # Install Python dependencies
 COPY requirements.txt .
