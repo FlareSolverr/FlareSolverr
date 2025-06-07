@@ -36,6 +36,8 @@ class V1RequestBase(object):
     session_ttl_minutes: int = None
     headers: list = None  # deprecated v2.0.0, not used
     userAgent: str = None  # deprecated v2.0.0, not used
+    xpath: str = None
+    xpathWaitTimeout: int = None
 
     # V1Request
     url: str = None
