@@ -13,6 +13,7 @@ from dtos import V1RequestBase
 import flaresolverr_service
 import utils
 
+env_proxy = os.environ.get('PROXY_URL', None)
 
 class JSONErrorBottle(Bottle):
     """
@@ -50,7 +51,11 @@ def controller_v1():
     """
     Controller v1
     """
-    req = V1RequestBase(request.json)
+    data = request.json or {}
+    print (f'Request data: {env_proxy}')
+    if (('proxy' not in data or not data.get('proxy')) and env_proxy is not None):
+        data['proxy'] = {"url": env_proxy}
+    req = V1RequestBase(data)
     res = flaresolverr_service.controller_v1_endpoint(req)
     if res.__error_500__:
         response.status = 500
