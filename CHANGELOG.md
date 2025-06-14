@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.3.25 (2025/06/14)
+* Remove `use-gl` argument. Thanks @qwerty12
+* u_c: remove apparent c&p typo. Thanks @ok3721
+* Bump requirements
+
 ## v3.3.24 (2025/06/04)
 * Remove hidden character
 
