@@ -269,7 +269,6 @@ This is the same as `request.get` but it takes one more param:
 | TZ                 | UTC                    | Timezone used in the logs and the web browser. Example: `TZ=Europe/London`.                                                                                   |
 | LANG               | none                   | Language used in the web browser. Example: `LANG=en_GB`.                                                                                   |
 | HEADLESS           | true                   | Only for debugging. To run the web browser in headless mode or visible.                                                                                       |
-| BROWSER_TIMEOUT    | 40000                  | If you are experiencing errors/timeouts because your system is slow, you can try to increase this value. Remember to increase the `maxTimeout` parameter too. |
 | TEST_URL           | https://www.google.com | FlareSolverr makes a request on start to make sure the web browser is working. You can change that URL if it is blocked in your country.                      |
 | PORT               | 8191                   | Listening port. You don't need to change this if you are running on Docker.                                                                                   |
 | HOST               | 0.0.0.0                | Listening interface. You don't need to change this if you are running on Docker.                                                                              |
