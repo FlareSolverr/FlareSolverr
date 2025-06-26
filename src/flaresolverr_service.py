@@ -1,3 +1,4 @@
+import json
 import logging
 import platform
 import sys
@@ -9,12 +10,13 @@ from urllib.parse import unquote, quote
 from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.expected_conditions import (
     presence_of_element_located, staleness_of, title_is)
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium_fetch import fetch, Options
 
 import utils
 from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
@@ -148,6 +150,8 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
         raise Exception("Request parameter 'url' is mandatory in 'request.get' command.")
     if req.postData is not None:
         raise Exception("Cannot use 'postBody' when sending a GET request.")
+    if req.contentType is not None:
+        raise Exception("Cannot use 'contentType' when sending a GET request.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
@@ -165,12 +169,31 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     # do some validations
     if req.postData is None:
         raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
+    if req.contentType is None:
+        raise Exception("Request parameter 'contentType' is mandatory in 'request.post' command.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
         logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
 
     challenge_res = _resolve_challenge(req, 'POST')
+    res = V1ResponseBase({})
+    res.status = challenge_res.status
+    res.message = challenge_res.message
+    res.solution = challenge_res.result
+    return res
+
+
+def _cmd_request_postJSON(req: V1RequestBase) -> V1ResponseBase:
+    # do some validations
+    if req.postData is None:
+        raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
+    if req.returnRawHtml is not None:
+        logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
+    if req.download is not None:
+        logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
+
+    challenge_res = _resolve_challenge(req, 'POSTJSON')
     res = V1ResponseBase({})
     res.status = challenge_res.status
     res.message = challenge_res.message
@@ -291,7 +314,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
     if method == 'POST':
-        _post_request(req, driver)
+        res.response = _post_request(req, driver)
     else:
         driver.get(req.url)
 
@@ -303,7 +326,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             driver.add_cookie(cookie)
         # reload the page
         if method == 'POST':
-            _post_request(req, driver)
+            res.response = _post_request(req, driver)
         else:
             driver.get(req.url)
 
@@ -397,31 +420,42 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
-    post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
-    pairs = query_string.split('&')
-    for pair in pairs:
-        parts = pair.split('=')
-        # noinspection PyBroadException
-        try:
-            name = unquote(parts[0])
-        except Exception:
-            name = parts[0]
-        if name == 'submit':
-            continue
-        # noinspection PyBroadException
-        try:
-            value = unquote(parts[1])
-        except Exception:
-            value = parts[1]
-        post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
-    post_form += '</form>'
-    html_content = f"""
-        <!DOCTYPE html>
-        <html>
-        <body>
-            {post_form}
-            <script>document.getElementById('hackForm').submit();</script>
-        </body>
-        </html>"""
-    driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
+    if req.contentType == 'application/x-www-form-urlencoded':
+        post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
+        query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
+        pairs = query_string.split('&')
+        for pair in pairs:
+            parts = pair.split('=')
+            # noinspection PyBroadException
+            try:
+                name = unquote(parts[0])
+            except Exception:
+                name = parts[0]
+            if name == 'submit':
+                continue
+            # noinspection PyBroadException
+            try:
+                value = unquote(parts[1])
+            except Exception:
+                value = parts[1]
+            post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
+        post_form += '</form>'
+        html_content = f"""
+                <!DOCTYPE html>
+                <html>
+                <body>
+                    {post_form}
+                    <script>document.getElementById('hackForm').submit();</script>
+                </body>
+                </html>"""
+        driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
+        return "Success"
+    elif req.contentType == 'application/json':
+        post_data = json.loads(unquote(req.postData))
+        options = Options(method="POST", body=post_data)
+        logging.debug(f"Request => POST /v1 options: {utils.object_to_dict(options)}")
+        response = fetch(driver, req.url, options)
+        logging.debug(f"Response => POST /v1 response: {utils.object_to_dict(response)}")
+        return response.text
+    else:
+        raise Exception(f"Request parameter 'contentType' = '{req.contentType}' is invalid.")
