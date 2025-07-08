@@ -153,13 +153,29 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         options.add_argument('--user-agent=%s' % USER_AGENT)
 
     proxy_extension_dir = None
-    if proxy and all(key in proxy for key in ['url', 'username', 'password']):
-        proxy_extension_dir = create_proxy_extension(proxy)
-        options.add_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
-    elif proxy and 'url' in proxy:
+    if proxy and 'url' in proxy:
         proxy_url = proxy['url']
-        logging.debug("Using webdriver proxy: %s", proxy_url)
-        options.add_argument('--proxy-server=%s' % proxy_url)
+        parsed_proxy = urllib.parse.urlparse(proxy_url)
+        
+        # Check if the proxy URL contains authentication info
+        if parsed_proxy.username and parsed_proxy.password:
+            # Extract credentials from URL and use proxy extension
+            proxy_data = {
+                'url': f"{parsed_proxy.scheme}://{parsed_proxy.hostname}:{parsed_proxy.port}",
+                'username': parsed_proxy.username,
+                'password': parsed_proxy.password
+            }
+            logging.debug("Using proxy extension for authenticated proxy: %s", proxy_data['url'])
+            proxy_extension_dir = create_proxy_extension(proxy_data)
+            options.add_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
+        elif all(key in proxy for key in ['url', 'username', 'password']):
+            # Original logic for separately provided credentials
+            proxy_extension_dir = create_proxy_extension(proxy)
+            options.add_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
+        else:
+            # Use Chrome's built-in proxy parameter for unauthenticated proxies
+            logging.debug("Using webdriver proxy: %s", proxy_url)
+            options.add_argument('--proxy-server=%s' % proxy_url)
 
     # note: headless mode is detected (headless = True)
     # we launch the browser in head-full mode with the window hidden
