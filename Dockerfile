@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm as builder
+FROM python:3.13-slim-bookworm as builder
 
 # Build dummy packages to skip installing them and their dependencies
 RUN apt-get update \
@@ -12,7 +12,7 @@ RUN apt-get update \
     && equivs-build adwaita-icon-theme \
     && mv adwaita-icon-theme_*.deb /adwaita-icon-theme.deb
 
-FROM python:3.11-slim-bookworm
+FROM python:3.13-slim-bookworm
 
 # Copy dummy packages
 COPY --from=builder /*.deb /
