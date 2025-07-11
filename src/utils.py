@@ -194,6 +194,8 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
                            windows_headless=windows_headless, headless=get_config_headless())
     except Exception as e:
         logging.error("Error starting Chrome: %s" % e)
+        # No point in continuing if we cannot retrieve the driver
+        raise e
 
     # save the patched driver to avoid re-downloads
     if driver_exe_path is None:
