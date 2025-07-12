@@ -19,6 +19,7 @@ class ChallengeResolutionT:
     status: str = None
     message: str = None
     result: ChallengeResolutionResultT = None
+    response: str = None
 
     def __init__(self, _dict):
         self.__dict__.update(_dict)
@@ -39,7 +40,9 @@ class V1RequestBase(object):
 
     # V1Request
     url: str = None
+    contentType: str = None
     postData: str = None
+    headers: dict = None
     returnOnlyCookies: bool = None
     download: bool = None   # deprecated v2.0.0, not used
     returnRawHtml: bool = None  # deprecated v2.0.0, not used

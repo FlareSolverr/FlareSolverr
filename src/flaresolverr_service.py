@@ -1,3 +1,4 @@
+import json
 import logging
 import platform
 import sys
@@ -9,12 +10,13 @@ from urllib.parse import unquote, quote
 from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.expected_conditions import (
     presence_of_element_located, staleness_of, title_is)
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium_fetch import fetch, Options
 
 import utils
 from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
@@ -148,6 +150,10 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
         raise Exception("Request parameter 'url' is mandatory in 'request.get' command.")
     if req.postData is not None:
         raise Exception("Cannot use 'postBody' when sending a GET request.")
+    if req.contentType is not None:
+        raise Exception("Cannot use 'contentType' when sending a GET request.")
+    if req.headers is not None:
+        raise Exception("Cannot use 'headers' when sending a GET request.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
@@ -165,12 +171,31 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     # do some validations
     if req.postData is None:
         raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
+    if req.contentType is None:
+        raise Exception("Request parameter 'contentType' is mandatory in 'request.post' command.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
         logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
 
     challenge_res = _resolve_challenge(req, 'POST')
+    res = V1ResponseBase({})
+    res.status = challenge_res.status
+    res.message = challenge_res.message
+    res.solution = challenge_res.result
+    return res
+
+
+def _cmd_request_postJSON(req: V1RequestBase) -> V1ResponseBase:
+    # do some validations
+    if req.postData is None:
+        raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
+    if req.returnRawHtml is not None:
+        logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
+    if req.download is not None:
+        logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
+
+    challenge_res = _resolve_challenge(req, 'POSTJSON')
     res = V1ResponseBase({})
     res.status = challenge_res.status
     res.message = challenge_res.message
@@ -291,7 +316,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
     if method == 'POST':
-        _post_request(req, driver)
+        res.response = _post_request(req, driver)
     else:
         driver.get(req.url)
 
@@ -303,7 +328,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             driver.add_cookie(cookie)
         # reload the page
         if method == 'POST':
-            _post_request(req, driver)
+            res.response = _post_request(req, driver)
         else:
             driver.get(req.url)
 
@@ -397,31 +422,148 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
-    post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
-    pairs = query_string.split('&')
-    for pair in pairs:
-        parts = pair.split('=')
-        # noinspection PyBroadException
-        try:
-            name = unquote(parts[0])
-        except Exception:
-            name = parts[0]
-        if name == 'submit':
-            continue
-        # noinspection PyBroadException
-        try:
-            value = unquote(parts[1])
-        except Exception:
-            value = parts[1]
-        post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
-    post_form += '</form>'
-    html_content = f"""
-        <!DOCTYPE html>
-        <html>
-        <body>
-            {post_form}
-            <script>document.getElementById('hackForm').submit();</script>
-        </body>
-        </html>"""
-    driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
+    import logging
+    import traceback
+    import time
+
+    try:
+        content_type = getattr(req, 'contentType', 'application/x-www-form-urlencoded')
+        headers = getattr(req, 'headers', {})
+
+        if content_type == 'application/json':
+
+            if not req.postData:
+                raise Exception("postData is empty for JSON request")
+
+            try:
+                if isinstance(req.postData, str):
+                    post_data = json.loads(req.postData)
+                else:
+                    post_data = req.postData
+            except json.JSONDecodeError as e:
+                logging.error(f"JSON parsing failed: {e}")
+                raise Exception(f"Invalid JSON in postData: {e}")
+
+            try:
+                driver.get(req.url)
+
+                time.sleep(2)
+
+                page_source = driver.page_source.lower()
+                if any(term in page_source for term in
+                       ['cloudflare', 'checking your browser', 'ddos protection', 'please wait']):
+                    logging.info("Protection detected, waiting for bypass...")
+                    time.sleep(5)
+
+            except Exception as e:
+                logging.warning(f"Could not load target page directly: {e}")
+
+            json_data_str = json.dumps(post_data)
+            escaped_json = json_data_str.replace("'", "\\'")
+
+            headers_js_lines = ["xhr.setRequestHeader('Content-Type', 'application/json');"]
+
+            if headers:
+                for header_name, header_value in headers.items():
+                    if header_name.lower() != 'content-type':
+                        escaped_value = str(header_value).replace("'", "\\'")
+                        headers_js_lines.append(f"xhr.setRequestHeader('{header_name}', '{escaped_value}');")
+
+            headers_js = '\n            '.join(headers_js_lines)
+
+            script = f"""
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '{req.url}', false);
+            {headers_js}
+
+            try {{
+                xhr.send('{escaped_json}');
+                return {{
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    success: true
+                }};
+            }} catch (error) {{
+                return {{
+                    status: 0,
+                    statusText: error.message,
+                    responseText: '',
+                    success: false,
+                    error: error.message
+                }};
+            }}
+            """
+
+            try:
+                result = driver.execute_script(script)
+
+                if result and result.get('success'):
+                    response_text = result.get('responseText', '')
+                    status_code = result.get('status', 0)
+
+                    logging.info(f"POST request completed with status: {status_code}")
+
+                    return response_text
+                else:
+                    error_msg = result.get('statusText', 'Unknown error') if result else 'Script execution failed'
+                    error_detail = result.get('error', '') if result else ''
+                    logging.error(f"XHR request failed: {error_msg} - {error_detail}")
+                    raise Exception(f"POST request failed: {error_msg}")
+
+            except Exception as script_error:
+                logging.error(f"Script execution error: {script_error}")
+                raise
+
+        elif content_type == 'application/x-www-form-urlencoded':
+
+            headers_meta = ""
+            if headers:
+                for header_name, header_value in headers.items():
+                    if header_name.lower() != 'content-type':
+                        headers_meta += f'<meta http-equiv="{header_name}" content="{header_value}">'
+
+            post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
+            query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
+            pairs = query_string.split('&')
+
+            for pair in pairs:
+                if '=' not in pair:
+                    continue
+                parts = pair.split('=', 1)
+                try:
+                    name = unquote(parts[0])
+                except:
+                    name = parts[0]
+                if name == 'submit':
+                    continue
+                try:
+                    value = unquote(parts[1]) if len(parts) > 1 else ''
+                except:
+                    value = parts[1] if len(parts) > 1 else ''
+                post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
+
+            post_form += '</form>'
+            html_content = f"""
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        {headers_meta}
+                    </head>
+                    <body>
+                        {post_form}
+                        <script>document.getElementById('hackForm').submit();</script>
+                    </body>
+                    </html>"""
+            driver.get(f"data:text/html;charset=utf-8,{html_content}")
+            return "Success"
+
+        else:
+            raise Exception(
+                f"Request parameter 'contentType' = '{content_type}' is invalid. Supported: 'application/json', 'application/x-www-form-urlencoded'")
+
+    except Exception as e:
+        logging.error(f"ERROR in _post_request: {e}")
+        logging.error(f"Error type: {type(e)}")
+        logging.error(f"Traceback: {traceback.format_exc()}")
+        raise
