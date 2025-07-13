@@ -1,5 +1,6 @@
 import json
 import logging
+import traceback
 import platform
 import sys
 import time
@@ -422,10 +423,6 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
-    import logging
-    import traceback
-    import time
-
     try:
         content_type = getattr(req, 'contentType', 'application/x-www-form-urlencoded')
         headers = getattr(req, 'headers', {})
