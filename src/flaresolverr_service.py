@@ -398,7 +398,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
     post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
+    query_string = req.postData if req.postData and req.postData[0] != '?' else req.postData[1:] if req.postData else ''
     pairs = query_string.split('&')
     for pair in pairs:
         parts = pair.split('=')
