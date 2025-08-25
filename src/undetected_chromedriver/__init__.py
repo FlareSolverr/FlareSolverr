@@ -471,7 +471,7 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             self.patcher.executable_path
         )
 
-        super(Chrome, self).__init__(
+        super().__init__(
             service=service,
             options=options,
             keep_alive=keep_alive,
@@ -727,10 +727,8 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
     def start_session(self, capabilities=None, browser_profile=None):
         if not capabilities:
             capabilities = self.options.to_capabilities()
-        super(selenium.webdriver.chrome.webdriver.WebDriver, self).start_session(
-            capabilities
-        )
-        # super(Chrome, self).start_session(capabilities, browser_profile)
+        super().start_session(capabilities)
+        # super(Chrome, self).start_session(capabilities, browser_profile) # Original explicit call commented out
 
     def find_elements_recursive(self, by, value):
         """

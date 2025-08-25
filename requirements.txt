@@ -1,13 +1,14 @@
-bottle==0.12.25
-waitress==3.0.1
-selenium==4.15.2
+bottle==0.13.4
+waitress==3.0.2
+selenium==4.34.2
 func-timeout==4.3.5
-prometheus-client==0.17.1
+prometheus-client==0.22.1
 # required by undetected_chromedriver
 requests==2.32.4
-certifi==2024.07.04
-websockets==11.0.3
+certifi==2025.7.9
+websockets==15.0.1
+packaging==25.0
 # only required for linux and macos
-xvfbwrapper==0.2.9; platform_system != "Windows"
+xvfbwrapper==0.2.13; platform_system != "Windows"
 # only required for windows
-pefile==2023.2.7; platform_system == "Windows"
+pefile==2024.8.26; platform_system == "Windows"

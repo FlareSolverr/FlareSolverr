@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # this module is part of undetected_chromedriver
 
-from distutils.version import LooseVersion
+from packaging.version import Version as LooseVersion
 import io
 import json
 import logging
@@ -12,6 +12,7 @@ import random
 import re
 import shutil
 import string
+import subprocess
 import sys
 import time
 from urllib.request import urlopen
@@ -222,7 +223,7 @@ class Patcher(object):
                 pass
 
             release = self.fetch_release_number()
-            self.version_main = release.version[0]
+            self.version_main = release.major
             self.version_full = release
             self.unzip_package(self.fetch_package())
 
@@ -327,11 +328,11 @@ class Patcher(object):
         """
         zip_name = f"chromedriver_{self.platform_name}.zip"
         if self.is_old_chromedriver:
-            download_url = "%s/%s/%s" % (self.url_repo, self.version_full.vstring, zip_name)
+            download_url = "%s/%s/%s" % (self.url_repo, str(self.version_full), zip_name)
         else:
             zip_name = zip_name.replace("_", "-", 1)
             download_url = "https://storage.googleapis.com/chrome-for-testing-public/%s/%s/%s"
-            download_url %= (self.version_full.vstring, self.platform_name, zip_name)
+            download_url %= (str(self.version_full), self.platform_name, zip_name)
 
         logger.debug("downloading from %s" % download_url)
         return urlretrieve(download_url)[0]
@@ -373,10 +374,31 @@ class Patcher(object):
         """
         exe_name = os.path.basename(exe_name)
         if IS_POSIX:
-            r = os.system("kill -f -9 $(pidof %s)" % exe_name)
+            # Using shell=True for pidof, consider a more robust pid finding method if issues arise.
+            # pgrep can be an alternative: ["pgrep", "-f", exe_name]
+            # Or psutil if adding a dependency is acceptable.
+            command = f"pidof {exe_name}"
+            try:
+                result = subprocess.run(command, shell=True, capture_output=True, text=True, check=True)
+                pids = result.stdout.strip().split()
+                if pids:
+                    subprocess.run(["kill", "-9"] + pids, check=False) # Changed from -f -9 to -9 as -f is not standard for kill
+                    return True
+                return False # No PIDs found
+            except subprocess.CalledProcessError: # pidof returns 1 if no process found
+                return False # No process found
+            except Exception as e:
+                logger.debug(f"Error killing process on POSIX: {e}")
+                return False
         else:
-            r = os.system("taskkill /f /im %s" % exe_name)
-        return not r
+            try:
+                # TASKKILL /F /IM chromedriver.exe
+                result = subprocess.run(["taskkill", "/f", "/im", exe_name], check=False, capture_output=True)
+                # taskkill returns 0 if process was killed, 128 if not found.
+                return result.returncode == 0
+            except Exception as e:
+                logger.debug(f"Error killing process on Windows: {e}")
+                return False
 
     @staticmethod
     def gen_random_cdc():
