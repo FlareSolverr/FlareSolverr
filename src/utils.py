@@ -296,7 +296,7 @@ def extract_version_nt_folder() -> str:
             paths = [f.path for f in os.scandir(path) if f.is_dir()]
             for path in paths:
                 filename = os.path.basename(path)
-                pattern = '\d+\.\d+\.\d+\.\d+'
+                pattern = r'\d+\.\d+\.\d+\.\d+'
                 match = re.search(pattern, filename)
                 if match and match.group():
                     # Found a Chrome version.
