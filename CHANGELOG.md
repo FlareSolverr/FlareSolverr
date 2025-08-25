@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.4.0 (2025/08/25)
+* Modernize and upgrade application. Thanks @TheCrazyLex
+* Remove disable software rasterizer option for ARM builds. Thanks @smrodman83
+
 ## v3.3.25 (2025/06/14)
 * Remove `use-gl` argument. Thanks @qwerty12
 * u_c: remove apparent c&p typo. Thanks @ok3721
