@@ -140,7 +140,6 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     IS_ARMARCH = platform.machine().startswith(('arm', 'aarch'))
     if IS_ARMARCH:
         options.add_argument('--disable-gpu-sandbox')
-        options.add_argument('--disable-software-rasterizer')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
 
