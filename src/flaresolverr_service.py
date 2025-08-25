@@ -2,9 +2,12 @@ import logging
 import platform
 import sys
 import time
+import requests
+import os
+import base64
 from datetime import timedelta
 from html import escape
-from urllib.parse import unquote, quote
+from urllib.parse import unquote, quote, urljoin, urlsplit
 
 from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
@@ -150,8 +153,6 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
         raise Exception("Cannot use 'postBody' when sending a GET request.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
-    if req.download is not None:
-        logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
 
     challenge_res = _resolve_challenge(req, 'GET')
     res = V1ResponseBase({})
@@ -391,6 +392,44 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
         challenge_res.response = driver.page_source
+
+    if req.download:
+        # todo: support XPATH
+        img_elements = driver.find_elements(By.TAG_NAME, "img")
+
+        resp = []
+        for img in img_elements:
+            try:
+                # todo: support other attribute
+                src = img.get_attribute("src")
+                if src:
+                    img_url = urljoin(driver.current_url, src)
+                    response = requests.get(img_url, timeout=10)
+                    if response.status_code == 200:
+                        logging.info(f"Found {img_url}")
+
+                        filename = os.path.basename(urlsplit(img_url).path)
+                        mime_type = response.headers.get("Content-Type", "image/jpeg")
+                        b64_data = base64.b64encode(response.content).decode('utf-8')
+
+                        r = {
+                            "url": f"{img_url}",
+                            "filename": f"{filename}",
+                            "mime_type": f"{mime_type}",
+                            "encoded_data": f"{b64_data}"
+                        }
+                        resp.append(r)
+                    else:
+                        logging.error(f"Invalid Repsonse Code ({response.status_code}): {img_url}")
+            except Exception as e:
+                logging.error(f"Error: {e}")
+        if not resp:
+            logging.error("No Images Found!")
+            res.message = "No Images Found!"
+        else:
+            logging.info(f"Found {len(resp)} Images!")
+            res.message = f"Found {len(resp)} Images!"
+            challenge_res.download = resp
 
     res.result = challenge_res
     return res
