@@ -390,6 +390,11 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
+
+        if req.waitInSeconds and req.waitInSeconds > 0:
+            logging.info("Waiting " + str(req.waitInSeconds) + " seconds before returning the response...")
+            time.sleep(req.waitInSeconds)
+
         challenge_res.response = driver.page_source
 
     res.result = challenge_res
