@@ -402,15 +402,33 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
         if res.response is not None:
             # Handle selenium-fetch response object
+            response_text = None
             if hasattr(res.response, 'text'):
-                challenge_res.response = res.response.text
+                response_text = res.response.text
             elif hasattr(res.response, 'content'):
-                challenge_res.response = res.response.content
+                response_text = res.response.content
             elif isinstance(res.response, str):
-                challenge_res.response = res.response
+                response_text = res.response
             else:
                 # Convert response object to string
-                challenge_res.response = str(res.response)
+                response_text = str(res.response)
+            
+            # Try to parse JSON if it's a JSON response
+            if response_text and response_text.strip():
+                try:
+                    # Check if response looks like JSON
+                    if response_text.strip().startswith(('{', '[')):
+                        parsed_json = json.loads(response_text)
+                        challenge_res.response = parsed_json
+                        logging.debug("Response parsed as JSON successfully")
+                    else:
+                        challenge_res.response = response_text
+                except json.JSONDecodeError:
+                    # If JSON parsing fails, return as string
+                    challenge_res.response = response_text
+                    logging.debug("Response is not valid JSON, returning as string")
+            else:
+                challenge_res.response = response_text or ""
         else:
             # Fallback to page source
             challenge_res.response = driver.page_source
