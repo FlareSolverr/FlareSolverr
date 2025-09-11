@@ -16,6 +16,7 @@ from selenium.webdriver.support.expected_conditions import (
     presence_of_element_located, staleness_of, title_is)
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium_fetch import fetch, FetchOptions
 
 import utils
 from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
@@ -294,14 +295,15 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
     res.message = ""
+    res.response = None
 
 
-    # navigate to the page
+        # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
     if method == 'POST':
-        _post_request(req, driver)
+        res.response = _post_request(req, driver)
     else:
-        driver.get(req.url)
+        res.response = _get_request(req, driver)
 
     # set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
@@ -311,9 +313,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             driver.add_cookie(cookie)
         # reload the page
         if method == 'POST':
-            _post_request(req, driver)
+            res.response = _post_request(req, driver)
         else:
-            driver.get(req.url)
+            res.response = _get_request(req, driver)
 
     # wait for the page
     if utils.get_config_log_html():
@@ -398,61 +400,50 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
-        challenge_res.response = driver.page_source
+        if res.response is not None:
+            # Handle selenium-fetch response object
+            if hasattr(res.response, 'text'):
+                challenge_res.response = res.response.text
+            elif hasattr(res.response, 'content'):
+                challenge_res.response = res.response.content
+            elif isinstance(res.response, str):
+                challenge_res.response = res.response
+            else:
+                # Convert response object to string
+                challenge_res.response = str(res.response)
+        else:
+            # Fallback to page source
+            challenge_res.response = driver.page_source
 
     res.result = challenge_res
     return res
 
 
-def _post_request(req: V1RequestBase, driver: WebDriver):
-    # Check if content type is JSON
-    if req.contentType and req.contentType.lower() == 'application/json':
-        logging.debug("Handling JSON POST request")
-        # Handle JSON POST request using fetch API
-        # Validate JSON format
-        try:
-            json.loads(req.postData)  # Validate JSON format
-            logging.debug("JSON data validation successful")
-        except json.JSONDecodeError as e:
-            raise Exception(f"Invalid JSON in postData: {str(e)}")
-        
-        # Escape the JSON data for safe inclusion in JavaScript
-        json_data_escaped = json.dumps(req.postData)
-        
-        html_content = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-        </head>
-        <body>
-            <div id="status">Sending JSON request...</div>
-            <script>
-                fetch('{req.url}', {{
-                    method: 'POST',
-                    headers: {{
-                        'Content-Type': 'application/json'
-                    }},
-                    body: {json_data_escaped}
-                }})
-                .then(response => {{
-                    return response.text();
-                }})
-                .then(data => {{
-                    document.open();
-                    document.write(data);
-                    document.close();
-                }})
-                .catch(error => {{
-                    console.error('Error:', error);
-                    document.body.innerHTML = '<h1>Error sending JSON request: ' + error.message + '</h1>';
-                }});
-            </script>
-        </body>
-        </html>"""
-        driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
+def _get_request(req: V1RequestBase, driver: WebDriver):
+    # First navigate to the target domain to initialize the browser context
+    from urllib.parse import urlparse
+    parsed_url = urlparse(req.url)
+    base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+    logging.debug(f"Navigating to base URL: {base_url}")
+    driver.get(base_url)
+    
+    # Configure fetch options for GET request
+    options = FetchOptions(method="GET")
+    
+    # Make the fetch request
+    logging.debug(f"Making GET fetch request to: {req.url}")
+    response = fetch(driver, req.url, options)
+    
+    if response and hasattr(response, 'text'):
+        logging.debug(f"GET fetch response received, length: {len(response.text)}")
+        return response.text
     else:
-        # Handle form-encoded POST request (existing logic)
+        logging.error("No response received from GET fetch")
+        return "Error: No response received from GET fetch"
+
+
+def _post_request(req: V1RequestBase, driver: WebDriver):
+    if req.contentType == 'application/x-www-form-urlencoded':
         post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
         query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
         pairs = query_string.split('&')
@@ -470,7 +461,7 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
                 value = unquote(parts[1])
             except Exception:
                 value = parts[1]
-            post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
+            post_form += f'<input type="text" name="{name}" value="{value}"><br>'
         post_form += '</form>'
         html_content = f"""
             <!DOCTYPE html>
@@ -480,4 +471,38 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
                 <script>document.getElementById('hackForm').submit();</script>
             </body>
             </html>"""
-        driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
+        driver.get("data:text/html;charset=utf-8," + html_content)
+        driver.start_session()  # required to bypass Cloudflare
+        return "Success"
+    elif req.contentType == 'application/json':
+        # First navigate to the target domain to initialize the browser context
+        from urllib.parse import urlparse
+        parsed_url = urlparse(req.url)
+        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+        logging.debug(f"Navigating to base URL: {base_url}")
+        driver.get(base_url)
+        
+        # Parse JSON data
+        post_data = json.loads(req.postData)
+        logging.debug(f"POST data: {post_data}")
+        
+        # Configure fetch options with proper headers
+        headers = {"Content-Type": "application/json"}
+        options = FetchOptions(method="POST", headers=headers, body=post_data)
+        
+        # Make the fetch request
+        logging.debug(f"Making fetch request to: {req.url}")
+        response = fetch(driver, req.url, options)
+        driver.start_session()  # required to bypass Cloudflare
+        
+        if response and hasattr(response, 'text'):
+            logging.debug(f"Fetch response received, length: {len(response.text)}")
+            return response.text
+        else:
+            logging.error("No response received from fetch")
+            return "Error: No response received from fetch"
+    else:
+        raise Exception(f"Request parameter 'contentType' = '{req.contentType}' is invalid.")
+
+
+
