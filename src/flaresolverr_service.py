@@ -178,6 +178,10 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
         if req.contentType.lower() not in supported_types:
             logging.warning(f"Content-Type '{req.contentType}' is not explicitly supported. "
                           f"Supported types: {', '.join(supported_types)}. Proceeding anyway...")
+    else:
+        # default to form-encoded if not specified
+        req.contentType = 'application/x-www-form-urlencoded'
+        logging.info("No Content-Type specified. Defaulting to 'application/x-www-form-urlencoded'.")
 
     challenge_res = _resolve_challenge(req, 'POST')
     res = V1ResponseBase({})
@@ -454,7 +458,7 @@ def _get_request(req: V1RequestBase, driver: WebDriver):
     
     if response and hasattr(response, 'text'):
         logging.debug(f"GET fetch response received, length: {len(response.text)}")
-        return response.text
+        return response
     else:
         logging.error("No response received from GET fetch")
         return "Error: No response received from GET fetch"
@@ -462,36 +466,29 @@ def _get_request(req: V1RequestBase, driver: WebDriver):
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
     if req.contentType == 'application/x-www-form-urlencoded':
-        post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-        query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
-        pairs = query_string.split('&')
-        for pair in pairs:
-            parts = pair.split('=')
-            # noinspection PyBroadException
-            try:
-                name = unquote(parts[0])
-            except Exception:
-                name = parts[0]
-            if name == 'submit':
-                continue
-            # noinspection PyBroadException
-            try:
-                value = unquote(parts[1])
-            except Exception:
-                value = parts[1]
-            post_form += f'<input type="text" name="{name}" value="{value}"><br>'
-        post_form += '</form>'
-        html_content = f"""
-            <!DOCTYPE html>
-            <html>
-            <body>
-                {post_form}
-                <script>document.getElementById('hackForm').submit();</script>
-            </body>
-            </html>"""
-        driver.get("data:text/html;charset=utf-8," + html_content)
+        # First navigate to the target domain to initialize the browser context
+        from urllib.parse import urlparse
+        parsed_url = urlparse(req.url)
+        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+        logging.debug(f"Navigating to base URL: {base_url}")
+        driver.get(base_url)
+        
+        # Configure fetch options with proper headers for form data
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        options = FetchOptions(method="POST", headers=headers, body=req.postData)
+        
+        # Make the fetch request
+        logging.debug(f"Making form-urlencoded POST fetch request to: {req.url}")
+        logging.debug(f"POST data: {req.postData}")
+        response = fetch(driver, req.url, options)
         driver.start_session()  # required to bypass Cloudflare
-        return "Success"
+        
+        if response and hasattr(response, 'text'):
+            logging.debug(f"Form POST fetch response received, length: {len(response.text)}")
+            return response
+        else:
+            logging.error("No response received from form POST fetch")
+            return "Error: No response received from form POST fetch"
     elif req.contentType == 'application/json':
         # First navigate to the target domain to initialize the browser context
         from urllib.parse import urlparse
@@ -509,16 +506,16 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
         options = FetchOptions(method="POST", headers=headers, body=post_data)
         
         # Make the fetch request
-        logging.debug(f"Making fetch request to: {req.url}")
+        logging.debug(f"Making JSON POST fetch request to: {req.url}")
         response = fetch(driver, req.url, options)
         driver.start_session()  # required to bypass Cloudflare
         
         if response and hasattr(response, 'text'):
-            logging.debug(f"Fetch response received, length: {len(response.text)}")
-            return response.text
+            logging.debug(f"JSON POST fetch response received, length: {len(response.text)}")
+            return response
         else:
-            logging.error("No response received from fetch")
-            return "Error: No response received from fetch"
+            logging.error("No response received from JSON POST fetch")
+            return "Error: No response received from JSON POST fetch"
     else:
         raise Exception(f"Request parameter 'contentType' = '{req.contentType}' is invalid.")
 
