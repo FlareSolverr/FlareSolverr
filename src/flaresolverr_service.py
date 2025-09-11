@@ -2,6 +2,7 @@ import logging
 import platform
 import sys
 import time
+import json
 from datetime import timedelta
 from html import escape
 from urllib.parse import unquote, quote
@@ -169,6 +170,13 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
         logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
+    
+    # validate content type
+    if req.contentType:
+        supported_types = ['application/json', 'application/x-www-form-urlencoded']
+        if req.contentType.lower() not in supported_types:
+            logging.warning(f"Content-Type '{req.contentType}' is not explicitly supported. "
+                          f"Supported types: {', '.join(supported_types)}. Proceeding anyway...")
 
     challenge_res = _resolve_challenge(req, 'POST')
     res = V1ResponseBase({})
@@ -397,31 +405,79 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
-    post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
-    pairs = query_string.split('&')
-    for pair in pairs:
-        parts = pair.split('=')
-        # noinspection PyBroadException
+    # Check if content type is JSON
+    if req.contentType and req.contentType.lower() == 'application/json':
+        logging.debug("Handling JSON POST request")
+        # Handle JSON POST request using fetch API
+        # Validate JSON format
         try:
-            name = unquote(parts[0])
-        except Exception:
-            name = parts[0]
-        if name == 'submit':
-            continue
-        # noinspection PyBroadException
-        try:
-            value = unquote(parts[1])
-        except Exception:
-            value = parts[1]
-        post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
-    post_form += '</form>'
-    html_content = f"""
+            json.loads(req.postData)  # Validate JSON format
+            logging.debug("JSON data validation successful")
+        except json.JSONDecodeError as e:
+            raise Exception(f"Invalid JSON in postData: {str(e)}")
+        
+        # Escape the JSON data for safe inclusion in JavaScript
+        json_data_escaped = json.dumps(req.postData)
+        
+        html_content = f"""
         <!DOCTYPE html>
         <html>
+        <head>
+            <meta charset="utf-8">
+        </head>
         <body>
-            {post_form}
-            <script>document.getElementById('hackForm').submit();</script>
+            <div id="status">Sending JSON request...</div>
+            <script>
+                fetch('{req.url}', {{
+                    method: 'POST',
+                    headers: {{
+                        'Content-Type': 'application/json'
+                    }},
+                    body: {json_data_escaped}
+                }})
+                .then(response => {{
+                    return response.text();
+                }})
+                .then(data => {{
+                    document.open();
+                    document.write(data);
+                    document.close();
+                }})
+                .catch(error => {{
+                    console.error('Error:', error);
+                    document.body.innerHTML = '<h1>Error sending JSON request: ' + error.message + '</h1>';
+                }});
+            </script>
         </body>
         </html>"""
-    driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
+        driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
+    else:
+        # Handle form-encoded POST request (existing logic)
+        post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
+        query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
+        pairs = query_string.split('&')
+        for pair in pairs:
+            parts = pair.split('=')
+            # noinspection PyBroadException
+            try:
+                name = unquote(parts[0])
+            except Exception:
+                name = parts[0]
+            if name == 'submit':
+                continue
+            # noinspection PyBroadException
+            try:
+                value = unquote(parts[1])
+            except Exception:
+                value = parts[1]
+            post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
+        post_form += '</form>'
+        html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <body>
+                {post_form}
+                <script>document.getElementById('hackForm').submit();</script>
+            </body>
+            </html>"""
+        driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))

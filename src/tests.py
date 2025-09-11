@@ -533,6 +533,49 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual(STATUS_OK, body.status)
         self.assertEqual("Challenge not detected!", body.message)
 
+    def test_v1_endpoint_request_post_json_content_type(self):
+        """Test POST request with application/json content type"""
+        json_data = '{"key1": "value1", "key2": "value2", "nested": {"inner": "data"}}'
+        res = self.app.post_json('/v1', {
+            "cmd": "request.post",
+            "url": self.post_url,
+            "postData": json_data,
+            "contentType": "application/json"
+        })
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+        self.assertEqual("Challenge not detected!", body.message)
+        self.assertGreater(body.startTimestamp, 10000)
+        self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
+
+        solution = body.solution
+        self.assertIn(self.post_url, solution.url)
+        self.assertEqual(solution.status, 200)
+        self.assertIs(len(solution.headers), 0)
+        # httpbin.org should return the JSON data in the response
+        self.assertIn('"json": {\n    "key1": "value1", \n    "key2": "value2"', solution.response)
+        self.assertIn('"nested": {\n      "inner": "data"\n    }', solution.response)
+        self.assertEqual(len(solution.cookies), 0)
+        self.assertIn("Chrome/", solution.userAgent)
+
+    def test_v1_endpoint_request_post_json_invalid_data(self):
+        """Test POST request with invalid JSON data"""
+        invalid_json = '{"key1": "value1", "key2":}'  # Missing value
+        res = self.app.post_json('/v1', {
+            "cmd": "request.post",
+            "url": self.post_url,
+            "postData": invalid_json,
+            "contentType": "application/json"
+        }, status=500)
+        self.assertEqual(res.status_code, 500)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_ERROR, body.status)
+        self.assertIn("Invalid JSON in postData", body.message)
+
     def test_v1_endpoint_sessions_create_without_session(self):
         res = self.app.post_json('/v1', {
             "cmd": "sessions.create"
