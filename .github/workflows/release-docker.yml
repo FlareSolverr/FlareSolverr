@@ -3,7 +3,7 @@ name: release-docker
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
   pull_request:
     branches:
       - master
@@ -15,7 +15,7 @@ concurrency:
 jobs:
   build-docker-images:
     if: ${{ !github.event.pull_request.head.repo.fork }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4

@@ -59,7 +59,7 @@ docker run -d \
   ghcr.io/flaresolverr/flaresolverr:latest
 ```
 
-If your host OS is Debian, make sure `libseccomp2` version is 2.5.x. You can check the version with `sudo apt-cache policy libseccomp2` 
+If your host OS is Debian, make sure `libseccomp2` version is 2.5.x. You can check the version with `sudo apt-cache policy libseccomp2`
 and update the package with `sudo apt install libseccomp2=2.5.1-1~bpo10+1` or `sudo apt install libseccomp2=2.5.1-1+deb11u1`.
 Remember to restart the Docker daemon and the container after the update.
 
@@ -77,7 +77,7 @@ This is the recommended way for Windows users.
 > **Warning**
 > Installing from source code only works for x64 architecture. For other architectures see Docker images.
 
-* Install [Python 3.11](https://www.python.org/downloads/).
+* Install [Python 3.13](https://www.python.org/downloads/).
 * Install [Chrome](https://www.google.com/intl/en_us/chrome/) (all OS) or [Chromium](https://www.chromium.org/getting-involved/download-chromium/) (just Linux, it doesn't work in Windows) web browser.
 * (Only in Linux) Install [Xvfb](https://en.wikipedia.org/wiki/Xvfb) package.
 * (Only in macOS) Install [XQuartz](https://www.xquartz.org/) package.
@@ -87,10 +87,10 @@ This is the recommended way for Windows users.
 
 ### From source code (FreeBSD/TrueNAS CORE)
 
-* Run `pkg install chromium python311 py311-pip xorg-vfbserver` command to install the required dependencies.
+* Run `pkg install chromium python313 py313-pip xorg-vfbserver` command to install the required dependencies.
 * Clone this repository and open a shell in that path.
-* Run `python3.11 -m pip install -r requirements.txt` command to install FlareSolverr dependencies.
-* Run `python3.11 src/flaresolverr.py` command to start FlareSolverr.
+* Run `python3.13 -m pip install -r requirements.txt` command to install FlareSolverr dependencies.
+* Run `python3.13 src/flaresolverr.py` command to start FlareSolverr.
 
 ### Systemd service
 
@@ -269,7 +269,6 @@ This is the same as `request.get` but it takes one more param:
 | TZ                 | UTC                    | Timezone used in the logs and the web browser. Example: `TZ=Europe/London`.                                                                                   |
 | LANG               | none                   | Language used in the web browser. Example: `LANG=en_GB`.                                                                                   |
 | HEADLESS           | true                   | Only for debugging. To run the web browser in headless mode or visible.                                                                                       |
-| BROWSER_TIMEOUT    | 40000                  | If you are experiencing errors/timeouts because your system is slow, you can try to increase this value. Remember to increase the `maxTimeout` parameter too. |
 | TEST_URL           | https://www.google.com | FlareSolverr makes a request on start to make sure the web browser is working. You can change that URL if it is blocked in your country.                      |
 | PORT               | 8191                   | Listening port. You don't need to change this if you are running on Docker.                                                                                   |
 | HOST               | 0.0.0.0                | Listening interface. You don't need to change this if you are running on Docker.                                                                              |
