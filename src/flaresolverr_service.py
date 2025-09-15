@@ -315,7 +315,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     # find access denied titles
     for title in ACCESS_DENIED_TITLES:
-        if title == page_title:
+        if page_title.startswith(title):
             raise Exception('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
     # find access denied selectors
