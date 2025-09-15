@@ -2,6 +2,7 @@ import logging
 import platform
 import sys
 import time
+import json
 from datetime import timedelta
 from html import escape
 from urllib.parse import unquote, quote
@@ -15,6 +16,7 @@ from selenium.webdriver.support.expected_conditions import (
     presence_of_element_located, staleness_of, title_is)
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium_fetch import fetch, FetchOptions
 
 import utils
 from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
@@ -169,6 +171,17 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
         logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
+    
+    # validate content type
+    if req.contentType:
+        supported_types = ['application/json', 'application/x-www-form-urlencoded']
+        if req.contentType.lower() not in supported_types:
+            logging.warning(f"Content-Type '{req.contentType}' is not explicitly supported. "
+                          f"Supported types: {', '.join(supported_types)}. Proceeding anyway...")
+    else:
+        # default to form-encoded if not specified
+        req.contentType = 'application/x-www-form-urlencoded'
+        logging.info("No Content-Type specified. Defaulting to 'application/x-www-form-urlencoded'.")
 
     challenge_res = _resolve_challenge(req, 'POST')
     res = V1ResponseBase({})
@@ -244,6 +257,10 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
     except FunctionTimedOut:
         raise Exception(f'Error solving the challenge. Timeout after {timeout} seconds.')
     except Exception as e:
+        print(f"Error type: {type(e).__name__}")
+        print(f"Message: {e}")
+        print("Traceback:")
+        print("".join(traceback.format_exception(type(e), e, e.__traceback__)))
         raise Exception('Error solving the challenge. ' + str(e).replace('\n', '\\n'))
     finally:
         if not req.session and driver is not None:
@@ -286,14 +303,15 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
     res.message = ""
+    res.response = None
 
 
-    # navigate to the page
+        # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
     if method == 'POST':
-        _post_request(req, driver)
+        res.response = _post_request(req, driver)
     else:
-        driver.get(req.url)
+        res.response = _get_request(req, driver)
 
     # set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
@@ -303,9 +321,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             driver.add_cookie(cookie)
         # reload the page
         if method == 'POST':
-            _post_request(req, driver)
+            res.response = _post_request(req, driver)
         else:
-            driver.get(req.url)
+            res.response = _get_request(req, driver)
 
     # wait for the page
     if utils.get_config_log_html():
@@ -390,38 +408,120 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
-        challenge_res.response = driver.page_source
+        if res.response is not None:
+            # Handle selenium-fetch response object
+            response_text = None
+            if hasattr(res.response, 'text'):
+                response_text = res.response.text
+            elif hasattr(res.response, 'content'):
+                response_text = res.response.content
+            elif isinstance(res.response, str):
+                response_text = res.response
+            else:
+                # Convert response object to string
+                response_text = str(res.response)
+            
+            # Try to parse JSON if it's a JSON response
+            if response_text and response_text.strip():
+                try:
+                    # Check if response looks like JSON
+                    if response_text.strip().startswith(('{', '[')):
+                        parsed_json = json.loads(response_text)
+                        challenge_res.response = parsed_json
+                        logging.debug("Response parsed as JSON successfully")
+                    else:
+                        challenge_res.response = response_text
+                except json.JSONDecodeError:
+                    # If JSON parsing fails, return as string
+                    challenge_res.response = response_text
+                    logging.debug("Response is not valid JSON, returning as string")
+            else:
+                challenge_res.response = response_text or ""
+        else:
+            # Fallback to page source
+            challenge_res.response = driver.page_source
 
     res.result = challenge_res
     return res
 
 
+def _get_request(req: V1RequestBase, driver: WebDriver):
+    # First navigate to the target domain to initialize the browser context
+    from urllib.parse import urlparse
+    parsed_url = urlparse(req.url)
+    base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+    logging.debug(f"Navigating to base URL: {base_url}")
+    driver.get(base_url)
+    
+    # Configure fetch options for GET request
+    options = FetchOptions(method="GET")
+    
+    # Make the fetch request
+    logging.debug(f"Making GET fetch request to: {req.url}")
+    response = fetch(driver, req.url, options)
+    
+    if response and hasattr(response, 'text'):
+        logging.debug(f"GET fetch response received, length: {len(response.text)}")
+        return response
+    else:
+        logging.error("No response received from GET fetch")
+        return "Error: No response received from GET fetch"
+
+
 def _post_request(req: V1RequestBase, driver: WebDriver):
-    post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
-    pairs = query_string.split('&')
-    for pair in pairs:
-        parts = pair.split('=')
-        # noinspection PyBroadException
-        try:
-            name = unquote(parts[0])
-        except Exception:
-            name = parts[0]
-        if name == 'submit':
-            continue
-        # noinspection PyBroadException
-        try:
-            value = unquote(parts[1])
-        except Exception:
-            value = parts[1]
-        post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
-    post_form += '</form>'
-    html_content = f"""
-        <!DOCTYPE html>
-        <html>
-        <body>
-            {post_form}
-            <script>document.getElementById('hackForm').submit();</script>
-        </body>
-        </html>"""
-    driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
+    if req.contentType == 'application/x-www-form-urlencoded':
+        # First navigate to the target domain to initialize the browser context
+        from urllib.parse import urlparse
+        parsed_url = urlparse(req.url)
+        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+        logging.debug(f"Navigating to base URL: {base_url}")
+        driver.get(base_url)
+        
+        # Configure fetch options with proper headers for form data
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        options = FetchOptions(method="POST", headers=headers, body=req.postData)
+        
+        # Make the fetch request
+        logging.debug(f"Making form-urlencoded POST fetch request to: {req.url}")
+        logging.debug(f"POST data: {req.postData}")
+        response = fetch(driver, req.url, options)
+        driver.start_session()  # required to bypass Cloudflare
+        
+        if response and hasattr(response, 'text'):
+            logging.debug(f"Form POST fetch response received, length: {len(response.text)}")
+            return response
+        else:
+            logging.error("No response received from form POST fetch")
+            return "Error: No response received from form POST fetch"
+    elif req.contentType == 'application/json':
+        # First navigate to the target domain to initialize the browser context
+        from urllib.parse import urlparse
+        parsed_url = urlparse(req.url)
+        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+        logging.debug(f"Navigating to base URL: {base_url}")
+        driver.get(base_url)
+        
+        # Parse JSON data
+        post_data = json.loads(req.postData)
+        logging.debug(f"POST data: {post_data}")
+        
+        # Configure fetch options with proper headers
+        headers = {"Content-Type": "application/json"}
+        options = FetchOptions(method="POST", headers=headers, body=post_data)
+        
+        # Make the fetch request
+        logging.debug(f"Making JSON POST fetch request to: {req.url}")
+        response = fetch(driver, req.url, options)
+        driver.start_session()  # required to bypass Cloudflare
+        
+        if response and hasattr(response, 'text'):
+            logging.debug(f"JSON POST fetch response received, length: {len(response.text)}")
+            return response
+        else:
+            logging.error("No response received from JSON POST fetch")
+            return "Error: No response received from JSON POST fetch"
+    else:
+        raise Exception(f"Request parameter 'contentType' = '{req.contentType}' is invalid.")
+
+
+

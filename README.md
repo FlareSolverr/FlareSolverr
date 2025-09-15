@@ -135,6 +135,18 @@ $body = @{
 irm -UseBasicParsing 'http://localhost:8191/v1' -Headers @{"Content-Type"="application/json"} -Method Post -Body $body
 ```
 
+Example JSON POST request:
+```bash
+curl -L -X POST 'http://localhost:8191/v1' \
+-H 'Content-Type: application/json' \
+--data-raw '{
+  "cmd": "request.post",
+  "url": "https://httpbin.org/post",
+  "postData": "{\"key\": \"value\", \"number\": 123}",
+  "contentType": "application/json"
+}'
+```
+
 ### Commands
 
 #### + `sessions.create`
@@ -253,11 +265,12 @@ Example response from running the `curl` above:
 
 ### + `request.post`
 
-This is the same as `request.get` but it takes one more param:
+This is the same as `request.get` but it takes additional params:
 
-| Parameter | Notes                                                                    |
-|-----------|--------------------------------------------------------------------------|
-| postData  | Must be a string with `application/x-www-form-urlencoded`. Eg: `a=b&c=d` |
+| Parameter   | Notes                                                                                                                                                                                                                           |
+|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| postData    | Mandatory. Must be a string with the request body data.                                                                                                                                                                        |
+| contentType | Optional, defaults to `application/x-www-form-urlencoded`. Content-Type header for the request. Supported values: `application/x-www-form-urlencoded`, `application/json`. For form data use format: `a=b&c=d`. For JSON use valid JSON string. |
 
 ## Environment variables
 

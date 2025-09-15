@@ -40,6 +40,7 @@ class V1RequestBase(object):
     # V1Request
     url: str = None
     postData: str = None
+    contentType: str = None  # Content-Type header for POST requests (e.g., 'application/json')
     returnOnlyCookies: bool = None
     download: bool = None   # deprecated v2.0.0, not used
     returnRawHtml: bool = None  # deprecated v2.0.0, not used
