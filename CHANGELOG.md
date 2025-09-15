@@ -1,6 +1,7 @@
 # Changelog
 
 ## v3.4.1 (2025/09/15)
+* Fix regex pattern syntax in utils.py
 * Change access denied title check to use startswith
 
 ## v3.4.0 (2025/08/25)
