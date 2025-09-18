@@ -3,7 +3,7 @@ name: Autotag
 on:
   push:
     branches:
-      - "bump-ci"
+      - "master"
 
 jobs:
   tag-release:
