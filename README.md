@@ -188,6 +188,8 @@ session. When you no longer need to use a session you should make sure to close 
 | cookies             | Optional. Will be used by the headless browser. Eg: `"cookies": [{"name": "cookie1", "value": "value1"}, {"name": "cookie2", "value": "value2"}]`.                                                                                                                                                                                           |
 | returnOnlyCookies   | Optional, default false. Only returns the cookies. Response data, headers and other parts of the response are removed.                                                                                                                                                                                                                       |
 | proxy               | Optional, default disabled. Eg: `"proxy": {"url": "http://127.0.0.1:8888"}`. You must include the proxy schema in the URL: `http://`, `socks4://` or `socks5://`. Authorization (username/password) is not supported. (When the `session` parameter is set, the proxy is ignored; a session specific proxy can be set in `sessions.create`.) |
+| xpath               | Optional, default disabled. XPath selector to JS rendered content.                                                                                                                                                                                                                                                                           |
+| xpathWaitTimeout    | Optional, default disabled. Max timeout to wait for XPath selector in milliseconds.                                                                                                                                                                                                                                                          |
 
 > **Warning**
 > If you want to use Cloudflare clearance cookie in your scripts, make sure you use the FlareSolverr User-Agent too. If they don't match you will see the challenge.
@@ -258,6 +260,11 @@ This is the same as `request.get` but it takes one more param:
 | Parameter | Notes                                                                    |
 |-----------|--------------------------------------------------------------------------|
 | postData  | Must be a string with `application/x-www-form-urlencoded`. Eg: `a=b&c=d` |
+
+## JS Rendering
+If you want to get HTML after JS Rendering, set "xpath" parameter to the request. You should set xpath selector that represents the content you want to get.
+Also you can set xpathWaitTimeout parameter to control how much browser will wait for content.
+
 
 ## Environment variables
 
