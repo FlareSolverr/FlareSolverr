@@ -13,6 +13,10 @@ from dtos import V1RequestBase
 import flaresolverr_service
 import utils
 
+env_proxy_url = os.environ.get('PROXY_URL', None)
+env_proxy_username = os.environ.get('PROXY_USERNAME', None)
+env_proxy_password = os.environ.get('PROXY_PASSWORD', None)
+
 
 class JSONErrorBottle(Bottle):
     """
@@ -50,7 +54,14 @@ def controller_v1():
     """
     Controller v1
     """
-    req = V1RequestBase(request.json)
+    data = request.json or {}
+    if (('proxy' not in data or not data.get('proxy')) and env_proxy_url is not None and (env_proxy_username is None and env_proxy_password is None)):
+        logging.info('Using proxy URL ENV')
+        data['proxy'] = {"url": env_proxy_url}
+    if (('proxy' not in data or not data.get('proxy')) and env_proxy_url is not None and (env_proxy_username is not None or env_proxy_password is not None)):
+        logging.info('Using proxy URL, username & password ENVs')
+        data['proxy'] = {"url": env_proxy_url, "username": env_proxy_username, "password": env_proxy_password}
+    req = V1RequestBase(data)
     res = flaresolverr_service.controller_v1_endpoint(req)
     if res.__error_500__:
         response.status = 500
