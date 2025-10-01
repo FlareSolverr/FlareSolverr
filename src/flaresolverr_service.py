@@ -403,10 +403,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
     post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
+    query_string = req.postData if req.postData and req.postData[0] != '?' else req.postData[1:] if req.postData else ''
     pairs = query_string.split('&')
     for pair in pairs:
-        parts = pair.split('=')
+        parts = pair.split('=', 1)
         # noinspection PyBroadException
         try:
             name = unquote(parts[0])
@@ -416,9 +416,9 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             continue
         # noinspection PyBroadException
         try:
-            value = unquote(parts[1])
+            value = unquote(parts[1]) if len(parts) > 1 else ''
         except Exception:
-            value = parts[1]
+            value = parts[1] if len(parts) > 1 else ''
         post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
     post_form += '</form>'
     html_content = f"""
