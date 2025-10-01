@@ -3,12 +3,14 @@ import platform
 import sys
 import time
 from datetime import timedelta
-from urllib.parse import unquote
+from html import escape
+from urllib.parse import unquote, quote
 
 from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.expected_conditions import (
     presence_of_element_located, staleness_of, title_is)
 from selenium.webdriver.common.action_chains import ActionChains
@@ -40,7 +42,7 @@ CHALLENGE_TITLES = [
 ]
 CHALLENGE_SELECTORS = [
     # Cloudflare
-    '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js',
+    '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js', '#turnstile-wrapper', '.lds-ring',
     # Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
     'td.info #js_info',
     # Fairlane / pararius.com
@@ -119,7 +121,7 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
         logging.warning("Request parameter 'userAgent' was removed in FlareSolverr v2.")
 
     # set default values
-    if req.maxTimeout is None or req.maxTimeout < 1:
+    if req.maxTimeout is None or int(req.maxTimeout) < 1:
         req.maxTimeout = 60000
 
     # execute the command
@@ -220,7 +222,7 @@ def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
 
 
 def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
-    timeout = req.maxTimeout / 1000
+    timeout = int(req.maxTimeout) / 1000
     driver = None
     try:
         if req.session:
@@ -245,6 +247,8 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
         raise Exception('Error solving the challenge. ' + str(e).replace('\n', '\\n'))
     finally:
         if not req.session and driver is not None:
+            if utils.PLATFORM_VERSION == "nt":
+                driver.close()
             driver.quit()
             logging.debug('A used instance of webdriver has been destroyed')
 
@@ -252,18 +256,9 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
 def click_verify(driver: WebDriver):
     try:
         logging.debug("Try to find the Cloudflare verify checkbox...")
-        iframe = driver.find_element(By.XPATH, "//iframe[@title='Widget containing a Cloudflare security challenge']")
-        driver.switch_to.frame(iframe)
-        checkbox = driver.find_element(
-            by=By.XPATH,
-            value='//*[@id="cf-stage"]//label[@class="ctp-checkbox-label"]/input',
-        )
-        if checkbox:
-            actions = ActionChains(driver)
-            actions.move_to_element_with_offset(checkbox, 5, 7)
-            actions.click(checkbox)
-            actions.perform()
-            logging.debug("Cloudflare verify checkbox found and clicked!")
+        actions = ActionChains(driver)
+        actions.pause(5).send_keys(Keys.TAB).pause(1).send_keys(Keys.SPACE).perform()
+        logging.debug("Cloudflare verify checkbox found and clicked!")
     except Exception:
         logging.debug("Cloudflare verify checkbox not found on the page.")
     finally:
@@ -292,13 +287,13 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     res.status = STATUS_OK
     res.message = ""
 
+
     # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
     if method == 'POST':
         _post_request(req, driver)
     else:
         driver.get(req.url)
-        driver.start_session()  # required to bypass Cloudflare
 
     # set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
@@ -311,7 +306,6 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             _post_request(req, driver)
         else:
             driver.get(req.url)
-            driver.start_session()  # required to bypass Cloudflare
 
     # wait for the page
     if utils.get_config_log_html():
@@ -321,7 +315,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     # find access denied titles
     for title in ACCESS_DENIED_TITLES:
-        if title == page_title:
+        if page_title.startswith(title):
             raise Exception('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
     # find access denied selectors
@@ -396,6 +390,11 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
+
+        if req.waitInSeconds and req.waitInSeconds > 0:
+            logging.info("Waiting " + str(req.waitInSeconds) + " seconds before returning the response...")
+            time.sleep(req.waitInSeconds)
+
         challenge_res.response = driver.page_source
 
     res.result = challenge_res
@@ -404,10 +403,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
     post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
+    query_string = req.postData if req.postData and req.postData[0] != '?' else req.postData[1:] if req.postData else ''
     pairs = query_string.split('&')
     for pair in pairs:
-        parts = pair.split('=')
+        parts = pair.split('=', 1)
         # noinspection PyBroadException
         try:
             name = unquote(parts[0])
@@ -417,13 +416,12 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             continue
         # noinspection PyBroadException
         try:
-            value = unquote(parts[1])
+            value = unquote(parts[1]) if len(parts) > 1 else ''
         except Exception:
-            value = parts[1]
+            value = parts[1] if len(parts) > 1 else ''
         # Protection of " character, for syntax
         value=value.replace('"','&quot;')
-
-        post_form += f'<input type="text" name="{name}" value="{value}"><br>'
+        post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
     post_form += '</form>'
     html_content = f"""
         <!DOCTYPE html>
@@ -433,5 +431,4 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             <script>document.getElementById('hackForm').submit();</script>
         </body>
         </html>"""
-    driver.get("data:text/html;charset=utf-8," + html_content)
-    driver.start_session()  # required to bypass Cloudflare
+    driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))

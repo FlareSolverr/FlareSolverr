@@ -17,11 +17,12 @@ by UltrafunkAmsterdam (https://github.com/ultrafunkamsterdam)
 from __future__ import annotations
 
 
-__version__ = "3.5.0"
+__version__ = "3.5.5"
 
 import json
 import logging
 import os
+import pathlib
 import re
 import shutil
 import subprocess
@@ -373,6 +374,18 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
                 browser_executable_path or find_chrome_executable()
             )
 
+        if not options.binary_location or not \
+                pathlib.Path(options.binary_location).exists():
+                raise FileNotFoundError(
+                    "\n---------------------\n"
+                    "Could not determine browser executable."
+                    "\n---------------------\n"
+                    "Make sure your browser is installed in the default location (path).\n"
+                    "If you are sure about the browser executable, you can specify it using\n"
+                    "the `browser_executable_path='{}` parameter.\n\n"
+                    .format("/path/to/browser/executable" if IS_POSIX else "c:/path/to/your/browser.exe")
+                )
+
         self._delay = 3
 
         self.user_data_dir = user_data_dir
@@ -383,7 +396,7 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
         if no_sandbox:
             options.arguments.extend(["--no-sandbox", "--test-type"])
 
-        if headless or options.headless:
+        if headless or getattr(options, 'headless', None):
             #workaround until a better checking is found
             try:
                 v_main = int(self.patcher.version_main) if self.patcher.version_main else 108
@@ -438,8 +451,10 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
                 options.binary_location, *options.arguments
             )
         else:
-            startupinfo = subprocess.STARTUPINFO()
+            startupinfo = None
             if os.name == 'nt' and windows_headless:
+                # STARTUPINFO() is Windows only
+                startupinfo = subprocess.STARTUPINFO()
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             browser = subprocess.Popen(
                 [options.binary_location, *options.arguments],
@@ -451,14 +466,12 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             )
             self.browser_pid = browser.pid
 
-        # Fix for Chrome 115
-        # https://github.com/seleniumbase/SeleniumBase/pull/1967
+
         service = selenium.webdriver.chromium.service.ChromiumService(
-            executable_path=self.patcher.executable_path,
-            service_args=["--disable-build-check"]
+            self.patcher.executable_path
         )
 
-        super(Chrome, self).__init__(
+        super().__init__(
             service=service,
             options=options,
             keep_alive=keep_alive,
@@ -480,7 +493,7 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
         else:
             self._web_element_cls = WebElement
 
-        if options.headless:
+        if headless or getattr(options, 'headless', None):
             self._configure_headless()
 
     def _configure_headless(self):
@@ -494,8 +507,6 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
                     "Page.addScriptToEvaluateOnNewDocument",
                     {
                         "source": """
-
-                           Object.defineProperty(window, "navigator", {
                                 Object.defineProperty(window, "navigator", {
                                   value: new Proxy(navigator, {
                                     has: (target, key) => (key === "webdriver" ? false : key in target),
@@ -716,10 +727,8 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
     def start_session(self, capabilities=None, browser_profile=None):
         if not capabilities:
             capabilities = self.options.to_capabilities()
-        super(selenium.webdriver.chrome.webdriver.WebDriver, self).start_session(
-            capabilities
-        )
-        # super(Chrome, self).start_session(capabilities, browser_profile)
+        super().start_session(capabilities)
+        # super(Chrome, self).start_session(capabilities, browser_profile) # Original explicit call commented out
 
     def find_elements_recursive(self, by, value):
         """
@@ -758,7 +767,9 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
 
     def quit(self):
         try:
+            self.service.stop()
             self.service.process.kill()
+            self.command_executor.close()
             self.service.process.wait(5)
             logger.debug("webdriver process ended")
         except (AttributeError, RuntimeError, OSError):
@@ -773,15 +784,6 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             logger.debug("gracefully closed browser")
         except Exception as e:  # noqa
             pass
-        # Force kill Chrome process in Windows
-        # https://github.com/FlareSolverr/FlareSolverr/issues/772
-        if os.name == 'nt':
-            try:
-                subprocess.call(['taskkill', '/f', '/pid', str(self.browser_pid)],
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL)
-            except Exception:
-                pass
         if (
             hasattr(self, "keep_user_data_dir")
             and hasattr(self, "user_data_dir")
@@ -800,7 +802,11 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
                 else:
                     logger.debug("successfully removed %s" % self.user_data_dir)
                     break
-                time.sleep(0.1)
+
+                try:
+                    time.sleep(0.1)
+                except OSError:
+                    pass
 
         # dereference patcher, so patcher can start cleaning up as well.
         # this must come last, otherwise it will throw 'in use' errors
@@ -895,8 +901,6 @@ def find_chrome_executable():
             if item is not None:
                 for subitem in (
                     "Google/Chrome/Application",
-                    "Google/Chrome Beta/Application",
-                    "Google/Chrome Canary/Application",
                 ):
                     candidates.add(os.sep.join((item, subitem, "chrome.exe")))
     for candidate in candidates:
