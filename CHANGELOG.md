@@ -1,5 +1,32 @@
 # Changelog
 
+## v3.4.1 (2025/09/15)
+* Fix regex pattern syntax in utils.py
+* Change access denied title check to use startswith
+
+## v3.4.0 (2025/08/25)
+* Modernize and upgrade application. Thanks @TheCrazyLex
+* Remove disable software rasterizer option for ARM builds. Thanks @smrodman83
+
+## v3.3.25 (2025/06/14)
+* Remove `use-gl` argument. Thanks @qwerty12
+* u_c: remove apparent c&p typo. Thanks @ok3721
+* Bump requirements
+
+## v3.3.24 (2025/06/04)
+* Remove hidden character
+
+## v3.3.23 (2025/06/04)
+* Update base image to bookworm. Thanks @rwjack
+
+## v3.3.22 (2025/06/03)
+* Disable search engine choice screen
+* Fix headless=false stalling. Thanks @MAKMED1337
+* Change from click to keys. Thanks @sh4dowb
+* Don't open devtools
+* Bump Chromium to v137 for build
+* Bump requirements
+
 ## v3.3.21 (2024/06/26)
 * Add challenge selector to catch reloading page on non-English systems
 * Escape values for generated form used in request.post. Thanks @mynameisbogdan

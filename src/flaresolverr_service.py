@@ -10,6 +10,7 @@ from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.expected_conditions import (
     presence_of_element_located, staleness_of, title_is)
 from selenium.webdriver.common.action_chains import ActionChains
@@ -255,18 +256,9 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
 def click_verify(driver: WebDriver):
     try:
         logging.debug("Try to find the Cloudflare verify checkbox...")
-        iframe = driver.find_element(By.XPATH, "//iframe[starts-with(@id, 'cf-chl-widget-')]")
-        driver.switch_to.frame(iframe)
-        checkbox = driver.find_element(
-            by=By.XPATH,
-            value='//*[@id="content"]/div/div/label/input',
-        )
-        if checkbox:
-            actions = ActionChains(driver)
-            actions.move_to_element_with_offset(checkbox, 5, 7)
-            actions.click(checkbox)
-            actions.perform()
-            logging.debug("Cloudflare verify checkbox found and clicked!")
+        actions = ActionChains(driver)
+        actions.pause(5).send_keys(Keys.TAB).pause(1).send_keys(Keys.SPACE).perform()
+        logging.debug("Cloudflare verify checkbox found and clicked!")
     except Exception:
         logging.debug("Cloudflare verify checkbox not found on the page.")
     finally:
@@ -290,22 +282,6 @@ def click_verify(driver: WebDriver):
     time.sleep(2)
 
 
-def get_correct_window(driver: WebDriver) -> WebDriver:
-    if len(driver.window_handles) > 1:
-        for window_handle in driver.window_handles:
-            driver.switch_to.window(window_handle)
-            current_url = driver.current_url
-            if not current_url.startswith("devtools://devtools"):
-                return driver
-    return driver
-
-
-def access_page(driver: WebDriver, url: str) -> None:
-    driver.get(url)
-    driver.start_session()
-    driver.start_session()  # required to bypass Cloudflare
-
-
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
@@ -317,8 +293,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     if method == 'POST':
         _post_request(req, driver)
     else:
-        access_page(driver, req.url)
-    driver = get_correct_window(driver)
+        driver.get(req.url)
 
     # set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
@@ -330,8 +305,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         if method == 'POST':
             _post_request(req, driver)
         else:
-            access_page(driver, req.url)
-        driver = get_correct_window(driver)
+            driver.get(req.url)
 
     # wait for the page
     if utils.get_config_log_html():
@@ -341,7 +315,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     # find access denied titles
     for title in ACCESS_DENIED_TITLES:
-        if title == page_title:
+        if page_title.startswith(title):
             raise Exception('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
     # find access denied selectors
@@ -416,6 +390,11 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
+
+        if req.waitInSeconds and req.waitInSeconds > 0:
+            logging.info("Waiting " + str(req.waitInSeconds) + " seconds before returning the response...")
+            time.sleep(req.waitInSeconds)
+
         challenge_res.response = driver.page_source
 
     if req.returnScreenshot:
@@ -427,10 +406,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
     post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
+    query_string = req.postData if req.postData and req.postData[0] != '?' else req.postData[1:] if req.postData else ''
     pairs = query_string.split('&')
     for pair in pairs:
-        parts = pair.split('=')
+        parts = pair.split('=', 1)
         # noinspection PyBroadException
         try:
             name = unquote(parts[0])
@@ -440,9 +419,11 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             continue
         # noinspection PyBroadException
         try:
-            value = unquote(parts[1])
+            value = unquote(parts[1]) if len(parts) > 1 else ''
         except Exception:
-            value = parts[1]
+            value = parts[1] if len(parts) > 1 else ''
+        # Protection of " character, for syntax
+        value=value.replace('"','&quot;')
         post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
     post_form += '</form>'
     html_content = f"""
@@ -454,5 +435,3 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
         </body>
         </html>"""
     driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
-    driver.start_session()
-    driver.start_session()  # required to bypass Cloudflare
