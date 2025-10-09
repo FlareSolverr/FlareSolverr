@@ -87,6 +87,7 @@ if __name__ == "__main__":
 
     # validate configuration
     log_level = os.environ.get('LOG_LEVEL', 'info').upper()
+    log_file = os.environ.get('LOG_FILE', None)
     log_html = utils.get_config_log_html()
     headless = utils.get_config_headless()
     server_host = os.environ.get('HOST', '0.0.0.0')
@@ -104,6 +105,13 @@ if __name__ == "__main__":
             logging.StreamHandler(sys.stdout)
         ]
     )
+    if log_file:
+        log_file = os.path.realpath(log_file)
+        log_path = os.path.dirname(log_file)
+        os.makedirs(log_path, exist_ok=True)
+
+        logging.getLogger().addHandler(logging.FileHandler(log_file))
+
     # disable warning traces from urllib3
     logging.getLogger('urllib3').setLevel(logging.ERROR)
     logging.getLogger('selenium.webdriver.remote.remote_connection').setLevel(logging.WARNING)
