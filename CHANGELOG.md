@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.4.2 (2025/10/09)
+* Bump dependencies & CI actions. Thanks @flowerey
+* Add optional wait time after resolving the challenge before returning. Thanks @kennedyoliveira
+* Add proxy ENVs. Thanks @Robokishan
+* Handle empty string and keys without value in postData. Thanks @eZ4RK0
+* Add quote protection for password containing it. Thanks @warrenberberd
+* Add returnScreenshot parameter to screenshot the final web page. Thanks @estebanthi
+* Add log file support. Thanks @acg5159
+
 ## v3.4.1 (2025/09/15)
 * Fix regex pattern syntax in utils.py
 * Change access denied title check to use startswith
