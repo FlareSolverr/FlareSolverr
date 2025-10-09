@@ -95,8 +95,6 @@ if __name__ == "__main__":
         ]
     )
     if log_file:
-        if not log_file.startswith("/config"):
-            log_file = "/config/" + log_file
         log_file = os.path.realpath(log_file)
         log_path = os.path.dirname(log_file)
         os.makedirs(log_path, exist_ok=True)
