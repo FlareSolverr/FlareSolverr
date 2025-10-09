@@ -7,7 +7,7 @@ services:
     container_name: flaresolverr
     environment:
       - LOG_LEVEL=${LOG_LEVEL:-info}
-      - LOG_FILE=flaresolver.log
+      - LOG_FILE=${LOG_FILE:-none}
       - LOG_HTML=${LOG_HTML:-false}
       - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
       - TZ=Europe/London
