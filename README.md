@@ -264,7 +264,7 @@ This is the same as `request.get` but it takes one more param:
 | Name               | Default                | Notes                                                                                                                                                         |
 |--------------------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | LOG_LEVEL          | info                   | Verbosity of the logging. Use `LOG_LEVEL=debug` for more information.                                                                                         |
-| LOG_FILE           | none                   | Capture log to file.                                                                                                                                          |
+| LOG_FILE           | none                   | Path to capture log to file. Example: `/config/flaresolver.log`.                                                                                              |
 | LOG_HTML           | false                  | Only for debugging. If `true` all HTML that passes through the proxy will be logged to the console in `debug` level.                                          |
 | CAPTCHA_SOLVER     | none                   | Captcha solving method. It is used when a captcha is encountered. See the Captcha Solvers section.                                                            |
 | TZ                 | UTC                    | Timezone used in the logs and the web browser. Example: `TZ=Europe/London`.                                                                                   |
@@ -323,3 +323,4 @@ to the file name of one of the adapters inside the `/captcha` directory.
 ## Related projects
 
 * C# implementation => https://github.com/FlareSolverr/FlareSolverrSharp
+
