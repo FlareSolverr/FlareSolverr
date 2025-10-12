@@ -1,5 +1,6 @@
 import unittest
 from typing import Optional
+import json
 
 from webtest import TestApp
 
@@ -459,11 +460,47 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual(STATUS_OK, body.status)
         self.assertEqual("Challenge not detected!", body.message)
 
+    def test_v1_endpoint_request_get_custom_headers(self):
+        res = self.app.post_json('/v1', {
+            "cmd": "request.get",
+            "url": "https://httpbin.org/headers",
+            "headers": [
+                {
+                    "name": "X-Test-Header",
+                    "value": "HeaderValue"
+                }
+            ]
+        })
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+        self.assertEqual("Challenge not detected!", body.message)
+        self.assertGreater(body.startTimestamp, 10000)
+        self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
+
+        solution = body.solution
+        self.assertIn("https://httpbin.org/headers", solution.url)
+        self.assertEqual(solution.status, 200)
+        self.assertIs(len(solution.headers), 0)
+        self.assertIsInstance(solution.cookies, list)
+        self.assertIn("Chrome/", solution.userAgent)
+
+        response_json = json.loads(solution.response)
+        self.assertEqual("HeaderValue", response_json["headers"]["X-Test-Header"])
+
     def test_v1_endpoint_request_post_no_cloudflare(self):
         res = self.app.post_json('/v1', {
             "cmd": "request.post",
             "url": self.post_url,
-            "postData": "param1=value1&param2=value2"
+            "postData": "param1=value1&param2=value2",
+            "headers": [
+                {
+                    "name": "X-Test-Post",
+                    "value": "HeaderValue"
+                }
+            ]
         })
         self.assertEqual(res.status_code, 200)
 
@@ -478,9 +515,17 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertIn(self.post_url, solution.url)
         self.assertEqual(solution.status, 200)
         self.assertIs(len(solution.headers), 0)
-        self.assertIn('"form": {\n    "param1": "value1", \n    "param2": "value2"\n  }', solution.response)
+        response_json = json.loads(solution.response)
+        self.assertEqual("value1", response_json["form"]["param1"])
+        self.assertEqual("value2", response_json["form"]["param2"])
+        self.assertEqual("HeaderValue", response_json["headers"]["X-Test-Post"])
         self.assertEqual(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
+
+        response_json = json.loads(solution.response)
+        self.assertEqual("value1", response_json["form"]["param1"])
+        self.assertEqual("value2", response_json["form"]["param2"])
+        self.assertEqual("HeaderValue", response_json["headers"]["X-Test-Post"])
 
     def test_v1_endpoint_request_post_cloudflare(self):
         res = self.app.post_json('/v1', {
