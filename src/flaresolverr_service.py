@@ -139,10 +139,87 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
         res = _cmd_request_get(req)
     elif req.cmd == 'request.post':
         res = _cmd_request_post(req)
+    elif req.cmd == 'request.delete':
+        res = _cmd_request_delete(req)
     else:
         raise Exception(f"Request parameter 'cmd' = '{req.cmd}' is invalid.")
 
     return res
+
+
+def _delete_request(req: V1RequestBase, driver: WebDriver):
+    try:
+        headers = getattr(req, 'headers', {})
+
+        try:
+            driver.get(req.url)
+            time.sleep(2)
+
+            page_source = driver.page_source.lower()
+            if any(term in page_source for term in
+                   ['cloudflare', 'checking your browser', 'ddos protection', 'please wait']):
+                logging.info("Protection detected, waiting for bypass...")
+                time.sleep(5)
+        except Exception as e:
+            logging.warning(f"Could not load target page directly: {e}")
+
+        headers_js_lines = []
+        if headers:
+            for header_name, header_value in headers.items():
+                escaped_value = str(header_value).replace("'", "\\'")
+                headers_js_lines.append(f"xhr.setRequestHeader('{header_name}', '{escaped_value}');")
+
+        headers_js = '\n            '.join(headers_js_lines)
+
+        script = f"""
+        var xhr = new XMLHttpRequest();
+        xhr.open('DELETE', '{req.url}', false);
+        {headers_js}
+
+        try {{
+            xhr.send();
+            return {{
+                status: xhr.status,
+                statusText: xhr.statusText,
+                responseText: xhr.responseText,
+                success: true
+            }};
+        }} catch (error) {{
+            return {{
+                status: 0,
+                statusText: error.message,
+                responseText: '',
+                success: false,
+                error: error.message
+            }};
+        }}
+        """
+
+        try:
+            result = driver.execute_script(script)
+
+            if result and result.get('success'):
+                response_text = result.get('responseText', '')
+                status_code = result.get('status', 0)
+
+                logging.info(f"DELETE request completed with status: {status_code}")
+
+                return response_text
+            else:
+                error_msg = result.get('statusText', 'Unknown error') if result else 'Script execution failed'
+                error_detail = result.get('error', '') if result else ''
+                logging.error(f"XHR request failed: {error_msg} - {error_detail}")
+                raise Exception(f"DELETE request failed: {error_msg}")
+
+        except Exception as script_error:
+            logging.error(f"Script execution error: {script_error}")
+            raise
+
+    except Exception as e:
+        logging.error(f"ERROR in _delete_request: {e}")
+        logging.error(f"Error type: {type(e)}")
+        logging.error(f"Traceback: {traceback.format_exc()}")
+        raise
 
 
 def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
@@ -180,6 +257,24 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
         logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
 
     challenge_res = _resolve_challenge(req, 'POST')
+    res = V1ResponseBase({})
+    res.status = challenge_res.status
+    res.message = challenge_res.message
+    res.solution = challenge_res.result
+    return res
+
+def _cmd_request_delete(req: V1RequestBase) -> V1ResponseBase:
+    # do some validations
+    if req.url is None:
+        raise Exception("Request parameter 'url' is mandatory in 'request.delete' command.")
+    if req.postData is not None:
+        logging.warning("Request parameter 'postData' is not typically used with DELETE requests.")
+    if req.returnRawHtml is not None:
+        logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
+    if req.download is not None:
+        logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
+
+    challenge_res = _resolve_challenge(req, 'DELETE')
     res = V1ResponseBase({})
     res.status = challenge_res.status
     res.message = challenge_res.message
@@ -318,6 +413,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     logging.debug(f'Navigating to... {req.url}')
     if method == 'POST':
         res.response = _post_request(req, driver)
+    elif method == 'DELETE':
+        res.response = _delete_request(req, driver)
     else:
         driver.get(req.url)
 
