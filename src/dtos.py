@@ -10,6 +10,7 @@ class ChallengeResolutionResultT:
     response: str = None
     cookies: list = None
     userAgent: str = None
+    screenshot: str | None = None
 
     def __init__(self, _dict):
         self.__dict__.update(_dict)
@@ -35,7 +36,6 @@ class V1RequestBase(object):
     proxy: dict = None
     session: str = None
     session_ttl_minutes: int = None
-    headers: list = None  # deprecated v2.0.0, not used
     userAgent: str = None  # deprecated v2.0.0, not used
 
     # V1Request
@@ -44,8 +44,10 @@ class V1RequestBase(object):
     postData: str = None
     headers: dict = None
     returnOnlyCookies: bool = None
+    returnScreenshot: bool = None
     download: bool = None   # deprecated v2.0.0, not used
     returnRawHtml: bool = None  # deprecated v2.0.0, not used
+    waitInSeconds: int = None
 
     def __init__(self, _dict):
         self.__dict__.update(_dict)

@@ -45,7 +45,8 @@ CHALLENGE_TITLES = [
 ]
 CHALLENGE_SELECTORS = [
     # Cloudflare
-    '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js', '#turnstile-wrapper', '.lds-ring',
+    '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js',
+    '#turnstile-wrapper', '.lds-ring',
     # Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
     'td.info #js_info',
     # Fairlane / pararius.com
@@ -115,19 +116,18 @@ def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
 
 
 def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
-    # do some validations
+    """Main request handler that routes commands to appropriate handlers."""
+    # Validate required parameters
     if req.cmd is None:
         raise Exception("Request parameter 'cmd' is mandatory.")
-    if req.headers is not None:
-        logging.warning("Request parameter 'headers' was removed in FlareSolverr v2.")
     if req.userAgent is not None:
         logging.warning("Request parameter 'userAgent' was removed in FlareSolverr v2.")
 
-    # set default values
+    # Set default values
     if req.maxTimeout is None or int(req.maxTimeout) < 1:
         req.maxTimeout = 60000
 
-    # execute the command
+    # Route command to appropriate handler
     res: V1ResponseBase
     if req.cmd == 'sessions.create':
         res = _cmd_sessions_create(req)
@@ -147,11 +147,188 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
     return res
 
 
-def _delete_request(req: V1RequestBase, driver: WebDriver):
-    try:
-        headers = getattr(req, 'headers', {})
+def _execute_xhr_request(driver: WebDriver, method: str, url: str, headers: dict = None, body: str = None) -> dict:
+    """
+    Execute an XHR request with custom headers and body using JavaScript.
 
+    Args:
+        driver: Selenium WebDriver instance
+        method: HTTP method (GET, POST, DELETE, etc.)
+        url: Target URL
+        headers: Optional dictionary of HTTP headers
+        body: Optional request body (for POST/DELETE)
+
+    Returns:
+        dict: Response data with status, responseText, and success flag
+    """
+    # Build headers JavaScript code
+    headers_js_lines = []
+    if headers:
+        for header_name, header_value in headers.items():
+            escaped_value = str(header_value).replace("'", "\\'")
+            headers_js_lines.append(f"xhr.setRequestHeader('{header_name}', '{escaped_value}');")
+
+    headers_js = '\n            '.join(headers_js_lines)
+
+    # Prepare body
+    body_js = "null"
+    if body:
+        escaped_body = body.replace("'", "\\'")
+        body_js = f"'{escaped_body}'"
+
+    # Execute XHR request
+    script = f"""
+    var xhr = new XMLHttpRequest();
+    xhr.open('{method}', '{url}', false);
+    {headers_js}
+
+    try {{
+        xhr.send({body_js});
+        return {{
+            status: xhr.status,
+            statusText: xhr.statusText,
+            responseText: xhr.responseText,
+            success: true
+        }};
+    }} catch (error) {{
+        return {{
+            status: 0,
+            statusText: error.message,
+            responseText: '',
+            success: false,
+            error: error.message
+        }};
+    }}
+    """
+
+    result = driver.execute_script(script)
+
+    if result and result.get('success'):
+        logging.info(f"{method} request completed with status: {result.get('status', 0)}")
+        logging.debug(f"{method} response: {result.get('responseText', '')[:500]}")
+    else:
+        error_msg = result.get('statusText', 'Unknown error') if result else 'Script execution failed'
+        error_detail = result.get('error', '') if result else ''
+        logging.error(f"XHR request failed: {error_msg} - {error_detail}")
+        raise Exception(f"{method} request failed: {error_msg}")
+
+    return result
+
+
+def get_with_params(req: V1RequestBase, driver: WebDriver) -> str:
+    """
+    Execute GET request with custom headers using XHR.
+    Used when custom headers are provided.
+
+    Args:
+        req: Request object containing URL and headers
+        driver: Selenium WebDriver instance
+
+    Returns:
+        str: Response text
+    """
+    headers = getattr(req, 'headers', {})
+
+    try:
+        # Load blank page to have a context for XHR
+        driver.get("about:blank")
+        time.sleep(1)
+    except Exception as e:
+        logging.warning(f"Could not load blank page: {e}")
+
+    result = _execute_xhr_request(driver, 'GET', req.url, headers)
+
+    # Write response to document
+    try:
+        driver.execute_script(f"""
+            document.open();
+            document.write(arguments[0]);
+            document.close();
+        """, result.get('responseText', ''))
+        time.sleep(1)
+    except Exception as e:
+        logging.warning(f"Could not write response to document: {e}")
+
+    return result.get('responseText', '')
+
+
+def delete_with_params(req: V1RequestBase, driver: WebDriver) -> str:
+    """
+    Execute DELETE request with custom headers and optional body using XHR.
+    Loads the target page first to bypass protection mechanisms.
+
+    Args:
+        req: Request object containing URL, headers, and optional postData
+        driver: Selenium WebDriver instance
+
+    Returns:
+        str: Response text
+    """
+    headers = getattr(req, 'headers', {})
+    post_data = getattr(req, 'postData', None)
+
+    # Load target page first to bypass protection
+    try:
+        driver.get(req.url)
+        time.sleep(2)
+
+        page_source = driver.page_source.lower()
+        if any(term in page_source for term in
+               ['cloudflare', 'checking your browser', 'ddos protection', 'please wait']):
+            logging.info("Protection detected, waiting for bypass...")
+            time.sleep(5)
+    except Exception as e:
+        logging.warning(f"Could not load target page directly: {e}")
+
+    # Prepare body if provided
+    body = None
+    if post_data:
+        if isinstance(post_data, str):
+            body = post_data
+        else:
+            body = json.dumps(post_data)
+
+    result = _execute_xhr_request(driver, 'DELETE', req.url, headers, body)
+    return result.get('responseText', '')
+
+
+def post_with_params(req: V1RequestBase, driver: WebDriver) -> str:
+    """
+    Execute POST request with custom headers and body using XHR.
+    Supports both JSON and form-encoded data based on Content-Type header.
+
+    Args:
+        req: Request object containing URL, headers, and postData
+        driver: Selenium WebDriver instance
+
+    Returns:
+        str: Response text
+    """
+    headers = getattr(req, 'headers', {})
+
+    # Determine content type from headers
+    content_type = None
+    if headers:
+        for header_name, header_value in headers.items():
+            if header_name.lower() == 'content-type':
+                content_type = header_value.lower()
+                break
+
+    # Fallback to deprecated contentType parameter if no Content-Type header
+    if not content_type:
+        content_type = getattr(req, 'contentType', 'application/x-www-form-urlencoded')
+        # Add Content-Type to headers if not present
+        if not headers:
+            headers = {}
+        headers['Content-Type'] = content_type
+
+    if not req.postData:
+        raise Exception("postData is empty for POST request")
+
+    if 'application/json' in content_type:
+        # Handle JSON POST request
         try:
+            # Load target page first to bypass protection
             driver.get(req.url)
             time.sleep(2)
 
@@ -163,75 +340,80 @@ def _delete_request(req: V1RequestBase, driver: WebDriver):
         except Exception as e:
             logging.warning(f"Could not load target page directly: {e}")
 
-        headers_js_lines = []
+        # Parse and prepare JSON data
+        try:
+            if isinstance(req.postData, str):
+                post_data = json.loads(req.postData)
+            else:
+                post_data = req.postData
+        except json.JSONDecodeError as e:
+            logging.error(f"JSON parsing failed: {e}")
+            raise Exception(f"Invalid JSON in postData: {e}")
+
+        json_body = json.dumps(post_data)
+        result = _execute_xhr_request(driver, 'POST', req.url, headers, json_body)
+        return result.get('responseText', '')
+
+    elif 'application/x-www-form-urlencoded' in content_type:
+        # Handle form-encoded POST request using HTML form submission
+        headers_meta = ""
         if headers:
             for header_name, header_value in headers.items():
-                escaped_value = str(header_value).replace("'", "\\'")
-                headers_js_lines.append(f"xhr.setRequestHeader('{header_name}', '{escaped_value}');")
+                if header_name.lower() != 'content-type':
+                    headers_meta += f'<meta http-equiv="{header_name}" content="{header_value}">'
 
-        headers_js = '\n            '.join(headers_js_lines)
+        post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
+        query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
+        pairs = query_string.split('&')
 
-        script = f"""
-        var xhr = new XMLHttpRequest();
-        xhr.open('DELETE', '{req.url}', false);
-        {headers_js}
+        for pair in pairs:
+            if '=' not in pair:
+                continue
+            parts = pair.split('=', 1)
+            try:
+                name = unquote(parts[0])
+            except:
+                name = parts[0]
+            if name == 'submit':
+                continue
+            try:
+                value = unquote(parts[1]) if len(parts) > 1 else ''
+            except:
+                value = parts[1] if len(parts) > 1 else ''
+            post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
 
-        try {{
-            xhr.send();
-            return {{
-                status: xhr.status,
-                statusText: xhr.statusText,
-                responseText: xhr.responseText,
-                success: true
-            }};
-        }} catch (error) {{
-            return {{
-                status: 0,
-                statusText: error.message,
-                responseText: '',
-                success: false,
-                error: error.message
-            }};
-        }}
-        """
-
-        try:
-            result = driver.execute_script(script)
-
-            if result and result.get('success'):
-                response_text = result.get('responseText', '')
-                status_code = result.get('status', 0)
-
-                logging.info(f"DELETE request completed with status: {status_code}")
-
-                return response_text
-            else:
-                error_msg = result.get('statusText', 'Unknown error') if result else 'Script execution failed'
-                error_detail = result.get('error', '') if result else ''
-                logging.error(f"XHR request failed: {error_msg} - {error_detail}")
-                raise Exception(f"DELETE request failed: {error_msg}")
-
-        except Exception as script_error:
-            logging.error(f"Script execution error: {script_error}")
-            raise
-
-    except Exception as e:
-        logging.error(f"ERROR in _delete_request: {e}")
-        logging.error(f"Error type: {type(e)}")
-        logging.error(f"Traceback: {traceback.format_exc()}")
-        raise
+        post_form += '</form>'
+        html_content = f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    {headers_meta}
+                </head>
+                <body>
+                    {post_form}
+                    <script>document.getElementById('hackForm').submit();</script>
+                </body>
+                </html>"""
+        driver.get(f"data:text/html;charset=utf-8,{html_content}")
+        return "Success"
+    else:
+        raise Exception(
+            f"Unsupported Content-Type: '{content_type}'. Supported: 'application/json', 'application/x-www-form-urlencoded'")
 
 
 def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
-    # do some validations
+    """
+    Handle GET request command.
+    Uses standard driver.get() for simple requests.
+    Uses XHR when custom headers are provided.
+    """
+    # Validate parameters
     if req.url is None:
         raise Exception("Request parameter 'url' is mandatory in 'request.get' command.")
     if req.postData is not None:
-        raise Exception("Cannot use 'postBody' when sending a GET request.")
+        raise Exception("Cannot use 'postData' when sending a GET request.")
     if req.contentType is not None:
         raise Exception("Cannot use 'contentType' when sending a GET request.")
-    if req.headers is not None:
-        raise Exception("Cannot use 'headers' when sending a GET request.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
@@ -246,11 +428,29 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
 
 
 def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
-    # do some validations
+    """
+    Handle POST request command.
+    Supports both JSON and form-encoded data.
+    Content-Type can be specified via 'headers' parameter or deprecated 'contentType' parameter.
+    """
+    # Validate parameters
     if req.postData is None:
         raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
-    if req.contentType is None:
-        raise Exception("Request parameter 'contentType' is mandatory in 'request.post' command.")
+
+    # Check for Content-Type in headers
+    headers = getattr(req, 'headers', {})
+    has_content_type = False
+    if headers:
+        for header_name in headers.keys():
+            if header_name.lower() == 'content-type':
+                has_content_type = True
+                break
+
+    # If no Content-Type in headers and no contentType parameter, use default
+    if not has_content_type and not hasattr(req, 'contentType'):
+        # Add default contentType
+        req.contentType = 'application/json'
+
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
@@ -263,12 +463,15 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     res.solution = challenge_res.result
     return res
 
+
 def _cmd_request_delete(req: V1RequestBase) -> V1ResponseBase:
-    # do some validations
+    """
+    Handle DELETE request command.
+    Supports optional body and custom headers via XHR.
+    """
+    # Validate parameters
     if req.url is None:
         raise Exception("Request parameter 'url' is mandatory in 'request.delete' command.")
-    if req.postData is not None:
-        logging.warning("Request parameter 'postData' is not typically used with DELETE requests.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
@@ -282,24 +485,8 @@ def _cmd_request_delete(req: V1RequestBase) -> V1ResponseBase:
     return res
 
 
-def _cmd_request_postJSON(req: V1RequestBase) -> V1ResponseBase:
-    # do some validations
-    if req.postData is None:
-        raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
-    if req.returnRawHtml is not None:
-        logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
-    if req.download is not None:
-        logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
-
-    challenge_res = _resolve_challenge(req, 'POSTJSON')
-    res = V1ResponseBase({})
-    res.status = challenge_res.status
-    res.message = challenge_res.message
-    res.solution = challenge_res.result
-    return res
-
-
 def _cmd_sessions_create(req: V1RequestBase) -> V1ResponseBase:
+    """Create a new session or return existing one."""
     logging.debug("Creating new session...")
 
     session, fresh = SESSIONS_STORAGE.create(session_id=req.session, proxy=req.proxy)
@@ -320,6 +507,7 @@ def _cmd_sessions_create(req: V1RequestBase) -> V1ResponseBase:
 
 
 def _cmd_sessions_list(req: V1RequestBase) -> V1ResponseBase:
+    """List all active session IDs."""
     session_ids = SESSIONS_STORAGE.session_ids()
 
     return V1ResponseBase({
@@ -330,6 +518,7 @@ def _cmd_sessions_list(req: V1RequestBase) -> V1ResponseBase:
 
 
 def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
+    """Destroy an existing session."""
     session_id = req.session
     existed = SESSIONS_STORAGE.destroy(session_id)
 
@@ -343,6 +532,10 @@ def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
 
 
 def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
+    """
+    Main challenge resolution handler.
+    Manages WebDriver lifecycle and executes request with timeout.
+    """
     timeout = int(req.maxTimeout) / 1000
     driver = None
     try:
@@ -352,9 +545,9 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
             session, fresh = SESSIONS_STORAGE.get(session_id, ttl)
 
             if fresh:
-                logging.debug(f"new session created to perform the request (session_id={session_id})")
+                logging.debug(f"New session created to perform the request (session_id={session_id})")
             else:
-                logging.debug(f"existing session is used to perform the request (session_id={session_id}, "
+                logging.debug(f"Existing session is used to perform the request (session_id={session_id}, "
                               f"lifetime={str(session.lifetime())}, ttl={str(ttl)})")
 
             driver = session.driver
@@ -375,6 +568,7 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
 
 
 def click_verify(driver: WebDriver):
+    """Attempt to click Cloudflare verification elements."""
     try:
         logging.debug("Try to find the Cloudflare verify checkbox...")
         actions = ActionChains(driver)
@@ -404,59 +598,73 @@ def click_verify(driver: WebDriver):
 
 
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
+    """
+    Core logic for request execution and challenge detection/solving.
+    Handles navigation, cookie management, and Cloudflare challenge detection.
+    """
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
     res.message = ""
 
-
-    # navigate to the page
+    # Navigate to the page based on method and headers
     logging.debug(f'Navigating to... {req.url}')
     if method == 'POST':
-        res.response = _post_request(req, driver)
+        res.response = post_with_params(req, driver)
     elif method == 'DELETE':
-        res.response = _delete_request(req, driver)
+        res.response = delete_with_params(req, driver)
+    elif method == 'GET' and getattr(req, 'headers', None):
+        res.response = get_with_params(req, driver)
     else:
-        driver.get(req.url)
+        try:
+            driver.set_page_load_timeout(90)
+            driver.get(req.url)
+        except TimeoutException:
+            logging.warning(f"Page load timeout for {req.url}, but continuing...")
 
-    # set cookies if required
+    logging.info(f'Current URL after navigation: {driver.current_url}')
+    logging.info(f'Page title: {driver.title}')
+
+    # Set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
         logging.debug(f'Setting cookies...')
         for cookie in req.cookies:
             driver.delete_cookie(cookie['name'])
             driver.add_cookie(cookie)
-        # reload the page
+        # Reload the page
         if method == 'POST':
-            res.response = _post_request(req, driver)
+            res.response = post_with_params(req, driver)
+        elif method == 'DELETE':
+            res.response = delete_with_params(req, driver)
         else:
             driver.get(req.url)
 
-    # wait for the page
+    # Wait for the page
     if utils.get_config_log_html():
         logging.debug(f"Response HTML:\n{driver.page_source}")
     html_element = driver.find_element(By.TAG_NAME, "html")
     page_title = driver.title
 
-    # find access denied titles
+    # Check for access denied
     for title in ACCESS_DENIED_TITLES:
-        if title == page_title:
+        if page_title.startswith(title):
             raise Exception('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
-    # find access denied selectors
+
     for selector in ACCESS_DENIED_SELECTORS:
         found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
         if len(found_elements) > 0:
             raise Exception('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
 
-    # find challenge by title
+    # Detect challenge
     challenge_found = False
     for title in CHALLENGE_TITLES:
         if title.lower() == page_title.lower():
             challenge_found = True
             logging.info("Challenge detected. Title found: " + page_title)
             break
+
     if not challenge_found:
-        # find challenge by selectors
         for selector in CHALLENGE_SELECTORS:
             found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
             if len(found_elements) > 0:
@@ -464,36 +672,34 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
                 logging.info("Challenge detected. Selector found: " + selector)
                 break
 
+    # Solve challenge if found
     attempt = 0
     if challenge_found:
         while True:
             try:
                 attempt = attempt + 1
-                # wait until the title changes
+                # Wait until the title changes
                 for title in CHALLENGE_TITLES:
                     logging.debug("Waiting for title (attempt " + str(attempt) + "): " + title)
                     WebDriverWait(driver, SHORT_TIMEOUT).until_not(title_is(title))
 
-                # then wait until all the selectors disappear
+                # Wait until all the selectors disappear
                 for selector in CHALLENGE_SELECTORS:
                     logging.debug("Waiting for selector (attempt " + str(attempt) + "): " + selector)
                     WebDriverWait(driver, SHORT_TIMEOUT).until_not(
                         presence_of_element_located((By.CSS_SELECTOR, selector)))
 
-                # all elements not found
+                # All elements not found - challenge solved
                 break
 
             except TimeoutException:
                 logging.debug("Timeout waiting for selector")
-
                 click_verify(driver)
-
-                # update the html (cloudflare reloads the page every 5 s)
+                # Update the html (cloudflare reloads the page every 5 s)
                 html_element = driver.find_element(By.TAG_NAME, "html")
 
-        # waits until cloudflare redirection ends
+        # Wait until cloudflare redirection ends
         logging.debug("Waiting for redirect")
-        # noinspection PyBroadException
         try:
             WebDriverWait(driver, SHORT_TIMEOUT).until(staleness_of(html_element))
         except Exception:
@@ -505,159 +711,22 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         logging.info("Challenge not detected!")
         res.message = "Challenge not detected!"
 
+    # Prepare response
     challenge_res = ChallengeResolutionResultT({})
     challenge_res.url = driver.current_url
-    challenge_res.status = 200  # todo: fix, selenium not provides this info
+    challenge_res.status = 200  # TODO: Extract actual status from XHR response
     challenge_res.cookies = driver.get_cookies()
     challenge_res.userAgent = utils.get_user_agent(driver)
 
     if not req.returnOnlyCookies:
-        challenge_res.headers = {}  # todo: fix, selenium not provides this info
+        challenge_res.headers = {}  # TODO: Extract headers from XHR response
+        if req.waitInSeconds and req.waitInSeconds > 0:
+            logging.info("Waiting " + str(req.waitInSeconds) + " seconds before returning the response...")
+            time.sleep(req.waitInSeconds)
         challenge_res.response = driver.page_source
+
+    if req.returnScreenshot:
+        challenge_res.screenshot = driver.get_screenshot_as_base64()
 
     res.result = challenge_res
     return res
-
-
-def _post_request(req: V1RequestBase, driver: WebDriver):
-    try:
-        content_type = getattr(req, 'contentType', 'application/x-www-form-urlencoded')
-        headers = getattr(req, 'headers', {})
-
-        if content_type == 'application/json':
-
-            if not req.postData:
-                raise Exception("postData is empty for JSON request")
-
-            try:
-                if isinstance(req.postData, str):
-                    post_data = json.loads(req.postData)
-                else:
-                    post_data = req.postData
-            except json.JSONDecodeError as e:
-                logging.error(f"JSON parsing failed: {e}")
-                raise Exception(f"Invalid JSON in postData: {e}")
-
-            try:
-                driver.get(req.url)
-
-                time.sleep(2)
-
-                page_source = driver.page_source.lower()
-                if any(term in page_source for term in
-                       ['cloudflare', 'checking your browser', 'ddos protection', 'please wait']):
-                    logging.info("Protection detected, waiting for bypass...")
-                    time.sleep(5)
-
-            except Exception as e:
-                logging.warning(f"Could not load target page directly: {e}")
-
-            json_data_str = json.dumps(post_data)
-            escaped_json = json_data_str.replace("'", "\\'")
-
-            headers_js_lines = ["xhr.setRequestHeader('Content-Type', 'application/json');"]
-
-            if headers:
-                for header_name, header_value in headers.items():
-                    if header_name.lower() != 'content-type':
-                        escaped_value = str(header_value).replace("'", "\\'")
-                        headers_js_lines.append(f"xhr.setRequestHeader('{header_name}', '{escaped_value}');")
-
-            headers_js = '\n            '.join(headers_js_lines)
-
-            script = f"""
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '{req.url}', false);
-            {headers_js}
-
-            try {{
-                xhr.send('{escaped_json}');
-                return {{
-                    status: xhr.status,
-                    statusText: xhr.statusText,
-                    responseText: xhr.responseText,
-                    success: true
-                }};
-            }} catch (error) {{
-                return {{
-                    status: 0,
-                    statusText: error.message,
-                    responseText: '',
-                    success: false,
-                    error: error.message
-                }};
-            }}
-            """
-
-            try:
-                result = driver.execute_script(script)
-
-                if result and result.get('success'):
-                    response_text = result.get('responseText', '')
-                    status_code = result.get('status', 0)
-
-                    logging.info(f"POST request completed with status: {status_code}")
-
-                    return response_text
-                else:
-                    error_msg = result.get('statusText', 'Unknown error') if result else 'Script execution failed'
-                    error_detail = result.get('error', '') if result else ''
-                    logging.error(f"XHR request failed: {error_msg} - {error_detail}")
-                    raise Exception(f"POST request failed: {error_msg}")
-
-            except Exception as script_error:
-                logging.error(f"Script execution error: {script_error}")
-                raise
-
-        elif content_type == 'application/x-www-form-urlencoded':
-
-            headers_meta = ""
-            if headers:
-                for header_name, header_value in headers.items():
-                    if header_name.lower() != 'content-type':
-                        headers_meta += f'<meta http-equiv="{header_name}" content="{header_value}">'
-
-            post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-            query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
-            pairs = query_string.split('&')
-
-            for pair in pairs:
-                if '=' not in pair:
-                    continue
-                parts = pair.split('=', 1)
-                try:
-                    name = unquote(parts[0])
-                except:
-                    name = parts[0]
-                if name == 'submit':
-                    continue
-                try:
-                    value = unquote(parts[1]) if len(parts) > 1 else ''
-                except:
-                    value = parts[1] if len(parts) > 1 else ''
-                post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
-
-            post_form += '</form>'
-            html_content = f"""
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        {headers_meta}
-                    </head>
-                    <body>
-                        {post_form}
-                        <script>document.getElementById('hackForm').submit();</script>
-                    </body>
-                    </html>"""
-            driver.get(f"data:text/html;charset=utf-8,{html_content}")
-            return "Success"
-
-        else:
-            raise Exception(
-                f"Request parameter 'contentType' = '{content_type}' is invalid. Supported: 'application/json', 'application/x-www-form-urlencoded'")
-
-    except Exception as e:
-        logging.error(f"ERROR in _post_request: {e}")
-        logging.error(f"Error type: {type(e)}")
-        logging.error(f"Traceback: {traceback.format_exc()}")
-        raise
