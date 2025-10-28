@@ -58,18 +58,21 @@ def create_proxy_extension(proxy: dict) -> str:
     manifest_json = """
     {
         "version": "1.0.0",
-        "manifest_version": 2,
+        "manifest_version": 3,
         "name": "Chrome Proxy",
         "permissions": [
             "proxy",
             "tabs",
-            "unlimitedStorage",
             "storage",
-            "<all_urls>",
             "webRequest",
-            "webRequestBlocking"
+            "webRequestAuthProvider"
         ],
-        "background": {"scripts": ["background.js"]},
+        "host_permissions": [
+          "<all_urls>"
+        ],
+        "background": {
+          "service_worker": "background.js"
+        },
         "minimum_chrome_version": "76.0.0"
     }
     """
@@ -154,6 +157,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     proxy_extension_dir = None
     if proxy and all(key in proxy for key in ['url', 'username', 'password']):
         proxy_extension_dir = create_proxy_extension(proxy)
+        options.add_argument("--disable-features=DisableLoadExtensionCommandLineSwitch")
         options.add_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
     elif proxy and 'url' in proxy:
         proxy_url = proxy['url']
