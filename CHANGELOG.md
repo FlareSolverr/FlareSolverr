@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.4.3 (2025/10/28)
+* Update proxy extension
+
 ## v3.4.2 (2025/10/09)
 * Bump dependencies & CI actions. Thanks @flowerey
 * Add optional wait time after resolving the challenge before returning. Thanks @kennedyoliveira
