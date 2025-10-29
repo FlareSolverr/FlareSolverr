@@ -6,7 +6,7 @@ from uuid import uuid1
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 
-import utils
+import flaresolverr.utils as utils
 
 
 @dataclass

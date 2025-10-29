@@ -6,12 +6,12 @@ import sys
 import certifi
 from bottle import run, response, Bottle, request, ServerAdapter
 
-from bottle_plugins.error_plugin import error_plugin
-from bottle_plugins.logger_plugin import logger_plugin
-from bottle_plugins import prometheus_plugin
-from dtos import V1RequestBase
-import flaresolverr_service
-import utils
+from .bottle_plugins.error_plugin import error_plugin
+from .bottle_plugins.logger_plugin import logger_plugin
+from .bottle_plugins import prometheus_plugin
+from .dtos import V1RequestBase
+from . import flaresolverr_service 
+from . import utils
 
 env_proxy_url = os.environ.get('PROXY_URL', None)
 env_proxy_username = os.environ.get('PROXY_USERNAME', None)
@@ -68,7 +68,7 @@ def controller_v1():
     return utils.object_to_dict(res)
 
 
-if __name__ == "__main__":
+def main():
     # check python version
     if sys.version_info < (3, 9):
         raise Exception("The Python version is less than 3.9, a version equal to or higher is required.")
