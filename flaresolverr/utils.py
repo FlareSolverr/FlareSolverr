@@ -9,7 +9,7 @@ import tempfile
 import urllib.parse
 
 from selenium.webdriver.chrome.webdriver import WebDriver
-import undetected_chromedriver as uc
+from . import undetected_chromedriver as uc
 
 FLARESOLVERR_VERSION = None
 PLATFORM_VERSION = None
