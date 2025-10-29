@@ -16,11 +16,11 @@ from selenium.webdriver.support.expected_conditions import (
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 
-import utils
-from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
+from . import utils
+from .dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
                   ChallengeResolutionT, HealthResponse, IndexResponse,
                   V1RequestBase, V1ResponseBase)
-from sessions import SessionsStorage
+from .sessions import SessionsStorage
 
 ACCESS_DENIED_TITLES = [
     # Cloudflare
