@@ -87,14 +87,14 @@ This is the recommended way for Windows users.
 - (Only in macOS) Install [XQuartz](https://www.xquartz.org/) package.
 - Clone this repository and open a shell in that path.
 - Run `pip install -r requirements.txt` command to install FlareSolverr dependencies.
-- Run `python src/flaresolverr.py` command to start FlareSolverr.
+- Run `python flaresolverr.py` command to start FlareSolverr.
 
 ### From source code (FreeBSD/TrueNAS CORE)
 
 - Run `pkg install chromium python313 py313-pip xorg-vfbserver` command to install the required dependencies.
 - Clone this repository and open a shell in that path.
 - Run `python3.13 -m pip install -r requirements.txt` command to install FlareSolverr dependencies.
-- Run `python3.13 src/flaresolverr.py` command to start FlareSolverr.
+- Run `python3.13 flaresolverr.py` command to start FlareSolverr.
 
 ### Systemd service
 

@@ -3,9 +3,9 @@ from typing import Optional
 
 from webtest import TestApp
 
-from dtos import IndexResponse, HealthResponse, V1ResponseBase, STATUS_OK, STATUS_ERROR
-import flaresolverr
-import utils
+from .dtos import IndexResponse, HealthResponse, V1ResponseBase, STATUS_OK, STATUS_ERROR
+from . import flaresolverr
+from . import utils
 
 
 def _find_obj_by_key(key: str, value: str, _list: list) -> Optional[dict]:
