@@ -72,6 +72,15 @@ This is the recommended way for Windows users.
 * Download the [FlareSolverr executable](https://github.com/FlareSolverr/FlareSolverr/releases) from the release's page. It is available for Windows x64 and Linux x64.
 * Execute FlareSolverr binary. In the environment variables section you can find how to change the configuration.
 
+### As python package
+
+> **Warning**
+> Chrome or Chromium must be installed on the host system for the Python package to work.
+
+```bash
+pip install flaresolverr
+```
+
 ### From source code
 
 > **Warning**
@@ -260,6 +269,21 @@ This is the same as `request.get` but it takes one more param:
 | Parameter | Notes                                                                    |
 |-----------|--------------------------------------------------------------------------|
 | postData  | Must be a string with `application/x-www-form-urlencoded`. Eg: `a=b&c=d` |
+
+### Usage as python package
+
+```python
+import flaresolverr
+
+flaresolverr.init()
+data = flaresolverr.V1RequestBase({
+  "url": "http://www.google.com/",
+  "maxTimeout": 60000
+})
+solution = flaresolverr.resolve_challenge(data, "GET")
+print(solution.result.response)
+print(solution.result.cookies)
+```
 
 ## Environment variables
 
