@@ -153,7 +153,7 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
     if req.download is not None:
         logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
 
-    challenge_res = _resolve_challenge(req, 'GET')
+    challenge_res = resolve_challenge(req, 'GET')
     res = V1ResponseBase({})
     res.status = challenge_res.status
     res.message = challenge_res.message
@@ -170,7 +170,7 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     if req.download is not None:
         logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
 
-    challenge_res = _resolve_challenge(req, 'POST')
+    challenge_res = resolve_challenge(req, 'POST')
     res = V1ResponseBase({})
     res.status = challenge_res.status
     res.message = challenge_res.message
@@ -221,7 +221,7 @@ def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
     })
 
 
-def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
+def resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
     timeout = int(req.maxTimeout) / 1000
     driver = None
     try:
