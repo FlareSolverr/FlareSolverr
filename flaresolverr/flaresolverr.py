@@ -68,7 +68,11 @@ def controller_v1():
     return utils.object_to_dict(res)
 
 
-def main():
+def init():
+    """
+    Initialize FlareSolverr, configure logger and validate environment.
+    This should be run before calling any other FlareSolverr functions.
+    """
     # check python version
     if sys.version_info < (3, 9):
         raise Exception("The Python version is less than 3.9, a version equal to or higher is required.")
@@ -90,8 +94,6 @@ def main():
     log_file = os.environ.get('LOG_FILE', None)
     log_html = utils.get_config_log_html()
     headless = utils.get_config_headless()
-    server_host = os.environ.get('HOST', '0.0.0.0')
-    server_port = int(os.environ.get('PORT', 8191))
 
     # configure logger
     logger_format = '%(asctime)s %(levelname)-8s %(message)s'
@@ -134,6 +136,14 @@ def main():
     # test browser installation
     flaresolverr_service.test_browser_installation()
 
+def start_webserver():
+    """
+    Start FlareSolverr webserver
+    """
+
+    server_host = os.environ.get('HOST', '0.0.0.0')
+    server_port = int(os.environ.get('PORT', 8191))
+
     # start bootle plugins
     # plugin order is important
     app.install(logger_plugin)
@@ -150,3 +160,13 @@ def main():
             from waitress import serve
             serve(handler, host=self.host, port=self.port, asyncore_use_poll=True)
     run(app, host=server_host, port=server_port, quiet=True, server=WaitressServerPoll)
+
+def main():
+    """
+    Main function called when running flaresolverr as script from cli
+    """
+    # Initialize the environment
+    init()
+
+    # Start the webserver
+    start_webserver()
