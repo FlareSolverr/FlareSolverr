@@ -13,6 +13,9 @@ from .dtos import V1RequestBase
 from . import flaresolverr_service 
 from . import utils
 
+logger = logging.getLogger('flaresolverr')
+logger.addHandler(logging.NullHandler())
+
 env_proxy_url = os.environ.get('PROXY_URL', None)
 env_proxy_username = os.environ.get('PROXY_USERNAME', None)
 env_proxy_password = os.environ.get('PROXY_PASSWORD', None)
@@ -89,39 +92,6 @@ def init():
     os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
     os.environ["SSL_CERT_FILE"] = certifi.where()
 
-    # validate configuration
-    log_level = os.environ.get('LOG_LEVEL', 'info').upper()
-    log_file = os.environ.get('LOG_FILE', None)
-    log_html = utils.get_config_log_html()
-    headless = utils.get_config_headless()
-
-    # configure logger
-    logger_format = '%(asctime)s %(levelname)-8s %(message)s'
-    if log_level == 'DEBUG':
-        logger_format = '%(asctime)s %(levelname)-8s ReqId %(thread)s %(message)s'
-    logging.basicConfig(
-        format=logger_format,
-        level=log_level,
-        datefmt='%Y-%m-%d %H:%M:%S',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    if log_file:
-        log_file = os.path.realpath(log_file)
-        log_path = os.path.dirname(log_file)
-        os.makedirs(log_path, exist_ok=True)
-
-        logging.getLogger().addHandler(logging.FileHandler(log_file))
-
-    # disable warning traces from urllib3
-    logging.getLogger('urllib3').setLevel(logging.ERROR)
-    logging.getLogger('selenium.webdriver.remote.remote_connection').setLevel(logging.WARNING)
-    logging.getLogger('undetected_chromedriver').setLevel(logging.WARNING)
-
-    logging.info(f'FlareSolverr {utils.get_flaresolverr_version()}')
-    logging.debug('Debug log enabled')
-
     # Get current OS for global variable
     utils.get_current_platform()
 
@@ -157,6 +127,28 @@ def main():
     """
     Main function called when running flaresolverr as script from cli
     """
+    # validate configuration
+    log_level = os.environ.get('LOG_LEVEL', 'info').upper()
+    log_file = os.environ.get('LOG_FILE', None)
+    log_html = utils.get_config_log_html()
+
+    # configure logger
+    logger_format = '%(asctime)s %(levelname)-8s %(message)s'
+    if log_level == 'DEBUG':
+        logger_format = '%(asctime)s %(levelname)-8s ReqId %(thread)s %(message)s'
+
+    # set cli logger level
+    logger.setLevel(log_level)
+
+    # add console logging handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(log_level)
+    ch.setFormatter(logging.Formatter(fmt=logger_format, datefmt='%Y-%m-%d %H:%M:%S'))
+    logger.addHandler(ch)
+
+    logger.info(f'FlareSolverr {utils.get_flaresolverr_version()}')
+    logger.debug('Debug log enabled')
+
     # Initialize the environment
     init()
 

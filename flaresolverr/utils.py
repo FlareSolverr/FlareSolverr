@@ -19,6 +19,8 @@ USER_AGENT = None
 XVFB_DISPLAY = None
 PATCHED_DRIVER_PATH = None
 
+logger = logging.getLogger('flaresolverr')
+
 
 def get_config_log_html() -> bool:
     return os.environ.get('LOG_HTML', 'false').lower() == 'true'
@@ -127,7 +129,7 @@ def create_proxy_extension(proxy: dict) -> str:
 
 def get_webdriver(proxy: dict = None) -> WebDriver:
     global PATCHED_DRIVER_PATH, USER_AGENT
-    logging.debug('Launching web browser...')
+    logger.debug('Launching web browser...')
 
     # undetected_chromedriver
     options = uc.ChromeOptions()
@@ -161,7 +163,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         options.add_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
     elif proxy and 'url' in proxy:
         proxy_url = proxy['url']
-        logging.debug("Using webdriver proxy: %s", proxy_url)
+        logger.debug("Using webdriver proxy: %s", proxy_url)
         options.add_argument('--proxy-server=%s' % proxy_url)
 
     # note: headless mode is detected (headless = True)
@@ -196,7 +198,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
                            driver_executable_path=driver_exe_path, version_main=version_main,
                            windows_headless=windows_headless, headless=get_config_headless())
     except Exception as e:
-        logging.error("Error starting Chrome: %s" % e)
+        logger.error("Error starting Chrome: %s" % e)
         # No point in continuing if we cannot retrieve the driver
         raise e
 
