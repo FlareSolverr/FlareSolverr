@@ -6,12 +6,15 @@ import sys
 import certifi
 from bottle import run, response, Bottle, request, ServerAdapter
 
-from bottle_plugins.error_plugin import error_plugin
-from bottle_plugins.logger_plugin import logger_plugin
-from bottle_plugins import prometheus_plugin
-from dtos import V1RequestBase
-import flaresolverr_service
-import utils
+from .bottle_plugins.error_plugin import error_plugin
+from .bottle_plugins.logger_plugin import logger_plugin
+from .bottle_plugins import prometheus_plugin
+from .dtos import V1RequestBase
+from . import flaresolverr_service 
+from . import utils
+
+logger = logging.getLogger('flaresolverr')
+logger.addHandler(logging.NullHandler())
 
 env_proxy_url = os.environ.get('PROXY_URL', None)
 env_proxy_username = os.environ.get('PROXY_USERNAME', None)
@@ -68,7 +71,11 @@ def controller_v1():
     return utils.object_to_dict(res)
 
 
-if __name__ == "__main__":
+def init():
+    """
+    Initialize FlareSolverr, configure logger and validate environment.
+    This should be run before calling any other FlareSolverr functions.
+    """
     # check python version
     if sys.version_info < (3, 9):
         raise Exception("The Python version is less than 3.9, a version equal to or higher is required.")
@@ -85,46 +92,19 @@ if __name__ == "__main__":
     os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
     os.environ["SSL_CERT_FILE"] = certifi.where()
 
-    # validate configuration
-    log_level = os.environ.get('LOG_LEVEL', 'info').upper()
-    log_file = os.environ.get('LOG_FILE', None)
-    log_html = utils.get_config_log_html()
-    headless = utils.get_config_headless()
-    server_host = os.environ.get('HOST', '0.0.0.0')
-    server_port = int(os.environ.get('PORT', 8191))
-
-    # configure logger
-    logger_format = '%(asctime)s %(levelname)-8s %(message)s'
-    if log_level == 'DEBUG':
-        logger_format = '%(asctime)s %(levelname)-8s ReqId %(thread)s %(message)s'
-    logging.basicConfig(
-        format=logger_format,
-        level=log_level,
-        datefmt='%Y-%m-%d %H:%M:%S',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    if log_file:
-        log_file = os.path.realpath(log_file)
-        log_path = os.path.dirname(log_file)
-        os.makedirs(log_path, exist_ok=True)
-
-        logging.getLogger().addHandler(logging.FileHandler(log_file))
-
-    # disable warning traces from urllib3
-    logging.getLogger('urllib3').setLevel(logging.ERROR)
-    logging.getLogger('selenium.webdriver.remote.remote_connection').setLevel(logging.WARNING)
-    logging.getLogger('undetected_chromedriver').setLevel(logging.WARNING)
-
-    logging.info(f'FlareSolverr {utils.get_flaresolverr_version()}')
-    logging.debug('Debug log enabled')
-
     # Get current OS for global variable
     utils.get_current_platform()
 
     # test browser installation
     flaresolverr_service.test_browser_installation()
+
+def start_webserver():
+    """
+    Start FlareSolverr webserver
+    """
+
+    server_host = os.environ.get('HOST', '0.0.0.0')
+    server_port = int(os.environ.get('PORT', 8191))
 
     # start bootle plugins
     # plugin order is important
@@ -142,3 +122,35 @@ if __name__ == "__main__":
             from waitress import serve
             serve(handler, host=self.host, port=self.port, asyncore_use_poll=True)
     run(app, host=server_host, port=server_port, quiet=True, server=WaitressServerPoll)
+
+def main():
+    """
+    Main function called when running flaresolverr as script from cli
+    """
+    # validate configuration
+    log_level = os.environ.get('LOG_LEVEL', 'info').upper()
+    log_file = os.environ.get('LOG_FILE', None)
+    log_html = utils.get_config_log_html()
+
+    # configure logger
+    logger_format = '%(asctime)s %(levelname)-8s %(message)s'
+    if log_level == 'DEBUG':
+        logger_format = '%(asctime)s %(levelname)-8s ReqId %(thread)s %(message)s'
+
+    # set cli logger level
+    logger.setLevel(log_level)
+
+    # add console logging handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(log_level)
+    ch.setFormatter(logging.Formatter(fmt=logger_format, datefmt='%Y-%m-%d %H:%M:%S'))
+    logger.addHandler(ch)
+
+    logger.info(f'FlareSolverr {utils.get_flaresolverr_version()}')
+    logger.debug('Debug log enabled')
+
+    # Initialize the environment
+    init()
+
+    # Start the webserver
+    start_webserver()
