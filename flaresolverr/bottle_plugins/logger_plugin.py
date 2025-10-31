@@ -1,6 +1,8 @@
 from bottle import request, response
 import logging
 
+logger = logging.getLogger('flaresolverr')
+
 
 def logger_plugin(callback):
     """
@@ -14,10 +16,10 @@ def logger_plugin(callback):
     def wrapper(*args, **kwargs):
         actual_response = callback(*args, **kwargs)
         if not request.url.endswith("/health"):
-            logging.info('%s %s %s %s' % (request.remote_addr,
-                                          request.method,
-                                          request.url,
-                                          response.status))
+            logger.info('%s %s %s %s' % (request.remote_addr,
+                                         request.method,
+                                         request.url,
+                                         response.status))
         return actual_response
 
     return wrapper
