@@ -13,6 +13,9 @@ from .dtos import V1RequestBase
 from . import flaresolverr_service 
 from . import utils
 
+logger = logging.getLogger('flaresolverr')
+logger.addHandler(logging.NullHandler())
+
 env_proxy_url = os.environ.get('PROXY_URL', None)
 env_proxy_username = os.environ.get('PROXY_USERNAME', None)
 env_proxy_password = os.environ.get('PROXY_PASSWORD', None)
@@ -89,6 +92,41 @@ def init():
     os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
     os.environ["SSL_CERT_FILE"] = certifi.where()
 
+    # Get current OS for global variable
+    utils.get_current_platform()
+
+    # test browser installation
+    flaresolverr_service.test_browser_installation()
+
+def start_webserver():
+    """
+    Start FlareSolverr webserver
+    """
+
+    server_host = os.environ.get('HOST', '0.0.0.0')
+    server_port = int(os.environ.get('PORT', 8191))
+
+    # start bootle plugins
+    # plugin order is important
+    app.install(logger_plugin)
+    app.install(error_plugin)
+    prometheus_plugin.setup()
+    app.install(prometheus_plugin.prometheus_plugin)
+
+    # start webserver
+    # default server 'wsgiref' does not support concurrent requests
+    # https://github.com/FlareSolverr/FlareSolverr/issues/680
+    # https://github.com/Pylons/waitress/issues/31
+    class WaitressServerPoll(ServerAdapter):
+        def run(self, handler):
+            from waitress import serve
+            serve(handler, host=self.host, port=self.port, asyncore_use_poll=True)
+    run(app, host=server_host, port=server_port, quiet=True, server=WaitressServerPoll)
+
+def main():
+    """
+    Main function called when running flaresolverr as script from cli
+    """
     # validate configuration
     log_level = os.environ.get('LOG_LEVEL', 'info').upper()
     log_file = os.environ.get('LOG_FILE', None)
@@ -130,41 +168,18 @@ def init():
     logging.info(f'FlareSolverr {utils.get_flaresolverr_version()}')
     logging.debug('Debug log enabled')
 
-    # Get current OS for global variable
-    utils.get_current_platform()
+    # set cli logger level
+    logger.setLevel(log_level)
 
-    # test browser installation
-    flaresolverr_service.test_browser_installation()
+    # add console logging handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(log_level)
+    ch.setFormatter(logging.Formatter(fmt=logger_format, datefmt='%Y-%m-%d %H:%M:%S'))
+    logger.addHandler(ch)
 
-def start_webserver():
-    """
-    Start FlareSolverr webserver
-    """
+    logger.info(f'FlareSolverr {utils.get_flaresolverr_version()}')
+    logger.debug('Debug log enabled')
 
-    server_host = os.environ.get('HOST', '0.0.0.0')
-    server_port = int(os.environ.get('PORT', 8191))
-
-    # start bootle plugins
-    # plugin order is important
-    app.install(logger_plugin)
-    app.install(error_plugin)
-    prometheus_plugin.setup()
-    app.install(prometheus_plugin.prometheus_plugin)
-
-    # start webserver
-    # default server 'wsgiref' does not support concurrent requests
-    # https://github.com/FlareSolverr/FlareSolverr/issues/680
-    # https://github.com/Pylons/waitress/issues/31
-    class WaitressServerPoll(ServerAdapter):
-        def run(self, handler):
-            from waitress import serve
-            serve(handler, host=self.host, port=self.port, asyncore_use_poll=True)
-    run(app, host=server_host, port=server_port, quiet=True, server=WaitressServerPoll)
-
-def main():
-    """
-    Main function called when running flaresolverr as script from cli
-    """
     # Initialize the environment
     init()
 
