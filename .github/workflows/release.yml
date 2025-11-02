@@ -27,7 +27,6 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref }}
           body: ${{ env.changelog }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
