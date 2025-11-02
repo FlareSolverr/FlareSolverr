@@ -1,1 +1,1 @@
-WebTest==3.0.6
+WebTest==3.0.7
