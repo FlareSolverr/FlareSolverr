@@ -25,7 +25,7 @@ def clean_files():
 
 def download_chromium():
     # https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/
-    revision = "1465706" if os.name == 'nt' else '1465706'
+    revision = "1522586" if os.name == 'nt' else '1522586'
     arch = 'Win_x64' if os.name == 'nt' else 'Linux_x64'
     dl_file = 'chrome-win' if os.name == 'nt' else 'chrome-linux'
     dl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'dist_chrome')
