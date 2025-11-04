@@ -1,7 +1,7 @@
 # Changelog
 
 ## v3.4.4 (2025/11/04)
-* Bump dependencies, Chrome, and some other general fixes. Thanks @flowerey
+* Bump dependencies, Chromium, and some other general fixes. Thanks @flowerey
 
 ## v3.4.3 (2025/10/28)
 * Update proxy extension
