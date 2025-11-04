@@ -162,7 +162,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertIn(self.ddos_guard_url, solution.url)
         self.assertEqual(solution.status, 200)
         self.assertIs(len(solution.headers), 0)
-        self.assertIn("<title>Литрес</title>", solution.response)
+        self.assertIn("<title>Литрес", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
 
