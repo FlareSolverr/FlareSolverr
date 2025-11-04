@@ -27,8 +27,6 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref }}
-          name: ${{ github.ref }}
           body: ${{ env.changelog }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
@@ -49,7 +47,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Build artifacts
         run: |

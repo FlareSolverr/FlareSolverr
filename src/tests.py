@@ -21,11 +21,11 @@ class TestFlareSolverr(unittest.TestCase):
     proxy_socks_url = "socks5://127.0.0.1:1080"
     google_url = "https://www.google.com"
     post_url = "https://httpbin.org/post"
-    cloudflare_url = "https://nowsecure.nl"
+    cloudflare_url = "https://nowsecure.nl/"
     cloudflare_url_2 = "https://idope.se/torrent-list/harry/"
-    ddos_guard_url = "https://anidex.info/"
+    ddos_guard_url = "https://www.litres.ru/"
     fairlane_url = "https://www.pararius.com/apartments/amsterdam"
-    custom_cloudflare_url = "https://www.muziekfabriek.org"
+    custom_cloudflare_url = "https://www.muziekfabriek.org/"
     cloudflare_blocked_url = "https://cpasbiens3.fr/index.php?do=search&subaction=search"
 
     app = TestApp(flaresolverr.app)
@@ -162,7 +162,7 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertIn(self.ddos_guard_url, solution.url)
         self.assertEqual(solution.status, 200)
         self.assertIs(len(solution.headers), 0)
-        self.assertIn("<title>AniDex</title>", solution.response)
+        self.assertIn("<title>Литрес", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
 

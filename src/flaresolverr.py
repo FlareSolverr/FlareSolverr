@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
     # fix ssl certificates for compiled binaries
     # https://github.com/pyinstaller/pyinstaller/issues/7229
-    # https://stackoverflow.com/questions/55736855/how-to-change-the-cafile-argument-in-the-ssl-module-in-python3
+    # https://stackoverflow.com/q/55736855
     os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
     os.environ["SSL_CERT_FILE"] = certifi.where()
 
