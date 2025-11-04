@@ -23,7 +23,7 @@ class TestFlareSolverr(unittest.TestCase):
     post_url = "https://httpbin.org/post"
     cloudflare_url = "https://nowsecure.nl/"
     cloudflare_url_2 = "https://idope.se/torrent-list/harry/"
-    ddos_guard_url = "https://anidex.info/"
+    ddos_guard_url = "https://www.litres.ru/"
     fairlane_url = "https://www.pararius.com/apartments/amsterdam"
     custom_cloudflare_url = "https://www.muziekfabriek.org/"
     cloudflare_blocked_url = "https://cpasbiens3.fr/index.php?do=search&subaction=search"
