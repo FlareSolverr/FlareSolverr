@@ -19,15 +19,14 @@ jobs:
         id: github_changelog
         run: |
           changelog=$(git log $(git tag | tail -2 | head -1)..HEAD --no-merges --oneline)
-          changelog="${changelog//'%'/'%25'}"
-          changelog="${changelog//$'\n'/'%0A'}"
-          changelog="${changelog//$'\r'/'%0D'}"
-          echo "changelog=${changelog}" >> $GITHUB_ENV
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$changelog" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          body: ${{ env.changelog }}
+          body: ${{ steps.github_changelog.outputs.changelog }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
