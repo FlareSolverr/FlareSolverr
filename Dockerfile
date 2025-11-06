@@ -1,4 +1,4 @@
-FROM python:3.14-slim-bookworm as builder
+FROM python:3.14-slim-bookworm AS builder
 
 # Build dummy packages to skip installing them and their dependencies
 RUN apt-get update \
