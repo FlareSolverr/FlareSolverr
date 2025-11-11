@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.4.5 (2025/11/11)
+* Revert to Python v3.13
+
 ## v3.4.4 (2025/11/04)
 * Bump dependencies, Chromium, and some other general fixes. Thanks @flowerey
 
