@@ -327,5 +327,3 @@ to the file name of one of the adapters inside the `/captcha` directory.
 ## Related projects
 
 * C# implementation => https://github.com/FlareSolverr/FlareSolverrSharp
-
-
