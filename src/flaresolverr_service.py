@@ -21,6 +21,7 @@ from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
                   ChallengeResolutionT, HealthResponse, IndexResponse,
                   V1RequestBase, V1ResponseBase)
 from sessions import SessionsStorage
+from network_interceptor import create_ahrefs_interceptor
 
 ACCESS_DENIED_TITLES = [
     # Cloudflare
@@ -287,6 +288,12 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     res.status = STATUS_OK
     res.message = ""
 
+    # Enable network interceptor for Ahrefs API calls
+    interceptor = None
+    if 'ahrefs.com' in req.url.lower():
+        logging.info("Ahrefs URL detected - enabling network interceptor")
+        interceptor = create_ahrefs_interceptor(driver)
+        interceptor.enable()
 
     # navigate to the page
     logging.debug(f'Navigating to... {req.url}')
@@ -399,6 +406,21 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     if req.returnScreenshot:
         challenge_res.screenshot = driver.get_screenshot_as_base64()
+
+    # If interceptor is enabled, wait for API calls and log captured responses
+    if interceptor is not None:
+        logging.info("Waiting for Ahrefs API calls to complete...")
+        time.sleep(5)  # Give extra time for API calls to complete
+
+        captured_files = interceptor.get_captured_responses()
+        if captured_files:
+            logging.info(f"Successfully captured {len(captured_files)} API response(s):")
+            for file_path in captured_files:
+                logging.info(f"  - {file_path}")
+        else:
+            logging.warning("No API responses were captured. The API call may not have occurred yet.")
+
+        interceptor.disable()
 
     res.result = challenge_res
     return res
