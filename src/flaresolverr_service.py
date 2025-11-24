@@ -2,9 +2,12 @@ import logging
 import platform
 import sys
 import time
+import requests
+import os
+import base64
 from datetime import timedelta
 from html import escape
-from urllib.parse import unquote, quote
+from urllib.parse import unquote, quote, urljoin, urlsplit
 
 from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
@@ -150,8 +153,6 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
         raise Exception("Cannot use 'postBody' when sending a GET request.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
-    if req.download is not None:
-        logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
 
     challenge_res = _resolve_challenge(req, 'GET')
     res = V1ResponseBase({})
@@ -315,7 +316,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     # find access denied titles
     for title in ACCESS_DENIED_TITLES:
-        if page_title.startswith(title):
+        if title == page_title:
             raise Exception('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
     # find access denied selectors
@@ -390,15 +391,70 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
-
-        if req.waitInSeconds and req.waitInSeconds > 0:
-            logging.info("Waiting " + str(req.waitInSeconds) + " seconds before returning the response...")
-            time.sleep(req.waitInSeconds)
-
         challenge_res.response = driver.page_source
 
-    if req.returnScreenshot:
-        challenge_res.screenshot = driver.get_screenshot_as_base64()
+    if req.download:
+        resp = []
+
+        # Check if specific URLs were provided
+        if hasattr(req, 'downloadUrls') and req.downloadUrls:
+            # Download specific URLs provided by the client
+            logging.info(f"Downloading {len(req.downloadUrls)} specific image URLs...")
+            image_urls = req.downloadUrls
+        else:
+            # Fallback: Find all img tags on the page
+            logging.info("No specific URLs provided, finding all images on page...")
+            img_elements = driver.find_elements(By.TAG_NAME, "img")
+            image_urls = []
+            for img in img_elements:
+                try:
+                    src = img.get_attribute("src")
+                    if src:
+                        image_urls.append(urljoin(driver.current_url, src))
+                except Exception as e:
+                    logging.error(f"Error extracting image URL: {e}")
+
+        # Download each image URL using browser fetch
+        for img_url in image_urls:
+            try:
+                # Use browser fetch to download image (bypasses server-side blocks)
+                b64_data = driver.execute_script("""
+                    return fetch(arguments[0])
+                        .then(r => {
+                            if (!r.ok) throw new Error('HTTP ' + r.status);
+                            return r.blob();
+                        })
+                        .then(b => new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                            reader.readAsDataURL(b);
+                        }));
+                """, img_url)
+
+                if b64_data:
+                    logging.info(f"Downloaded {img_url}")
+                    filename = os.path.basename(urlsplit(img_url).path)
+                    mime_type = "image/jpeg"  # Default, browser fetch doesn't expose headers easily
+
+                    r = {
+                        "url": f"{img_url}",
+                        "filename": f"{filename}",
+                        "mime_type": f"{mime_type}",
+                        "encoded_data": f"{b64_data}"
+                    }
+                    resp.append(r)
+                else:
+                    logging.error(f"No data returned for: {img_url}")
+            except Exception as e:
+                logging.error(f"Error downloading {img_url}: {e}")
+
+        if not resp:
+            logging.error("No Images Downloaded!")
+            res.message = "No Images Downloaded!"
+        else:
+            logging.info(f"Successfully downloaded {len(resp)} images!")
+            res.message = f"Successfully downloaded {len(resp)} images!"
+            challenge_res.download = resp
 
     res.result = challenge_res
     return res
@@ -406,10 +462,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
     post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData and req.postData[0] != '?' else req.postData[1:] if req.postData else ''
+    query_string = req.postData if req.postData[0] != '?' else req.postData[1:]
     pairs = query_string.split('&')
     for pair in pairs:
-        parts = pair.split('=', 1)
+        parts = pair.split('=')
         # noinspection PyBroadException
         try:
             name = unquote(parts[0])
@@ -419,11 +475,9 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             continue
         # noinspection PyBroadException
         try:
-            value = unquote(parts[1]) if len(parts) > 1 else ''
+            value = unquote(parts[1])
         except Exception:
-            value = parts[1] if len(parts) > 1 else ''
-        # Protection of " character, for syntax
-        value=value.replace('"','&quot;')
+            value = parts[1]
         post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
     post_form += '</form>'
     html_content = f"""
