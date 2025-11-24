@@ -398,6 +398,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             time.sleep(req.waitInSeconds)
 
 
+    if req.returnScreenshot:
+        challenge_res.screenshot = driver.get_screenshot_as_base64()
+
     if req.download:
         resp = []
 
