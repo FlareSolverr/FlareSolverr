@@ -488,6 +488,7 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             value = parts[1] if len(parts) > 1 else ''
         # Protection of " character, for syntax
         value=value.replace('"','&quot;')
+        post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
     post_form += '</form>'
     html_content = f"""
         <!DOCTYPE html>
