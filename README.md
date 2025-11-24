@@ -124,6 +124,22 @@ response = requests.post(url, headers=headers, json=data)
 print(response.text)
 ```
 
+You can also disable some resources per-request to speed up navigation:
+
+Example disabling images and CSS:
+
+```bash
+curl -L -X POST 'http://localhost:8191/v1' \
+-H 'Content-Type: application/json' \
+--data-raw '{
+  "cmd": "request.get",
+  "url": "http://www.google.com/",
+  "maxTimeout": 60000,
+  "disableImages": true,
+  "disableCSS": true
+}'
+```
+
 Example PowerShell request:
 ```ps1
 $body = @{
@@ -190,6 +206,9 @@ session. When you no longer need to use a session you should make sure to close 
 | returnScreenshot    | Optional, default false. Captures a screenshot of the final rendered page after all challenges and waits are completed. The screenshot is returned as a Base64-encoded PNG string in the `screenshot` field of the response.                                                                                                                 |
 | proxy               | Optional, default disabled. Eg: `"proxy": {"url": "http://127.0.0.1:8888"}`. You must include the proxy schema in the URL: `http://`, `socks4://` or `socks5://`. Authorization (username/password) is not supported. (When the `session` parameter is set, the proxy is ignored; a session specific proxy can be set in `sessions.create`.) |
 | waitInSeconds       | Optional, default none. Length to wait in seconds after solving the challenge, and before returning the results. Useful to allow it to load dynamic content.                                                                                                                                                                                 |
+| disableImages       | Optional, default false. When true FlareSolverr will prevent images from being loaded (PNG/JPG/GIF/WebP/SVG/etc) to speed up navigation.                                                                                                                                            |
+| disableCSS          | Optional, default false. When true FlareSolverr will prevent CSS files from being loaded (CSS) to speed up navigation.                                                                                                                                                         |
+| disableFonts        | Optional, default false. When true FlareSolverr will prevent common web fonts from being loaded to speed up navigation.                                                                                                                                                          |
 
 > **Warning**
 > If you want to use Cloudflare clearance cookie in your scripts, make sure you use the FlareSolverr User-Agent too. If they don't match you will see the challenge.

@@ -287,10 +287,30 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     res.status = STATUS_OK
     res.message = ""
 
+    # optionally block resources like images/css/fonts using CDP
+    block_urls = []
+    if req.disableImages:
+        block_urls.extend(
+            ["*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.bmp", "*.svg", "*.ico"]
+        )
+    if req.disableCSS:
+        block_urls.extend(["*.css"])
+    if req.disableFonts:
+        block_urls.extend(["*.woff", "*.woff2", "*.ttf", "*.otf"])
+
+    if len(block_urls) > 0:
+        try:
+            logging.debug("Network.setBlockedURLs: %s", block_urls)
+            driver.execute_cdp_cmd("Network.enable", {})
+            driver.execute_cdp_cmd("Network.setBlockedURLs", {"urls": block_urls})
+        except Exception:
+            # if CDP commands are not available or fail, ignore and continue
+            logging.debug("Network.setBlockedURLs failed or unsupported on this webdriver")
 
     # navigate to the page
-    logging.debug(f'Navigating to... {req.url}')
-    if method == 'POST':
+    logging.debug(f"Navigating to... {req.url}")
+
+    if method == "POST":
         _post_request(req, driver)
     else:
         driver.get(req.url)
