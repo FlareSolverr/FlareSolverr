@@ -10,6 +10,7 @@ class ChallengeResolutionResultT:
     response: str = None
     cookies: list = None
     userAgent: str = None
+    screenshot: str | None = None
 
     def __init__(self, _dict):
         self.__dict__.update(_dict)
@@ -41,8 +42,10 @@ class V1RequestBase(object):
     url: str = None
     postData: str = None
     returnOnlyCookies: bool = None
+    returnScreenshot: bool = None
     download: bool = None   # deprecated v2.0.0, not used
     downloadUrls: list = None  # Optional: specific image URLs to download
+    waitInSeconds: int = None
     returnRawHtml: bool = None  # deprecated v2.0.0, not used
 
     def __init__(self, _dict):
