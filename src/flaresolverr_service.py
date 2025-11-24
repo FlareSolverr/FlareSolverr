@@ -484,7 +484,7 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
         # noinspection PyBroadException
         try:
             value = unquote(parts[1]) if len(parts) > 1 else ''
-            value = parts[1]
+        except Exception:
             value = parts[1] if len(parts) > 1 else ''
         # Protection of " character, for syntax
         value=value.replace('"','&quot;')
