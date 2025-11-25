@@ -28,6 +28,10 @@ def get_config_headless() -> bool:
     return os.environ.get('HEADLESS', 'true').lower() == 'true'
 
 
+def get_config_disable_media() -> bool:
+    return os.environ.get('DISABLE_MEDIA', 'false').lower() == 'true'
+
+
 def get_flaresolverr_version() -> str:
     global FLARESOLVERR_VERSION
     if FLARESOLVERR_VERSION is not None:

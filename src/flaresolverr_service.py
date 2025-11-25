@@ -288,14 +288,15 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     res.message = ""
 
     # optionally block resources like images/css/fonts using CDP
+    disable_media = utils.get_config_disable_media()
+    if req.disableMedia is not None:
+        disable_media = req.disableMedia
     block_urls = []
-    if req.disableImages:
+    if disable_media:
         block_urls.extend(
             ["*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.bmp", "*.svg", "*.ico"]
         )
-    if req.disableCSS:
         block_urls.extend(["*.css"])
-    if req.disableFonts:
         block_urls.extend(["*.woff", "*.woff2", "*.ttf", "*.otf"])
 
     if len(block_urls) > 0:

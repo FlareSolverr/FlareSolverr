@@ -93,15 +93,11 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertIn("Chrome/", solution.userAgent)
 
     def test_v1_endpoint_request_get_disable_resources(self):
-        res = self.app.post_json(
-            "/v1",
-            {
-                "cmd": "request.get",
-                "url": self.google_url,
-                "disableImages": True,
-                "disableCSS": True,
-            },
-        )
+        res = self.app.post_json("/v1", {
+            "cmd": "request.get",
+            "url": self.google_url,
+            "disableMedia": True
+        })
         self.assertEqual(res.status_code, 200)
 
         body = V1ResponseBase(res.json)
