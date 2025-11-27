@@ -291,15 +291,20 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     disable_media = utils.get_config_disable_media()
     if req.disableMedia is not None:
         disable_media = req.disableMedia
-    block_urls = []
     if disable_media:
-        block_urls.extend(
-            ["*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.bmp", "*.svg", "*.ico"]
-        )
-        block_urls.extend(["*.css"])
-        block_urls.extend(["*.woff", "*.woff2", "*.ttf", "*.otf"])
-
-    if len(block_urls) > 0:
+        block_urls = [
+            # Images
+            "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.bmp", "*.svg", "*.ico",
+            "*.PNG", "*.JPG", "*.JPEG", "*.GIF", "*.WEBP", "*.BMP", "*.SVG", "*.ICO",
+            "*.tiff", "*.tif", "*.jpe", "*.apng", "*.avif", "*.heic", "*.heif",
+            "*.TIFF", "*.TIF", "*.JPE", "*.APNG", "*.AVIF", "*.HEIC", "*.HEIF",
+            # Stylesheets
+            "*.css",
+            "*.CSS",
+            # Fonts
+            "*.woff", "*.woff2", "*.ttf", "*.otf", "*.eot",
+            "*.WOFF", "*.WOFF2", "*.TTF", "*.OTF", "*.EOT"
+        ]
         try:
             logging.debug("Network.setBlockedURLs: %s", block_urls)
             driver.execute_cdp_cmd("Network.enable", {})
