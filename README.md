@@ -124,21 +124,6 @@ response = requests.post(url, headers=headers, json=data)
 print(response.text)
 ```
 
-You can also disable some resources per-request to speed up navigation:
-
-Example disabling images and CSS:
-
-```bash
-curl -L -X POST 'http://localhost:8191/v1' \
--H 'Content-Type: application/json' \
---data-raw '{
-  "cmd": "request.get",
-  "url": "http://www.google.com/",
-  "maxTimeout": 60000,
-  "disableMedia": true
-}'
-```
-
 Example PowerShell request:
 ```ps1
 $body = @{
@@ -344,3 +329,4 @@ to the file name of one of the adapters inside the `/captcha` directory.
 ## Related projects
 
 * C# implementation => https://github.com/FlareSolverr/FlareSolverrSharp
+
