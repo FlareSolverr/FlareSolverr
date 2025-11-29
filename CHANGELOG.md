@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.4.6 (2025/11/29)
+* Add disable image, css, fonts option with CDP. Thanks @Ananto30
+
 ## v3.4.5 (2025/11/11)
 * Revert to Python v3.13
 
