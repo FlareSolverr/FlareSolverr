@@ -92,6 +92,29 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
 
+    def test_v1_endpoint_request_get_disable_resources(self):
+        res = self.app.post_json("/v1", {
+            "cmd": "request.get",
+            "url": self.google_url,
+            "disableMedia": True
+        })
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+        self.assertEqual("Challenge not detected!", body.message)
+        self.assertGreater(body.startTimestamp, 10000)
+        self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
+
+        solution = body.solution
+        self.assertIn(self.google_url, solution.url)
+        self.assertEqual(solution.status, 200)
+        self.assertIs(len(solution.headers), 0)
+        self.assertIn("<title>Google</title>", solution.response)
+        self.assertGreater(len(solution.cookies), 0)
+        self.assertIn("Chrome/", solution.userAgent)
+
     def test_v1_endpoint_request_get_cloudflare_js_1(self):
         res = self.app.post_json('/v1', {
             "cmd": "request.get",

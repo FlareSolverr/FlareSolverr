@@ -287,10 +287,36 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     res.status = STATUS_OK
     res.message = ""
 
+    # optionally block resources like images/css/fonts using CDP
+    disable_media = utils.get_config_disable_media()
+    if req.disableMedia is not None:
+        disable_media = req.disableMedia
+    if disable_media:
+        block_urls = [
+            # Images
+            "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.bmp", "*.svg", "*.ico",
+            "*.PNG", "*.JPG", "*.JPEG", "*.GIF", "*.WEBP", "*.BMP", "*.SVG", "*.ICO",
+            "*.tiff", "*.tif", "*.jpe", "*.apng", "*.avif", "*.heic", "*.heif",
+            "*.TIFF", "*.TIF", "*.JPE", "*.APNG", "*.AVIF", "*.HEIC", "*.HEIF",
+            # Stylesheets
+            "*.css",
+            "*.CSS",
+            # Fonts
+            "*.woff", "*.woff2", "*.ttf", "*.otf", "*.eot",
+            "*.WOFF", "*.WOFF2", "*.TTF", "*.OTF", "*.EOT"
+        ]
+        try:
+            logging.debug("Network.setBlockedURLs: %s", block_urls)
+            driver.execute_cdp_cmd("Network.enable", {})
+            driver.execute_cdp_cmd("Network.setBlockedURLs", {"urls": block_urls})
+        except Exception:
+            # if CDP commands are not available or fail, ignore and continue
+            logging.debug("Network.setBlockedURLs failed or unsupported on this webdriver")
 
     # navigate to the page
-    logging.debug(f'Navigating to... {req.url}')
-    if method == 'POST':
+    logging.debug(f"Navigating to... {req.url}")
+
+    if method == "POST":
         _post_request(req, driver)
     else:
         driver.get(req.url)
