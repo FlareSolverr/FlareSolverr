@@ -19,6 +19,7 @@ class ChallengeResolutionResultT:
 class ChallengeResolutionT:
     status: str = None
     message: str = None
+    jsrespond: str = None
     result: ChallengeResolutionResultT = None
 
     def __init__(self, _dict):
@@ -33,6 +34,7 @@ class V1RequestBase(object):
     cookies: list = None
     maxTimeout: int = None
     proxy: dict = None
+    execjs: str = None
     session: str = None
     session_ttl_minutes: int = None
     headers: list = None  # deprecated v2.0.0, not used
