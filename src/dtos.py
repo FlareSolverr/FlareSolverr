@@ -49,7 +49,7 @@ class V1RequestBase(object):
     waitInSeconds: int = None
     # Optional resource blocking flag (blocks images, CSS, and fonts)
     disableMedia: bool = None
-    # Optional when you've got a turnstile capcha that needs to be pressed after x number of tabs
+    # Optional when you've got a turnstile captcha that needs to be clicked after X number of Tab presses
     tabs_till_verify : int = None
 
     def __init__(self, _dict):
