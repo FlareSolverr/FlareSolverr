@@ -193,7 +193,7 @@ session. When you no longer need to use a session you should make sure to close 
 | proxy               | Optional, default disabled. Eg: `"proxy": {"url": "http://127.0.0.1:8888"}`. You must include the proxy schema in the URL: `http://`, `socks4://` or `socks5://`. Authorization (username/password) is not supported. (When the `session` parameter is set, the proxy is ignored; a session specific proxy can be set in `sessions.create`.) |
 | waitInSeconds       | Optional, default none. Length to wait in seconds after solving the challenge, and before returning the results. Useful to allow it to load dynamic content.                                                                                                                                                                                 |
 | disableMedia        | Optional, default false. When true FlareSolverr will prevent media resources (images, CSS, and fonts) from being loaded to speed up navigation.                                                                                                                                                                                              |
-| tabs_till_verify    | Optional, default none. Number of tabs to be pressed in order to end up on the turnstile capcha in order to verify it. After verifing the capcha the result will be stored in the solution under turnstile_token.                                                                                                                            |
+| tabs_till_verify    | Optional, default none. Number of times the `Tab` button is needed to be pressed to end up on the turnstile captcha, in order to verify it. After verifying the captcha, the result will be stored in the solution under `turnstile_token`.                                                                                                  |
 
 > **Warning**
 > If you want to use Cloudflare clearance cookie in your scripts, make sure you use the FlareSolverr User-Agent too. If they don't match you will see the challenge.
@@ -260,7 +260,7 @@ Example response from running the `curl` above:
 
 ### + `request.post`
 
-This works like request.get, with the addition of the postData parameter. Note that tabs_till_verify is currently supported only for GET requests and requires one extra argument.
+This works like `request.get`, with the addition of the postData parameter. Note that `tabs_till_verify` is currently supported only for GET requests and requires one extra argument.
 
 | Parameter | Notes                                                                    |
 | --------- | ------------------------------------------------------------------------ |
