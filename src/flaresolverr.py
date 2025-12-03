@@ -97,20 +97,28 @@ if __name__ == "__main__":
     logger_format = '%(asctime)s %(levelname)-8s %(message)s'
     if log_level == 'DEBUG':
         logger_format = '%(asctime)s %(levelname)-8s ReqId %(thread)s %(message)s'
-    logging.basicConfig(
-        format=logger_format,
-        level=log_level,
-        datefmt='%Y-%m-%d %H:%M:%S',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
     if log_file:
         log_file = os.path.realpath(log_file)
         log_path = os.path.dirname(log_file)
         os.makedirs(log_path, exist_ok=True)
-
-        logging.getLogger().addHandler(logging.FileHandler(log_file))
+        logging.basicConfig(
+            format=logger_format,
+            level=log_level,
+            datefmt='%Y-%m-%d %H:%M:%S',
+            handlers=[
+                logging.StreamHandler(sys.stdout),
+                logging.FileHandler(log_file)
+            ]
+        )
+    else:
+        logging.basicConfig(
+            format=logger_format,
+            level=log_level,
+            datefmt='%Y-%m-%d %H:%M:%S',
+            handlers=[
+                logging.StreamHandler(sys.stdout)
+            ]
+        )
 
     # disable warning traces from urllib3
     logging.getLogger('urllib3').setLevel(logging.ERROR)
