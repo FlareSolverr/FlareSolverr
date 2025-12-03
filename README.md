@@ -271,7 +271,7 @@ This works like `request.get`, with the addition of the postData parameter. Note
 | Name               | Default                | Notes                                                                                                                                    |
 | ------------------ | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | LOG_LEVEL          | info                   | Verbosity of the logging. Use `LOG_LEVEL=debug` for more information.                                                                    |
-| LOG_FILE           | none                   | Path to capture log to file. Example: `/config/flaresolver.log`.                                                                         |
+| LOG_FILE           | none                   | Path to capture log to file. Example: `/config/flaresolverr.log`.                                                                         |
 | LOG_HTML           | false                  | Only for debugging. If `true` all HTML that passes through the proxy will be logged to the console in `debug` level.                     |
 | PROXY_URL          | none                   | URL for proxy. Will be overwritten by `request` or `sessions` proxy, if used. Example: `http://127.0.0.1:8080`.                          |
 | PROXY_USERNAME     | none                   | Username for proxy. Will be overwritten by `request` or `sessions` proxy, if used. Example: `testuser`.                                  |
@@ -335,3 +335,4 @@ to the file name of one of the adapters inside the `/captcha` directory.
 ## Related projects
 
 - C# implementation => https://github.com/FlareSolverr/FlareSolverrSharp
+
