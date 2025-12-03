@@ -314,7 +314,7 @@ def _get_turnstile_token(driver: WebDriver, tabs: int):
         """)
         time.sleep(1)
 
-def _rezolve_turnstile_capcha(req: V1RequestBase, driver: WebDriver):
+def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
     turnstile_token = None
     if req.tabs_till_verify is not None:
         logging.debug(f'Navigating to... {req.url} in order to pass the turnstile challenge')
@@ -374,7 +374,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         if req.tabs_till_verify is None:
             driver.get(req.url)
         else:
-            turnstile_token = _rezolve_turnstile_capcha(req, driver)
+            turnstile_token = _resolve_turnstile_captcha(req, driver)
 
     # set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
