@@ -318,7 +318,7 @@ def _get_turnstile_token(driver: WebDriver, tabs: int):
     current_value = token_input.get_attribute("value")
     state = {}
     while True:
-        click_verify(driver, num_tabs=tabs)
+        click_verify(driver, num_tabs=tabs, _state=state)
         turnstile_token = token_input.get_attribute("value")
         if turnstile_token:
             if turnstile_token != current_value:
@@ -326,8 +326,6 @@ def _get_turnstile_token(driver: WebDriver, tabs: int):
                 return turnstile_token
         logging.debug(f"Failed to extract token possibly click failed")        
 
-        # reset focus
-        reset_focus(driver, state)
         time.sleep(1)
 
 def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
