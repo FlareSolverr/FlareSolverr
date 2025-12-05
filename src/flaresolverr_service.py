@@ -278,26 +278,6 @@ def reset_focus(driver: WebDriver, _state:dict):
             if (el) el.focus();
         """)
 
-def reset_focus(driver: WebDriver, _state:dict):
-    if _state['uuid'] is None:
-        # create button and store UUID
-        _state['uuid'] = str(uuid.uuid4())
-        driver.execute_script(f"""
-            let el = document.createElement('button');
-            el.id = '{_state['uuid']}';
-            el.style.position='fixed';
-            el.style.top='0';
-            el.style.left='0';
-            document.body.prepend(el);
-            el.focus();
-        """)
-    else:
-        # button already exists, just focus it
-        driver.execute_script(f"""
-            let el = document.getElementById('{_state['uuid']}');
-            if (el) el.focus();
-        """)
-
 def click_verify(driver: WebDriver, num_tabs: int = 1, _state:dict={}):
     if not _state:
         _state['uuid'] = None
