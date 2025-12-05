@@ -21,6 +21,7 @@ from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
                   ChallengeResolutionT, HealthResponse, IndexResponse,
                   V1RequestBase, V1ResponseBase)
 from sessions import SessionsStorage
+import uuid
 
 ACCESS_DENIED_TITLES = [
     # Cloudflare
@@ -257,8 +258,49 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
             driver.quit()
             logging.debug('A used instance of webdriver has been destroyed')
 
+def reset_focus(driver: WebDriver, _state:dict):
+    if _state['uuid'] is None:
+        # create button and store UUID
+        _state['uuid'] = str(uuid.uuid4())
+        driver.execute_script(f"""
+            let el = document.createElement('button');
+            el.id = '{_state['uuid']}';
+            el.style.position='fixed';
+            el.style.top='0';
+            el.style.left='0';
+            document.body.prepend(el);
+            el.focus();
+        """)
+    else:
+        # button already exists, just focus it
+        driver.execute_script(f"""
+            let el = document.getElementById('{_state['uuid']}');
+            if (el) el.focus();
+        """)
 
-def click_verify(driver: WebDriver, num_tabs: int = 1):
+def reset_focus(driver: WebDriver, _state:dict):
+    if _state['uuid'] is None:
+        # create button and store UUID
+        _state['uuid'] = str(uuid.uuid4())
+        driver.execute_script(f"""
+            let el = document.createElement('button');
+            el.id = '{_state['uuid']}';
+            el.style.position='fixed';
+            el.style.top='0';
+            el.style.left='0';
+            document.body.prepend(el);
+            el.focus();
+        """)
+    else:
+        # button already exists, just focus it
+        driver.execute_script(f"""
+            let el = document.getElementById('{_state['uuid']}');
+            if (el) el.focus();
+        """)
+
+def click_verify(driver: WebDriver, num_tabs: int = 1, _state:dict={}):
+    if not _state:
+        _state['uuid'] = None
     try:
         logging.debug("Try to find the Cloudflare verify checkbox...")
         actions = ActionChains(driver)
@@ -272,7 +314,7 @@ def click_verify(driver: WebDriver, num_tabs: int = 1):
     except Exception:
         logging.debug("Cloudflare verify checkbox not found on the page.")
     finally:
-        driver.switch_to.default_content()
+        reset_focus(driver, _state)
 
     try:
         logging.debug("Try to find the Cloudflare 'Verify you are human' button...")
@@ -294,6 +336,7 @@ def click_verify(driver: WebDriver, num_tabs: int = 1):
 def _get_turnstile_token(driver: WebDriver, tabs: int):
     token_input = driver.find_element(By.CSS_SELECTOR, "input[name='cf-turnstile-response']")
     current_value = token_input.get_attribute("value")
+    state = {}
     while True:
         click_verify(driver, num_tabs=tabs)
         turnstile_token = token_input.get_attribute("value")
@@ -304,14 +347,7 @@ def _get_turnstile_token(driver: WebDriver, tabs: int):
         logging.debug(f"Failed to extract token possibly click failed")        
 
         # reset focus
-        driver.execute_script("""
-            let el = document.createElement('button');
-            el.style.position='fixed';
-            el.style.top='0';
-            el.style.left='0';
-            document.body.prepend(el);
-            el.focus();
-        """)
+        reset_focus(driver, state)
         time.sleep(1)
 
 def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
@@ -424,6 +460,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     attempt = 0
     if challenge_found:
+        state = {}
         while True:
             try:
                 attempt = attempt + 1
@@ -444,7 +481,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             except TimeoutException:
                 logging.debug("Timeout waiting for selector")
 
-                click_verify(driver)
+                click_verify(driver, _state=state)
 
                 # update the html (cloudflare reloads the page every 5 s)
                 html_element = driver.find_element(By.TAG_NAME, "html")
