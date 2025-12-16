@@ -87,9 +87,22 @@ def compress_package():
     compr_format = 'zip' if os.name == 'nt' else 'gztar'
     compr_file_name = 'flaresolverr_windows_x64' if os.name == 'nt' else 'flaresolverr_linux_x64'
     compr_file_path = os.path.join(dist_folder, compr_file_name)
-    shutil.make_archive(compr_file_path, compr_format, package_folder)
-    print("Compressed file path: " + compr_file_path)
+    
+    if compr_format == 'zip':
+        shutil.make_archive(compr_file_path, compr_format, package_folder)
+        print("Compressed file path: " + compr_file_path)
+    else:
+        def _reset_tarinfo(tarinfo):
+            tarinfo.uid = 0
+            tarinfo.gid = 0
+            tarinfo.uname = ""
+            tarinfo.gname = ""
+            return tarinfo
 
+        tar_path = compr_file_path + '.tar.gz'
+        with tarfile.open(tar_path, 'w:gz') as tar:
+            tar.add(package_folder, arcname=os.path.basename(package_folder), filter=_reset_tarinfo)
+        print("Compressed file path: " + tar_path)
 
 if __name__ == "__main__":
     print("Building package...")
