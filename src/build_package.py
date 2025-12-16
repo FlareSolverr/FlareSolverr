@@ -101,7 +101,9 @@ def compress_package():
 
         tar_path = compr_file_path + '.tar.gz'
         with tarfile.open(tar_path, 'w:gz') as tar:
-            tar.add(package_folder, arcname=os.path.basename(package_folder), filter=_reset_tarinfo)
+            for entry in os.listdir(package_folder):
+                fullpath = os.path.join(package_folder, entry)
+                tar.add(fullpath, arcname=entry, filter=_reset_tarinfo)
         print("Compressed file path: " + tar_path)
 
 if __name__ == "__main__":
