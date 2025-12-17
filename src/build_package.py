@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import sys
 import zipfile
+import tarfile
 
 import requests
 
