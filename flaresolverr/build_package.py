@@ -8,6 +8,8 @@ import tarfile
 
 import requests
 
+from .exceptions import FlaresolverrException
+
 
 def clean_files():
     try:
@@ -76,7 +78,7 @@ def run_pyinstaller():
                             cwd=os.pardir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if result.returncode != 0:
         print(result.stderr.decode('utf-8'))
-        raise Exception("Error running pyInstaller")
+        raise FlaresolverrException("Error running pyInstaller")
 
 
 def compress_package():

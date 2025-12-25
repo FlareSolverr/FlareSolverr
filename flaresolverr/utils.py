@@ -10,6 +10,7 @@ import urllib.parse
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 from . import undetected_chromedriver as uc
+from .exceptions import FlaresolverrException
 
 FLARESOLVERR_VERSION = None
 PLATFORM_VERSION = None
@@ -235,7 +236,7 @@ def get_chrome_exe_path() -> str:
     chrome_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'chrome', "chrome")
     if os.path.exists(chrome_path):
         if not os.access(chrome_path, os.X_OK):
-            raise Exception(f'Chrome binary "{chrome_path}" is not executable. '
+            raise FlaresolverrException(f'Chrome binary "{chrome_path}" is not executable. '
                             f'Please, extract the archive with "tar xzf <file.tar.gz>".')
         CHROME_EXE_PATH = chrome_path
         return CHROME_EXE_PATH
@@ -327,7 +328,7 @@ def get_user_agent(driver=None) -> str:
         USER_AGENT = re.sub('HEADLESS', '', USER_AGENT, flags=re.IGNORECASE)
         return USER_AGENT
     except Exception as e:
-        raise Exception("Error getting browser User-Agent. " + str(e))
+        raise FlaresolverrException("Error getting browser User-Agent. " + str(e))
     finally:
         if driver is not None:
             if PLATFORM_VERSION == "nt":
