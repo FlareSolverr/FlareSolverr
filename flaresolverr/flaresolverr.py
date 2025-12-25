@@ -9,6 +9,7 @@ from bottle import run, response, Bottle, request, ServerAdapter
 from .bottle_plugins.error_plugin import error_plugin
 from .bottle_plugins.logger_plugin import logger_plugin
 from .bottle_plugins import prometheus_plugin
+from .exceptions import FlaresolverrException
 from .dtos import V1RequestBase
 from . import flaresolverr_service 
 from . import utils
@@ -78,7 +79,7 @@ def init():
     """
     # check python version
     if sys.version_info < (3, 9):
-        raise Exception("The Python version is less than 3.9, a version equal to or higher is required.")
+        raise FlaresolverrException("The Python version is less than 3.9, a version equal to or higher is required.")
 
     # fix for HEADLESS=false in Windows binary
     # https://stackoverflow.com/a/27694505
