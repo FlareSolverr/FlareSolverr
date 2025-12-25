@@ -9,7 +9,8 @@ import tempfile
 import urllib.parse
 
 from selenium.webdriver.chrome.webdriver import WebDriver
-import undetected_chromedriver as uc
+from . import undetected_chromedriver as uc
+from .exceptions import FlaresolverrException
 
 FLARESOLVERR_VERSION = None
 PLATFORM_VERSION = None
@@ -18,6 +19,8 @@ CHROME_MAJOR_VERSION = None
 USER_AGENT = None
 XVFB_DISPLAY = None
 PATCHED_DRIVER_PATH = None
+
+logger = logging.getLogger('flaresolverr')
 
 
 def get_config_log_html() -> bool:
@@ -131,7 +134,7 @@ def create_proxy_extension(proxy: dict) -> str:
 
 def get_webdriver(proxy: dict = None) -> WebDriver:
     global PATCHED_DRIVER_PATH, USER_AGENT
-    logging.debug('Launching web browser...')
+    logger.debug('Launching web browser...')
 
     # undetected_chromedriver
     options = uc.ChromeOptions()
@@ -165,7 +168,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         options.add_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
     elif proxy and 'url' in proxy:
         proxy_url = proxy['url']
-        logging.debug("Using webdriver proxy: %s", proxy_url)
+        logger.debug("Using webdriver proxy: %s", proxy_url)
         options.add_argument('--proxy-server=%s' % proxy_url)
 
     # note: headless mode is detected (headless = True)
@@ -200,7 +203,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
                            driver_executable_path=driver_exe_path, version_main=version_main,
                            windows_headless=windows_headless, headless=get_config_headless())
     except Exception as e:
-        logging.error("Error starting Chrome: %s" % e)
+        logger.error("Error starting Chrome: %s" % e)
         # No point in continuing if we cannot retrieve the driver
         raise e
 
@@ -233,7 +236,7 @@ def get_chrome_exe_path() -> str:
     chrome_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'chrome', "chrome")
     if os.path.exists(chrome_path):
         if not os.access(chrome_path, os.X_OK):
-            raise Exception(f'Chrome binary "{chrome_path}" is not executable. '
+            raise FlaresolverrException(f'Chrome binary "{chrome_path}" is not executable. '
                             f'Please, extract the archive with "tar xzf <file.tar.gz>".')
         CHROME_EXE_PATH = chrome_path
         return CHROME_EXE_PATH
@@ -325,7 +328,7 @@ def get_user_agent(driver=None) -> str:
         USER_AGENT = re.sub('HEADLESS', '', USER_AGENT, flags=re.IGNORECASE)
         return USER_AGENT
     except Exception as e:
-        raise Exception("Error getting browser User-Agent. " + str(e))
+        raise FlaresolverrException("Error getting browser User-Agent. " + str(e))
     finally:
         if driver is not None:
             if PLATFORM_VERSION == "nt":
