@@ -21,6 +21,7 @@ from .dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
                   ChallengeResolutionT, HealthResponse, IndexResponse,
                   V1RequestBase, V1ResponseBase)
 from .sessions import SessionsStorage
+from .exceptions import FlaresolverrException
 
 ACCESS_DENIED_TITLES = [
     # Cloudflare
@@ -121,7 +122,7 @@ def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
 def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
     # do some validations
     if req.cmd is None:
-        raise Exception("Request parameter 'cmd' is mandatory.")
+        raise FlaresolverrException("Request parameter 'cmd' is mandatory.")
     if req.headers is not None:
         logger.warning("Request parameter 'headers' was removed in FlareSolverr v2.")
     if req.userAgent is not None:
@@ -144,7 +145,7 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
     elif req.cmd == 'request.post':
         res = _cmd_request_post(req)
     else:
-        raise Exception(f"Request parameter 'cmd' = '{req.cmd}' is invalid.")
+        raise FlaresolverrException(f"Request parameter 'cmd' = '{req.cmd}' is invalid.")
 
     return res
 
@@ -152,9 +153,9 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
 def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
     # do some validations
     if req.url is None:
-        raise Exception("Request parameter 'url' is mandatory in 'request.get' command.")
+        raise FlaresolverrException("Request parameter 'url' is mandatory in 'request.get' command.")
     if req.postData is not None:
-        raise Exception("Cannot use 'postBody' when sending a GET request.")
+        raise FlaresolverrException("Cannot use 'postBody' when sending a GET request.")
     if req.returnRawHtml is not None:
         logger.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
@@ -171,7 +172,7 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
 def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     # do some validations
     if req.postData is None:
-        raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
+        raise FlaresolverrException("Request parameter 'postData' is mandatory in 'request.post' command.")
     if req.returnRawHtml is not None:
         logger.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
@@ -220,7 +221,7 @@ def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
     existed = SESSIONS_STORAGE.destroy(session_id)
 
     if not existed:
-        raise Exception("The session doesn't exist.")
+        raise FlaresolverrException("The session doesn't exist.")
 
     return V1ResponseBase({
         "status": STATUS_OK,
@@ -249,9 +250,9 @@ def resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
             logger.debug('New instance of webdriver has been created to perform the request')
         return func_timeout(timeout, _evil_logic, (req, driver, method))
     except FunctionTimedOut:
-        raise Exception(f'Error solving the challenge. Timeout after {timeout} seconds.')
+        raise FlaresolverrException(f'Error solving the challenge. Timeout after {timeout} seconds.')
     except Exception as e:
-        raise Exception('Error solving the challenge. ' + str(e).replace('\n', '\\n'))
+        raise FlaresolverrException('Error solving the challenge. ' + str(e).replace('\n', '\\n'))
     finally:
         if not req.session and driver is not None:
             if utils.PLATFORM_VERSION == "nt":
@@ -399,13 +400,13 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     # find access denied titles
     for title in ACCESS_DENIED_TITLES:
         if page_title.startswith(title):
-            raise Exception('Cloudflare has blocked this request. '
+            raise FlaresolverrException('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
     # find access denied selectors
     for selector in ACCESS_DENIED_SELECTORS:
         found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
         if len(found_elements) > 0:
-            raise Exception('Cloudflare has blocked this request. '
+            raise FlaresolverrException('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
 
     # find challenge by title
