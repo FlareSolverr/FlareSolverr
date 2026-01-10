@@ -28,6 +28,10 @@ def get_config_headless() -> bool:
     return os.environ.get('HEADLESS', 'true').lower() == 'true'
 
 
+def get_config_disable_media() -> bool:
+    return os.environ.get('DISABLE_MEDIA', 'false').lower() == 'true'
+
+
 def get_flaresolverr_version() -> str:
     global FLARESOLVERR_VERSION
     if FLARESOLVERR_VERSION is not None:
@@ -58,18 +62,21 @@ def create_proxy_extension(proxy: dict) -> str:
     manifest_json = """
     {
         "version": "1.0.0",
-        "manifest_version": 2,
+        "manifest_version": 3,
         "name": "Chrome Proxy",
         "permissions": [
             "proxy",
             "tabs",
-            "unlimitedStorage",
             "storage",
-            "<all_urls>",
             "webRequest",
-            "webRequestBlocking"
+            "webRequestAuthProvider"
         ],
-        "background": {"scripts": ["background.js"]},
+        "host_permissions": [
+          "<all_urls>"
+        ],
+        "background": {
+          "service_worker": "background.js"
+        },
         "minimum_chrome_version": "76.0.0"
     }
     """
@@ -140,7 +147,6 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     IS_ARMARCH = platform.machine().startswith(('arm', 'aarch'))
     if IS_ARMARCH:
         options.add_argument('--disable-gpu-sandbox')
-        options.add_argument('--disable-software-rasterizer')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
 
@@ -153,7 +159,11 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         options.add_argument('--user-agent=%s' % USER_AGENT)
 
     proxy_extension_dir = None
-    if proxy and 'url' in proxy:
+    if proxy and all(key in proxy for key in ['url', 'username', 'password']):
+        proxy_extension_dir = create_proxy_extension(proxy)
+        options.add_argument("--disable-features=DisableLoadExtensionCommandLineSwitch")
+        options.add_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
+    elif proxy and 'url' in proxy:
         proxy_url = proxy['url']
         parsed_proxy = urllib.parse.urlparse(proxy_url)
         
@@ -210,6 +220,8 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
                            windows_headless=windows_headless, headless=get_config_headless())
     except Exception as e:
         logging.error("Error starting Chrome: %s" % e)
+        # No point in continuing if we cannot retrieve the driver
+        raise e
 
     # save the patched driver to avoid re-downloads
     if driver_exe_path is None:
@@ -311,7 +323,7 @@ def extract_version_nt_folder() -> str:
             paths = [f.path for f in os.scandir(path) if f.is_dir()]
             for path in paths:
                 filename = os.path.basename(path)
-                pattern = '\d+\.\d+\.\d+\.\d+'
+                pattern = r'\d+\.\d+\.\d+\.\d+'
                 match = re.search(pattern, filename)
                 if match and match.group():
                     # Found a Chrome version.

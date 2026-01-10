@@ -13,6 +13,10 @@ from dtos import V1RequestBase
 import flaresolverr_service
 import utils
 
+env_proxy_url = os.environ.get('PROXY_URL', None)
+env_proxy_username = os.environ.get('PROXY_USERNAME', None)
+env_proxy_password = os.environ.get('PROXY_PASSWORD', None)
+
 
 class JSONErrorBottle(Bottle):
     """
@@ -50,7 +54,14 @@ def controller_v1():
     """
     Controller v1
     """
-    req = V1RequestBase(request.json)
+    data = request.json or {}
+    if (('proxy' not in data or not data.get('proxy')) and env_proxy_url is not None and (env_proxy_username is None and env_proxy_password is None)):
+        logging.info('Using proxy URL ENV')
+        data['proxy'] = {"url": env_proxy_url}
+    if (('proxy' not in data or not data.get('proxy')) and env_proxy_url is not None and (env_proxy_username is not None or env_proxy_password is not None)):
+        logging.info('Using proxy URL, username & password ENVs')
+        data['proxy'] = {"url": env_proxy_url, "username": env_proxy_username, "password": env_proxy_password}
+    req = V1RequestBase(data)
     res = flaresolverr_service.controller_v1_endpoint(req)
     if res.__error_500__:
         response.status = 500
@@ -70,12 +81,13 @@ if __name__ == "__main__":
 
     # fix ssl certificates for compiled binaries
     # https://github.com/pyinstaller/pyinstaller/issues/7229
-    # https://stackoverflow.com/questions/55736855/how-to-change-the-cafile-argument-in-the-ssl-module-in-python3
+    # https://stackoverflow.com/q/55736855
     os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
     os.environ["SSL_CERT_FILE"] = certifi.where()
 
     # validate configuration
     log_level = os.environ.get('LOG_LEVEL', 'info').upper()
+    log_file = os.environ.get('LOG_FILE', None)
     log_html = utils.get_config_log_html()
     headless = utils.get_config_headless()
     server_host = os.environ.get('HOST', '0.0.0.0')
@@ -85,14 +97,29 @@ if __name__ == "__main__":
     logger_format = '%(asctime)s %(levelname)-8s %(message)s'
     if log_level == 'DEBUG':
         logger_format = '%(asctime)s %(levelname)-8s ReqId %(thread)s %(message)s'
-    logging.basicConfig(
-        format=logger_format,
-        level=log_level,
-        datefmt='%Y-%m-%d %H:%M:%S',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
+    if log_file:
+        log_file = os.path.realpath(log_file)
+        log_path = os.path.dirname(log_file)
+        os.makedirs(log_path, exist_ok=True)
+        logging.basicConfig(
+            format=logger_format,
+            level=log_level,
+            datefmt='%Y-%m-%d %H:%M:%S',
+            handlers=[
+                logging.StreamHandler(sys.stdout),
+                logging.FileHandler(log_file)
+            ]
+        )
+    else:
+        logging.basicConfig(
+            format=logger_format,
+            level=log_level,
+            datefmt='%Y-%m-%d %H:%M:%S',
+            handlers=[
+                logging.StreamHandler(sys.stdout)
+            ]
+        )
+
     # disable warning traces from urllib3
     logging.getLogger('urllib3').setLevel(logging.ERROR)
     logging.getLogger('selenium.webdriver.remote.remote_connection').setLevel(logging.WARNING)

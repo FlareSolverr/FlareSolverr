@@ -1,5 +1,34 @@
 # Changelog
 
+## v3.4.6 (2025/11/29)
+* Add disable image, css, fonts option with CDP. Thanks @Ananto30
+
+## v3.4.5 (2025/11/11)
+* Revert to Python v3.13
+
+## v3.4.4 (2025/11/04)
+* Bump dependencies, Chromium, and some other general fixes. Thanks @flowerey
+
+## v3.4.3 (2025/10/28)
+* Update proxy extension
+
+## v3.4.2 (2025/10/09)
+* Bump dependencies & CI actions. Thanks @flowerey
+* Add optional wait time after resolving the challenge before returning. Thanks @kennedyoliveira
+* Add proxy ENVs. Thanks @Robokishan
+* Handle empty string and keys without value in postData. Thanks @eZ4RK0
+* Add quote protection for password containing it. Thanks @warrenberberd
+* Add returnScreenshot parameter to screenshot the final web page. Thanks @estebanthi
+* Add log file support. Thanks @acg5159
+
+## v3.4.1 (2025/09/15)
+* Fix regex pattern syntax in utils.py
+* Change access denied title check to use startswith
+
+## v3.4.0 (2025/08/25)
+* Modernize and upgrade application. Thanks @TheCrazyLex
+* Remove disable software rasterizer option for ARM builds. Thanks @smrodman83
+
 ## v3.3.25 (2025/06/14)
 * Remove `use-gl` argument. Thanks @qwerty12
 * u_c: remove apparent c&p typo. Thanks @ok3721
