@@ -51,7 +51,9 @@ We provide a `docker-compose.yml` configuration file. Clone this repository and 
 `docker-compose up -d` _(Compose V1)_ or `docker compose up -d` _(Compose V2)_ to start
 the container.
 
-If you prefer the `docker cli` execute the following command.
+If you prefer the `docker cli` execute the following command:
+
+**Bash**
 
 ```bash
 docker run -d \
@@ -60,6 +62,12 @@ docker run -d \
   -e LOG_LEVEL=info \
   --restart unless-stopped \
   ghcr.io/flaresolverr/flaresolverr:latest
+```
+
+**Command Prompt or Powershell**
+
+```cmd
+docker run -d --name=flaresolverr -p 8191:8191 -e LOG_LEVEL=info --restart unless-stopped ghcr.io/flaresolverr/flaresolverr:latest
 ```
 
 If your host OS is Debian, make sure `libseccomp2` version is 2.5.x. You can check the version with `sudo apt-cache policy libseccomp2`
@@ -336,3 +344,4 @@ to the file name of one of the adapters inside the `/captcha` directory.
 ## Related projects
 
 - C# implementation => https://github.com/FlareSolverr/FlareSolverrSharp
+
