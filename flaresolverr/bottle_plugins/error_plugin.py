@@ -1,6 +1,8 @@
 from bottle import response
 import logging
 
+logger = logging.getLogger('flaresolverr')
+
 
 def error_plugin(callback):
     """
@@ -12,7 +14,7 @@ def error_plugin(callback):
         try:
             actual_response = callback(*args, **kwargs)
         except Exception as e:
-            logging.error(str(e))
+            logger.error(str(e))
             actual_response = {
                 "error": str(e)
             }

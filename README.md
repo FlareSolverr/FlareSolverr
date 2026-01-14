@@ -84,6 +84,15 @@ This is the recommended way for Windows users.
 - Download the [FlareSolverr executable](https://github.com/FlareSolverr/FlareSolverr/releases) from the release's page. It is available for Windows x64 and Linux x64.
 - Execute FlareSolverr binary. In the environment variables section you can find how to change the configuration.
 
+### As python package
+
+> **Warning**
+> Chrome or Chromium must be installed on the host system for the Python package to work.
+
+```bash
+pip install flaresolverr
+```
+
 ### From source code
 
 > **Warning**
@@ -95,14 +104,14 @@ This is the recommended way for Windows users.
 - (Only in macOS) Install [XQuartz](https://www.xquartz.org/) package.
 - Clone this repository and open a shell in that path.
 - Run `pip install -r requirements.txt` command to install FlareSolverr dependencies.
-- Run `python src/flaresolverr.py` command to start FlareSolverr.
+- Run `python flaresolverr.py` command to start FlareSolverr.
 
 ### From source code (FreeBSD/TrueNAS CORE)
 
 - Run `pkg install chromium python313 py313-pip xorg-vfbserver` command to install the required dependencies.
 - Clone this repository and open a shell in that path.
 - Run `python3.13 -m pip install -r requirements.txt` command to install FlareSolverr dependencies.
-- Run `python3.13 src/flaresolverr.py` command to start FlareSolverr.
+- Run `python3.13 flaresolverr.py` command to start FlareSolverr.
 
 ### Systemd service
 
@@ -274,6 +283,21 @@ This works like `request.get`, with the addition of the postData parameter. Note
 | Parameter | Notes                                                                    |
 | --------- | ------------------------------------------------------------------------ |
 | postData  | Must be a string with `application/x-www-form-urlencoded`. Eg: `a=b&c=d` |
+
+### Usage as python package
+
+```python
+import flaresolverr
+
+flaresolverr.init()
+data = flaresolverr.V1RequestBase({
+  "url": "http://www.google.com/",
+  "maxTimeout": 60000
+})
+solution = flaresolverr.resolve_challenge(data, "GET")
+print(solution.result.response)
+print(solution.result.cookies)
+```
 
 ## Environment variables
 

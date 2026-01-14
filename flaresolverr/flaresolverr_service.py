@@ -16,11 +16,12 @@ from selenium.webdriver.support.expected_conditions import (
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 
-import utils
-from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
+from . import utils
+from .dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
                   ChallengeResolutionT, HealthResponse, IndexResponse,
                   V1RequestBase, V1ResponseBase)
-from sessions import SessionsStorage
+from .sessions import SessionsStorage
+from .exceptions import FlaresolverrException
 
 ACCESS_DENIED_TITLES = [
     # Cloudflare
@@ -56,29 +57,31 @@ TURNSTILE_SELECTORS = [
 SHORT_TIMEOUT = 1
 SESSIONS_STORAGE = SessionsStorage()
 
+logger = logging.getLogger('flaresolverr')
+
 
 def test_browser_installation():
-    logging.info("Testing web browser installation...")
-    logging.info("Platform: " + platform.platform())
+    logger.info("Testing web browser installation...")
+    logger.info("Platform: " + platform.platform())
 
     chrome_exe_path = utils.get_chrome_exe_path()
     if chrome_exe_path is None:
-        logging.error("Chrome / Chromium web browser not installed!")
+        logger.error("Chrome / Chromium web browser not installed!")
         sys.exit(1)
     else:
-        logging.info("Chrome / Chromium path: " + chrome_exe_path)
+        logger.info("Chrome / Chromium path: " + chrome_exe_path)
 
     chrome_major_version = utils.get_chrome_major_version()
     if chrome_major_version == '':
-        logging.error("Chrome / Chromium version not detected!")
+        logger.error("Chrome / Chromium version not detected!")
         sys.exit(1)
     else:
-        logging.info("Chrome / Chromium major version: " + chrome_major_version)
+        logger.info("Chrome / Chromium major version: " + chrome_major_version)
 
-    logging.info("Launching web browser...")
+    logger.info("Launching web browser...")
     user_agent = utils.get_user_agent()
-    logging.info("FlareSolverr User-Agent: " + user_agent)
-    logging.info("Test successful!")
+    logger.info("FlareSolverr User-Agent: " + user_agent)
+    logger.info("Test successful!")
 
 
 def index_endpoint() -> IndexResponse:
@@ -97,7 +100,7 @@ def health_endpoint() -> HealthResponse:
 
 def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
     start_ts = int(time.time() * 1000)
-    logging.info(f"Incoming request => POST /v1 body: {utils.object_to_dict(req)}")
+    logger.info(f"Incoming request => POST /v1 body: {utils.object_to_dict(req)}")
     res: V1ResponseBase
     try:
         res = _controller_v1_handler(req)
@@ -106,24 +109,24 @@ def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
         res.__error_500__ = True
         res.status = STATUS_ERROR
         res.message = "Error: " + str(e)
-        logging.error(res.message)
+        logger.error(res.message)
 
     res.startTimestamp = start_ts
     res.endTimestamp = int(time.time() * 1000)
     res.version = utils.get_flaresolverr_version()
-    logging.debug(f"Response => POST /v1 body: {utils.object_to_dict(res)}")
-    logging.info(f"Response in {(res.endTimestamp - res.startTimestamp) / 1000} s")
+    logger.debug(f"Response => POST /v1 body: {utils.object_to_dict(res)}")
+    logger.info(f"Response in {(res.endTimestamp - res.startTimestamp) / 1000} s")
     return res
 
 
 def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
     # do some validations
     if req.cmd is None:
-        raise Exception("Request parameter 'cmd' is mandatory.")
+        raise FlaresolverrException("Request parameter 'cmd' is mandatory.")
     if req.headers is not None:
-        logging.warning("Request parameter 'headers' was removed in FlareSolverr v2.")
+        logger.warning("Request parameter 'headers' was removed in FlareSolverr v2.")
     if req.userAgent is not None:
-        logging.warning("Request parameter 'userAgent' was removed in FlareSolverr v2.")
+        logger.warning("Request parameter 'userAgent' was removed in FlareSolverr v2.")
 
     # set default values
     if req.maxTimeout is None or int(req.maxTimeout) < 1:
@@ -142,7 +145,7 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
     elif req.cmd == 'request.post':
         res = _cmd_request_post(req)
     else:
-        raise Exception(f"Request parameter 'cmd' = '{req.cmd}' is invalid.")
+        raise FlaresolverrException(f"Request parameter 'cmd' = '{req.cmd}' is invalid.")
 
     return res
 
@@ -150,15 +153,15 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
 def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
     # do some validations
     if req.url is None:
-        raise Exception("Request parameter 'url' is mandatory in 'request.get' command.")
+        raise FlaresolverrException("Request parameter 'url' is mandatory in 'request.get' command.")
     if req.postData is not None:
-        raise Exception("Cannot use 'postBody' when sending a GET request.")
+        raise FlaresolverrException("Cannot use 'postBody' when sending a GET request.")
     if req.returnRawHtml is not None:
-        logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
+        logger.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
-        logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
+        logger.warning("Request parameter 'download' was removed in FlareSolverr v2.")
 
-    challenge_res = _resolve_challenge(req, 'GET')
+    challenge_res = resolve_challenge(req, 'GET')
     res = V1ResponseBase({})
     res.status = challenge_res.status
     res.message = challenge_res.message
@@ -169,13 +172,13 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
 def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     # do some validations
     if req.postData is None:
-        raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
+        raise FlaresolverrException("Request parameter 'postData' is mandatory in 'request.post' command.")
     if req.returnRawHtml is not None:
-        logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
+        logger.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
-        logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
+        logger.warning("Request parameter 'download' was removed in FlareSolverr v2.")
 
-    challenge_res = _resolve_challenge(req, 'POST')
+    challenge_res = resolve_challenge(req, 'POST')
     res = V1ResponseBase({})
     res.status = challenge_res.status
     res.message = challenge_res.message
@@ -184,7 +187,7 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
 
 
 def _cmd_sessions_create(req: V1RequestBase) -> V1ResponseBase:
-    logging.debug("Creating new session...")
+    logger.debug("Creating new session...")
 
     session, fresh = SESSIONS_STORAGE.create(session_id=req.session, proxy=req.proxy)
     session_id = session.session_id
@@ -218,7 +221,7 @@ def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
     existed = SESSIONS_STORAGE.destroy(session_id)
 
     if not existed:
-        raise Exception("The session doesn't exist.")
+        raise FlaresolverrException("The session doesn't exist.")
 
     return V1ResponseBase({
         "status": STATUS_OK,
@@ -226,7 +229,7 @@ def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
     })
 
 
-def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
+def resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
     timeout = int(req.maxTimeout) / 1000
     driver = None
     try:
@@ -236,31 +239,31 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
             session, fresh = SESSIONS_STORAGE.get(session_id, ttl)
 
             if fresh:
-                logging.debug(f"new session created to perform the request (session_id={session_id})")
+                logger.debug(f"new session created to perform the request (session_id={session_id})")
             else:
-                logging.debug(f"existing session is used to perform the request (session_id={session_id}, "
+                logger.debug(f"existing session is used to perform the request (session_id={session_id}, "
                               f"lifetime={str(session.lifetime())}, ttl={str(ttl)})")
 
             driver = session.driver
         else:
             driver = utils.get_webdriver(req.proxy)
-            logging.debug('New instance of webdriver has been created to perform the request')
+            logger.debug('New instance of webdriver has been created to perform the request')
         return func_timeout(timeout, _evil_logic, (req, driver, method))
     except FunctionTimedOut:
-        raise Exception(f'Error solving the challenge. Timeout after {timeout} seconds.')
+        raise FlaresolverrException(f'Error solving the challenge. Timeout after {timeout} seconds.')
     except Exception as e:
-        raise Exception('Error solving the challenge. ' + str(e).replace('\n', '\\n'))
+        raise FlaresolverrException('Error solving the challenge. ' + str(e).replace('\n', '\\n'))
     finally:
         if not req.session and driver is not None:
             if utils.PLATFORM_VERSION == "nt":
                 driver.close()
             driver.quit()
-            logging.debug('A used instance of webdriver has been destroyed')
+            logger.debug('A used instance of webdriver has been destroyed')
 
 
 def click_verify(driver: WebDriver, num_tabs: int = 1):
     try:
-        logging.debug("Try to find the Cloudflare verify checkbox...")
+        logger.debug("Try to find the Cloudflare verify checkbox...")
         actions = ActionChains(driver)
         actions.pause(5)
         for _ in range(num_tabs):
@@ -268,14 +271,14 @@ def click_verify(driver: WebDriver, num_tabs: int = 1):
         actions.pause(1)
         actions.send_keys(Keys.SPACE).perform()
         
-        logging.debug(f"Cloudflare verify checkbox clicked after {num_tabs} tabs!")
+        logger.debug(f"Cloudflare verify checkbox clicked after {num_tabs} tabs!")
     except Exception:
-        logging.debug("Cloudflare verify checkbox not found on the page.")
+        logger.debug("Cloudflare verify checkbox not found on the page.")
     finally:
         driver.switch_to.default_content()
 
     try:
-        logging.debug("Try to find the Cloudflare 'Verify you are human' button...")
+        logger.debug("Try to find the Cloudflare 'Verify you are human' button...")
         button = driver.find_element(
             by=By.XPATH,
             value="//input[@type='button' and @value='Verify you are human']",
@@ -285,9 +288,9 @@ def click_verify(driver: WebDriver, num_tabs: int = 1):
             actions.move_to_element_with_offset(button, 5, 7)
             actions.click(button)
             actions.perform()
-            logging.debug("The Cloudflare 'Verify you are human' button found and clicked!")
+            logger.debug("The Cloudflare 'Verify you are human' button found and clicked!")
     except Exception:
-        logging.debug("The Cloudflare 'Verify you are human' button not found on the page.")
+        logger.debug("The Cloudflare 'Verify you are human' button not found on the page.")
 
     time.sleep(2)
 
@@ -299,9 +302,9 @@ def _get_turnstile_token(driver: WebDriver, tabs: int):
         turnstile_token = token_input.get_attribute("value")
         if turnstile_token:
             if turnstile_token != current_value:
-                logging.info(f"Turnstile token: {turnstile_token}")
+                logger.info(f"Turnstile token: {turnstile_token}")
                 return turnstile_token
-        logging.debug(f"Failed to extract token possibly click failed")        
+        logger.debug(f"Failed to extract token possibly click failed")        
 
         # reset focus
         driver.execute_script("""
@@ -317,7 +320,7 @@ def _get_turnstile_token(driver: WebDriver, tabs: int):
 def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
     turnstile_token = None
     if req.tabs_till_verify is not None:
-        logging.debug(f'Navigating to... {req.url} in order to pass the turnstile challenge')
+        logger.debug(f'Navigating to... {req.url} in order to pass the turnstile challenge')
         driver.get(req.url)
 
         turnstile_challenge_found = False
@@ -325,12 +328,12 @@ def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
             found_elements = driver.find_elements(By.CSS_SELECTOR, selector)   
             if len(found_elements) > 0:
                 turnstile_challenge_found = True
-                logging.info("Turnstile challenge detected. Selector found: " + selector)
+                logger.info("Turnstile challenge detected. Selector found: " + selector)
                 break
         if turnstile_challenge_found:
             turnstile_token = _get_turnstile_token(driver=driver, tabs=req.tabs_till_verify)
         else:
-            logging.debug(f'Turnstile challenge not found')
+            logger.debug(f'Turnstile challenge not found')
     return turnstile_token
 
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
@@ -357,15 +360,15 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             "*.WOFF", "*.WOFF2", "*.TTF", "*.OTF", "*.EOT"
         ]
         try:
-            logging.debug("Network.setBlockedURLs: %s", block_urls)
+            logger.debug("Network.setBlockedURLs: %s", block_urls)
             driver.execute_cdp_cmd("Network.enable", {})
             driver.execute_cdp_cmd("Network.setBlockedURLs", {"urls": block_urls})
         except Exception:
             # if CDP commands are not available or fail, ignore and continue
-            logging.debug("Network.setBlockedURLs failed or unsupported on this webdriver")
+            logger.debug("Network.setBlockedURLs failed or unsupported on this webdriver")
 
     # navigate to the page
-    logging.debug(f"Navigating to... {req.url}")
+    logger.debug(f"Navigating to... {req.url}")
     turnstile_token = None
 
     if method == "POST":
@@ -378,7 +381,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     # set cookies if required
     if req.cookies is not None and len(req.cookies) > 0:
-        logging.debug(f'Setting cookies...')
+        logger.debug(f'Setting cookies...')
         for cookie in req.cookies:
             driver.delete_cookie(cookie['name'])
             driver.add_cookie(cookie)
@@ -390,20 +393,20 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     # wait for the page
     if utils.get_config_log_html():
-        logging.debug(f"Response HTML:\n{driver.page_source}")
+        logger.debug(f"Response HTML:\n{driver.page_source}")
     html_element = driver.find_element(By.TAG_NAME, "html")
     page_title = driver.title
 
     # find access denied titles
     for title in ACCESS_DENIED_TITLES:
         if page_title.startswith(title):
-            raise Exception('Cloudflare has blocked this request. '
+            raise FlaresolverrException('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
     # find access denied selectors
     for selector in ACCESS_DENIED_SELECTORS:
         found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
         if len(found_elements) > 0:
-            raise Exception('Cloudflare has blocked this request. '
+            raise FlaresolverrException('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
 
     # find challenge by title
@@ -411,7 +414,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     for title in CHALLENGE_TITLES:
         if title.lower() == page_title.lower():
             challenge_found = True
-            logging.info("Challenge detected. Title found: " + page_title)
+            logger.info("Challenge detected. Title found: " + page_title)
             break
     if not challenge_found:
         # find challenge by selectors
@@ -419,7 +422,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
             if len(found_elements) > 0:
                 challenge_found = True
-                logging.info("Challenge detected. Selector found: " + selector)
+                logger.info("Challenge detected. Selector found: " + selector)
                 break
 
     attempt = 0
@@ -429,12 +432,12 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
                 attempt = attempt + 1
                 # wait until the title changes
                 for title in CHALLENGE_TITLES:
-                    logging.debug("Waiting for title (attempt " + str(attempt) + "): " + title)
+                    logger.debug("Waiting for title (attempt " + str(attempt) + "): " + title)
                     WebDriverWait(driver, SHORT_TIMEOUT).until_not(title_is(title))
 
                 # then wait until all the selectors disappear
                 for selector in CHALLENGE_SELECTORS:
-                    logging.debug("Waiting for selector (attempt " + str(attempt) + "): " + selector)
+                    logger.debug("Waiting for selector (attempt " + str(attempt) + "): " + selector)
                     WebDriverWait(driver, SHORT_TIMEOUT).until_not(
                         presence_of_element_located((By.CSS_SELECTOR, selector)))
 
@@ -442,7 +445,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
                 break
 
             except TimeoutException:
-                logging.debug("Timeout waiting for selector")
+                logger.debug("Timeout waiting for selector")
 
                 click_verify(driver)
 
@@ -450,17 +453,17 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
                 html_element = driver.find_element(By.TAG_NAME, "html")
 
         # waits until cloudflare redirection ends
-        logging.debug("Waiting for redirect")
+        logger.debug("Waiting for redirect")
         # noinspection PyBroadException
         try:
             WebDriverWait(driver, SHORT_TIMEOUT).until(staleness_of(html_element))
         except Exception:
-            logging.debug("Timeout waiting for redirect")
+            logger.debug("Timeout waiting for redirect")
 
-        logging.info("Challenge solved!")
+        logger.info("Challenge solved!")
         res.message = "Challenge solved!"
     else:
-        logging.info("Challenge not detected!")
+        logger.info("Challenge not detected!")
         res.message = "Challenge not detected!"
 
     challenge_res = ChallengeResolutionResultT({})
@@ -474,7 +477,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
 
         if req.waitInSeconds and req.waitInSeconds > 0:
-            logging.info("Waiting " + str(req.waitInSeconds) + " seconds before returning the response...")
+            logger.info("Waiting " + str(req.waitInSeconds) + " seconds before returning the response...")
             time.sleep(req.waitInSeconds)
 
         challenge_res.response = driver.page_source
