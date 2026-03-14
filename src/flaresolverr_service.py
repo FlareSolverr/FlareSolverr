@@ -139,6 +139,8 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
         res = _cmd_request_get(req)
     elif req.cmd == 'request.post':
         res = _cmd_request_post(req)
+    elif req.cmd == 'request.patch':
+        res = _cmd_request_patch(req)
     elif req.cmd == 'request.delete':
         res = _cmd_request_delete(req)
     else:
@@ -291,6 +293,33 @@ def delete_with_params(req: V1RequestBase, driver: WebDriver) -> str:
     result = _execute_xhr_request(driver, 'DELETE', req.url, headers, body)
     return result.get('responseText', '')
 
+def patch_with_params(req: V1RequestBase, driver: WebDriver) -> str:
+    """
+    Execute PATCH request with custom headers and body using XHR.
+    """
+    headers = getattr(req, 'headers', {})
+
+    # Load target page first to bypass protection
+    try:
+        driver.get(req.url)
+        time.sleep(2)
+        page_source = driver.page_source.lower()
+        if any(term in page_source for term in
+               ['cloudflare', 'checking your browser', 'ddos protection', 'please wait']):
+            logging.info("Protection detected, waiting for bypass...")
+            time.sleep(5)
+    except Exception as e:
+        logging.warning(f"Could not load target page: {e}")
+
+    body = None
+    if req.postData:
+        if isinstance(req.postData, str):
+            body = req.postData
+        else:
+            body = json.dumps(req.postData)
+
+    result = _execute_xhr_request(driver, 'PATCH', req.url, headers, body)
+    return result.get('responseText', '')
 
 def post_with_params(req: V1RequestBase, driver: WebDriver) -> str:
     """
@@ -426,6 +455,15 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
     res.solution = challenge_res.result
     return res
 
+def _cmd_request_patch(req: V1RequestBase) -> V1ResponseBase:
+    if req.url is None:
+        raise Exception("Request parameter 'url' is mandatory in 'request.patch' command.")
+    challenge_res = _resolve_challenge(req, 'PATCH')
+    res = V1ResponseBase({})
+    res.status = challenge_res.status
+    res.message = challenge_res.message
+    res.solution = challenge_res.result
+    return res
 
 def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     """
@@ -610,6 +648,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     logging.debug(f'Navigating to... {req.url}')
     if method == 'POST':
         res.response = post_with_params(req, driver)
+    elif method == 'PATCH':
+        res.response = patch_with_params(req, driver)
     elif method == 'DELETE':
         res.response = delete_with_params(req, driver)
     elif method == 'GET' and getattr(req, 'headers', None):
