@@ -14,7 +14,7 @@ FlareSolverr is a proxy server to bypass Cloudflare and DDoS-GUARD protection.
 ## How it works
 
 FlareSolverr starts a proxy server, and it waits for user requests in an idle state using few resources.
-When some request arrives, it uses [Selenium](https://www.selenium.dev) with the
+When some request arrives, it uses [Selenium](https://www.selenium.dev/) with the
 [undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver)
 to create a web browser (Chrome). It opens the URL with user parameters and waits until the Cloudflare challenge
 is solved (or timeout). The HTML code and the cookies are sent back to the user, and those cookies can be used to
@@ -35,7 +35,7 @@ already included within the image.
 
 Docker images are available in:
 
-- GitHub Registry => https://github.com/orgs/FlareSolverr/packages/container/package/flaresolverr
+- GitHub Registry => https://github.com/FlareSolverr/FlareSolverr/pkgs/container/flaresolverr
 - DockerHub => https://hub.docker.com/r/flaresolverr/flaresolverr
 
 Supported architectures are:

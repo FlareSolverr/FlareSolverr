@@ -111,9 +111,9 @@ class Patcher(object):
 
         # Set the correct repository to download the Chromedriver from
         if self.is_old_chromedriver:
-            self.url_repo = "https://chromedriver.storage.googleapis.com"
+            self.url_repo = "https://chromedriver.storage.googleapis.com/"
         else:
-            self.url_repo = "https://googlechromelabs.github.io/chrome-for-testing"
+            self.url_repo = "https://googlechromelabs.github.io/chrome-for-testing/"
 
         self.version_main = version_main
         self.version_full = None

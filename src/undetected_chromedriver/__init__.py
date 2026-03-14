@@ -538,7 +538,7 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
                             Object.defineProperty(navigator, 'maxTouchPoints', {get: () => 1});
                             Object.defineProperty(navigator.connection, 'rtt', {get: () => 100});
 
-                            // https://github.com/microlinkhq/browserless/blob/master/packages/goto/src/evasions/chrome-runtime.js
+                            // https://github.com/microlinkhq/browserless/blob/v9.12.4/packages/goto/src/evasions/chrome-runtime.js
                             window.chrome = {
                                 app: {
                                     isInstalled: false,
@@ -596,7 +596,7 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
                                 }
                             }
 
-                            // https://github.com/microlinkhq/browserless/blob/master/packages/goto/src/evasions/navigator-permissions.js
+                            // https://github.com/microlinkhq/browserless/blob/v9.12.4/packages/goto/src/evasions/navigator-permissions.js
                             if (!window.Notification) {
                                 window.Notification = {
                                     permission: 'denied'

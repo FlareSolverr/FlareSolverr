@@ -17,9 +17,9 @@ def _find_obj_by_key(key: str, value: str, _list: list) -> Optional[dict]:
 
 class TestFlareSolverr(unittest.TestCase):
 
-    proxy_url = "http://127.0.0.1:8888"
+    proxy_url = "http://127.0.0.1:8888/"
     proxy_socks_url = "socks5://127.0.0.1:1080"
-    google_url = "https://www.google.com"
+    google_url = "https://www.google.com/"
     post_url = "https://httpbin.org/post"
     cloudflare_url = "https://nowsecure.nl/"
     cloudflare_url_2 = "https://idope.se/torrent-list/harry/"
