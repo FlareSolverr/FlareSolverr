@@ -1,8 +1,12 @@
-FROM python:3.13-slim-bookworm AS builder
+ARG TAG_PYTHON=3.13-debian13-sfw-dev
+
+FROM dhi.io/python:${TAG_PYTHON} AS builder
+
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends gzip
 
 # Build dummy packages to skip installing them and their dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends equivs \
+RUN apt-get install -y --no-install-recommends equivs \
     && equivs-control libgl1-mesa-dri \
     && printf 'Section: misc\nPriority: optional\nStandards-Version: 3.9.2\nPackage: libgl1-mesa-dri\nVersion: 99.0.0\nDescription: Dummy package for libgl1-mesa-dri\n' >> libgl1-mesa-dri \
     && equivs-build libgl1-mesa-dri \
@@ -12,10 +16,13 @@ RUN apt-get update \
     && equivs-build adwaita-icon-theme \
     && mv adwaita-icon-theme_*.deb /adwaita-icon-theme.deb
 
-FROM python:3.13-slim-bookworm
+FROM dhi.io/python:${TAG_PYTHON}
 
 # Copy dummy packages
 COPY --from=builder /*.deb /
+
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends passwd
 
 # Install dependencies and create flaresolverr user
 # You can test Chromium running this command inside the container:
@@ -28,7 +35,6 @@ WORKDIR /app
 RUN dpkg -i /libgl1-mesa-dri.deb \
     && dpkg -i /adwaita-icon-theme.deb \
     # Install dependencies
-    && apt-get update \
     && apt-get install -y --no-install-recommends chromium chromium-common chromium-driver xvfb dumb-init \
         procps curl vim xauth \
     # Remove temporary files and hardware decoding libraries
@@ -36,7 +42,8 @@ RUN dpkg -i /libgl1-mesa-dri.deb \
     && rm -f /usr/lib/x86_64-linux-gnu/libmfxhw* \
     && rm -f /usr/lib/x86_64-linux-gnu/mfx/* \
     # Create flaresolverr user
-    && useradd --home-dir /app --shell /bin/sh flaresolverr \
+    && groupadd flaresolverr \
+    && useradd --home-dir /app --shell /bin/sh -g flaresolverr flaresolverr \
     && mv /usr/bin/chromedriver chromedriver \
     && chown -R flaresolverr:flaresolverr . \
     # Create config dir
@@ -64,7 +71,7 @@ EXPOSE 8192
 # dumb-init avoids zombie chromium processes
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
-CMD ["/usr/local/bin/python", "-u", "/app/flaresolverr.py"]
+CMD ["python", "-u", "/app/flaresolverr.py"]
 
 # Local build
 # docker build -t ngosang/flaresolverr:3.4.6 .
