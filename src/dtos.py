@@ -37,7 +37,10 @@ class V1RequestBase(object):
     session: str = None
     session_ttl_minutes: int = None
     headers: list = None  # deprecated v2.0.0, not used
-    userAgent: str = None  # deprecated v2.0.0, not used
+    userAgent: str = None  # experimental override, supported in this local patch
+    userDataDir: str = None  # experimental override, Chrome user-data-dir path
+    browserArgs: list[str] | str | None = None  # experimental extra Chrome args
+    browserExecutablePath: str = None  # experimental Chrome path override
 
     # V1Request
     url: str = None

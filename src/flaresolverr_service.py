@@ -122,8 +122,6 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
         raise Exception("Request parameter 'cmd' is mandatory.")
     if req.headers is not None:
         logging.warning("Request parameter 'headers' was removed in FlareSolverr v2.")
-    if req.userAgent is not None:
-        logging.warning("Request parameter 'userAgent' was removed in FlareSolverr v2.")
 
     # set default values
     if req.maxTimeout is None or int(req.maxTimeout) < 1:
@@ -186,7 +184,14 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
 def _cmd_sessions_create(req: V1RequestBase) -> V1ResponseBase:
     logging.debug("Creating new session...")
 
-    session, fresh = SESSIONS_STORAGE.create(session_id=req.session, proxy=req.proxy)
+    session, fresh = SESSIONS_STORAGE.create(
+        session_id=req.session,
+        proxy=req.proxy,
+        user_agent=req.userAgent,
+        user_data_dir=req.userDataDir,
+        browser_args=req.browserArgs,
+        browser_executable_path=req.browserExecutablePath,
+    )
     session_id = session.session_id
 
     if not fresh:
@@ -233,7 +238,15 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
         if req.session:
             session_id = req.session
             ttl = timedelta(minutes=req.session_ttl_minutes) if req.session_ttl_minutes else None
-            session, fresh = SESSIONS_STORAGE.get(session_id, ttl)
+            session, fresh = SESSIONS_STORAGE.get(
+                session_id,
+                ttl,
+                proxy=req.proxy,
+                user_agent=req.userAgent,
+                user_data_dir=req.userDataDir,
+                browser_args=req.browserArgs,
+                browser_executable_path=req.browserExecutablePath,
+            )
 
             if fresh:
                 logging.debug(f"new session created to perform the request (session_id={session_id})")
@@ -243,7 +256,13 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
 
             driver = session.driver
         else:
-            driver = utils.get_webdriver(req.proxy)
+            driver = utils.get_webdriver(
+                proxy=req.proxy,
+                user_agent=req.userAgent,
+                user_data_dir=req.userDataDir,
+                browser_args=req.browserArgs,
+                browser_executable_path=req.browserExecutablePath,
+            )
             logging.debug('New instance of webdriver has been created to perform the request')
         return func_timeout(timeout, _evil_logic, (req, driver, method))
     except FunctionTimedOut:

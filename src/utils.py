@@ -129,9 +129,23 @@ def create_proxy_extension(proxy: dict) -> str:
     return proxy_extension_dir
 
 
-def get_webdriver(proxy: dict = None) -> WebDriver:
+def _normalize_browser_args(browser_args) -> list[str]:
+    if browser_args is None:
+        return []
+    if isinstance(browser_args, str):
+        return [browser_args]
+    if isinstance(browser_args, (list, tuple)):
+        return [str(arg) for arg in browser_args if arg is not None and str(arg).strip() != '']
+    raise Exception("browserArgs must be a string or list of strings")
+
+
+def get_webdriver(proxy: dict = None, user_agent: str = None, user_data_dir: str = None,
+                  browser_args=None, browser_executable_path: str = None) -> WebDriver:
     global PATCHED_DRIVER_PATH, USER_AGENT
     logging.debug('Launching web browser...')
+
+    requested_user_agent = user_agent or USER_AGENT
+    extra_browser_args = _normalize_browser_args(browser_args)
 
     # undetected_chromedriver
     options = uc.ChromeOptions()
@@ -154,9 +168,14 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     if language is not None:
         options.add_argument('--accept-lang=%s' % language)
 
-    # Fix for Chrome 117 | https://github.com/FlareSolverr/FlareSolverr/issues/910
-    if USER_AGENT is not None:
-        options.add_argument('--user-agent=%s' % USER_AGENT)
+    if requested_user_agent is not None:
+        options.add_argument('--user-agent=%s' % requested_user_agent)
+
+    if user_data_dir is not None:
+        options.add_argument('--user-data-dir=%s' % user_data_dir)
+
+    for arg in extra_browser_args:
+        options.add_argument(arg)
 
     proxy_extension_dir = None
     if proxy and all(key in proxy for key in ['url', 'username', 'password']):
@@ -191,7 +210,7 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
             driver_exe_path = PATCHED_DRIVER_PATH
 
     # detect chrome path
-    browser_executable_path = get_chrome_exe_path()
+    browser_executable_path = browser_executable_path or get_chrome_exe_path()
 
     # downloads and patches the chromedriver
     # if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
