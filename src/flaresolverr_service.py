@@ -1,11 +1,12 @@
 import logging
+import os
 import platform
 import sys
 import time
 from datetime import timedelta
 from html import escape
 from random import uniform
-from urllib.parse import unquote, quote
+from urllib.parse import unquote, quote, urlsplit
 
 from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
@@ -155,8 +156,6 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
         raise Exception("Cannot use 'postBody' when sending a GET request.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
-    if req.download is not None:
-        logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
 
     challenge_res = _resolve_challenge(req, 'GET')
     res = V1ResponseBase({})
@@ -172,8 +171,6 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
         raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
-    if req.download is not None:
-        logging.warning("Request parameter 'download' was removed in FlareSolverr v2.")
 
     challenge_res = _resolve_challenge(req, 'POST')
     res = V1ResponseBase({})
@@ -267,7 +264,7 @@ def click_verify(driver: WebDriver, num_tabs: int = 1):
             actions.send_keys(Keys.TAB).pause(0.1 + uniform(0.02, 0.1))
         actions.pause(1 + uniform(0.1, 0.5))
         actions.send_keys(Keys.SPACE).perform()
-        
+
         logging.debug(f"Cloudflare verify checkbox clicked after {num_tabs} tabs!")
     except Exception:
         logging.debug("Cloudflare verify checkbox not found on the page.")
@@ -301,7 +298,7 @@ def _get_turnstile_token(driver: WebDriver, tabs: int):
             if turnstile_token != current_value:
                 logging.info(f"Turnstile token: {turnstile_token}")
                 return turnstile_token
-        logging.debug(f"Failed to extract token possibly click failed")        
+        logging.debug(f"Failed to extract token possibly click failed")
 
         # reset focus
         driver.execute_script("""
@@ -328,7 +325,7 @@ def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
 
         turnstile_challenge_found = False
         for selector in TURNSTILE_SELECTORS:
-            found_elements = driver.find_elements(By.CSS_SELECTOR, selector)   
+            found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
             if len(found_elements) > 0:
                 turnstile_challenge_found = True
                 logging.info("Turnstile challenge detected. Selector found: " + selector)
@@ -487,6 +484,49 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     if req.returnScreenshot:
         challenge_res.screenshot = driver.get_screenshot_as_base64()
+
+    if req.download:
+        logging.info(f"Downloading file: {req.url}")
+        try:
+            result = driver.execute_script("""
+                return fetch(arguments[0])
+                    .then(r => {
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.blob();
+                    })
+                    .then(b => new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve({
+                            data: reader.result.split(',')[1],
+                            mimeType: b.type || 'application/octet-stream'
+                        });
+                        reader.readAsDataURL(b);
+                    }));
+            """, req.url)
+
+            if result and result.get('data'):
+                filename = os.path.basename(urlsplit(req.url).path) or 'download'
+                mime_type = result['mimeType']
+                logging.info(f"File downloaded: {req.url} ({mime_type})")
+                res.message = "File downloaded successfully!"
+
+                if req.returnRawFile:
+                    challenge_res.__raw_download__ = {
+                        'data': result['data'],
+                        'mime': mime_type
+                    }
+                else:
+                    challenge_res.download = {
+                        'filename': filename,
+                        'mime': mime_type,
+                        'data': result['data']
+                    }
+            else:
+                logging.error(f"No data returned for: {req.url}")
+                res.message = "File download failed!"
+        except Exception as e:
+            logging.error(f"Error downloading {req.url}: {e}")
+            res.message = f"File download failed: {e}"
 
     # Get cookies after all waits to capture cookies set during JavaScript execution
     challenge_res.cookies = driver.get_cookies()

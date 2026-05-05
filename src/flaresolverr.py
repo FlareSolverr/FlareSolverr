@@ -1,3 +1,4 @@
+import base64
 import json
 import logging
 import os
@@ -63,6 +64,12 @@ def controller_v1():
         data['proxy'] = {"url": env_proxy_url, "username": env_proxy_username, "password": env_proxy_password}
     req = V1RequestBase(data)
     res = flaresolverr_service.controller_v1_endpoint(req)
+    if (not res.__error_500__
+            and res.solution is not None
+            and getattr(res.solution, '__raw_download__', None)):
+        raw = res.solution.__raw_download__
+        response.content_type = raw['mime']
+        return base64.b64decode(raw['data'])
     if res.__error_500__:
         response.status = 500
     return utils.object_to_dict(res)
