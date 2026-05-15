@@ -312,6 +312,73 @@ def extract_version_nt_folder() -> str:
     return ''
 
 
+def check_disk_space():
+    """Warn when the temp directory is running low on free space.
+
+    Chrome writes large temporary profiles to the system temp directory.
+    When the partition is full Chrome crashes with a cryptic
+    'disconnected: Unable to receive message from renderer' error that
+    gives no hint about the real cause.
+    """
+    tmp_dir = tempfile.gettempdir()
+    try:
+        usage = shutil.disk_usage(tmp_dir)
+        free_mb = usage.free / (1024 * 1024)
+        total_mb = usage.total / (1024 * 1024)
+        pct_used = 100 * (usage.used / usage.total)
+        logging.debug("Temp directory '%s': %.0f MB free of %.0f MB total (%.0f%% used)",
+                      tmp_dir, free_mb, total_mb, pct_used)
+        if usage.free == 0:
+            logging.error(
+                "Temp directory '%s' is completely full (%.0f MB used of %.0f MB). "
+                "Chrome cannot start. Free up space or set TMPDIR to a partition "
+                "with sufficient free space.",
+                tmp_dir, usage.used / (1024 * 1024), total_mb
+            )
+        elif free_mb < 500:
+            logging.warning(
+                "Temp directory '%s' has only %.0f MB free. "
+                "Chrome may fail to start or crash. "
+                "Consider freeing space or setting TMPDIR to another partition.",
+                tmp_dir, free_mb
+            )
+    except Exception as e:
+        logging.debug("Could not check temp directory disk space: %s", e)
+
+
+def cleanup_stale_temp_dirs():
+    """Remove leftover Chrome/FlareSolverr temp directories from previous sessions.
+
+    Chrome creates profile directories in the system temp folder and removes
+    them on clean shutdown. When FlareSolverr is killed or crashes these
+    directories are never cleaned up, gradually filling the partition.
+    """
+    tmp_dir = tempfile.gettempdir()
+    prefixes = (
+        'puppeteer_dev_chrome_profile-',
+        'puppeteer_dev_profile-',
+    )
+    removed = 0
+    errors = 0
+    try:
+        for entry in os.scandir(tmp_dir):
+            if entry.is_dir(follow_symlinks=False) and any(
+                entry.name.startswith(p) for p in prefixes
+            ):
+                try:
+                    shutil.rmtree(entry.path, ignore_errors=True)
+                    removed += 1
+                except Exception:
+                    errors += 1
+    except Exception as e:
+        logging.debug("Could not scan temp directory for stale profiles: %s", e)
+        return
+    if removed:
+        logging.info("Cleaned up %d stale Chrome temp director%s from '%s'%s",
+                     removed, 'ies' if removed != 1 else 'y', tmp_dir,
+                     f" ({errors} could not be removed)" if errors else "")
+
+
 def get_user_agent(driver=None) -> str:
     global USER_AGENT
     if USER_AGENT is not None:
