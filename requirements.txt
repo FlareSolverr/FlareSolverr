@@ -4,7 +4,7 @@ selenium==4.39.0
 func-timeout==4.3.5
 prometheus-client==0.23.1
 # Required by undetected_chromedriver
-requests==2.32.5
+requests==2.33.0
 certifi==2025.11.12
 websockets==15.0.1
 packaging==25.0
