@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.5.0 (2026/05/26)
+* Add formatting to log file
+* Resolve turnstile captcha. Thanks @denis-svg
+* Bump dependencies. Thanks @flower
+* Fix tar.gz having wrong uid/gid. Thanks @NikoCat233
+* Revert base image & Python
+
 ## v3.4.6 (2025/11/29)
 * Add disable image, css, fonts option with CDP. Thanks @Ananto30
 
