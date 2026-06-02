@@ -149,6 +149,8 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         options.add_argument('--disable-gpu-sandbox')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
+    # disable breaking popup
+    options.add_argument("----disable-features=LocalNetworkAccessChecks")
 
     language = os.environ.get('LANG', None)
     if language is not None:
