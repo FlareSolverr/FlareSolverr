@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import sys
+import argparse
 
 import certifi
 from bottle import run, response, Bottle, request, ServerAdapter
@@ -68,6 +69,39 @@ def controller_v1():
     return utils.object_to_dict(res)
 
 
+def _minimize_windows_console():
+    """Minimize the console window on Windows (no-op on other OSes)."""
+    if os.name != 'nt':
+        return
+    try:
+        import ctypes
+        SW_MINIMIZE = 6
+        # Get console window handle
+        hwnd = ctypes.windll.kernel32.GetConsoleWindow()
+        if hwnd:
+            ctypes.windll.user32.ShowWindow(hwnd, SW_MINIMIZE)
+    except Exception:
+        # Keep startup quiet if minimizing fails
+        logging.debug("Failed to minimize console window", exc_info=True)
+
+
+def _handle_startup_flags():
+    """
+    Parse and handle early startup flags.
+    We use parse_known_args() and then strip our flags from sys.argv so
+    other code / libraries won't see them.
+    """
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--minimized", action="store_true", help="Start minimized (Windows only)")
+    args, remaining = parser.parse_known_args()
+
+    if args.minimized:
+        _minimize_windows_console()
+
+    # Remove handled flags so the rest of the application doesn't see them
+    sys.argv[:] = [sys.argv[0]] + remaining
+
+
 if __name__ == "__main__":
     # check python version
     if sys.version_info < (3, 9):
@@ -78,6 +112,9 @@ if __name__ == "__main__":
     if os.name == 'nt':
         import multiprocessing
         multiprocessing.freeze_support()
+
+    # handle early custom startup flags (strip them from sys.argv afterwards)
+    _handle_startup_flags()
 
     # fix ssl certificates for compiled binaries
     # https://github.com/pyinstaller/pyinstaller/issues/7229
