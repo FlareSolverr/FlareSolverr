@@ -16,3 +16,8 @@ services:
     volumes:
       - /var/lib/flaresolver:/config
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8191/health | grep -q '\"status\": \"ok'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
