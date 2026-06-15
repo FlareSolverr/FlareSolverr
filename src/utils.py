@@ -28,6 +28,12 @@ def get_config_headless() -> bool:
     return os.environ.get('HEADLESS', 'true').lower() == 'true'
 
 
+def get_config_hide_window() -> bool:
+    # When running head-full on Windows (HEADLESS=false), hide the browser window
+    # so it does not pop up. Enabled by default; set HIDE_WINDOW=false to show it.
+    return os.environ.get('HIDE_WINDOW', 'true').lower() == 'true'
+
+
 def get_config_disable_media() -> bool:
     return os.environ.get('DISABLE_MEDIA', 'false').lower() == 'true'
 
@@ -170,14 +176,20 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         logging.debug("Using webdriver proxy: %s", proxy_url)
         options.add_argument('--proxy-server=%s' % proxy_url)
 
-    # note: headless mode is detected (headless = True)
-    # we launch the browser in head-full mode with the window hidden
+    # note: real headless mode (headless = True) is detected by Cloudflare
+    # we launch the browser in head-full mode with the window hidden instead
     windows_headless = False
     if get_config_headless():
         if os.name == 'nt':
             windows_headless = True
         else:
             start_xvfb_display()
+    elif os.name == 'nt' and get_config_hide_window():
+        # Head-full mode is required to solve Cloudflare challenges, but on Windows
+        # the browser window can still be hidden (launched with SW_HIDE) so it does
+        # not pop up. Synthetic input via the devtools protocol still works while the
+        # window is hidden, so challenge solving is unaffected.
+        windows_headless = True
     # For normal headless mode:
     # options.add_argument('--headless')
 

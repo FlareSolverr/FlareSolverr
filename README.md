@@ -289,6 +289,7 @@ This works like `request.get`, with the addition of the postData parameter. Note
 | TZ                 | UTC                    | Timezone used in the logs and the web browser. Example: `TZ=Europe/London`.                                                              |
 | LANG               | none                   | Language used in the web browser. Example: `LANG=en_GB`.                                                                                 |
 | HEADLESS           | true                   | Only for debugging. To run the web browser in headless mode or visible.                                                                  |
+| HIDE_WINDOW        | true                   | Windows only. When running head-full (`HEADLESS=false`), hides the browser window so it does not pop up. Set `false` to show it.          |
 | DISABLE_MEDIA      | false                  | To disable loading images, CSS, and other media in the web browser to save network bandwidth.                                            |
 | TEST_URL           | https://www.google.com | FlareSolverr makes a request on start to make sure the web browser is working. You can change that URL if it is blocked in your country. |
 | PORT               | 8191                   | Listening port. You don't need to change this if you are running on Docker.                                                              |
