@@ -73,7 +73,8 @@ def run_pyinstaller():
                              "--add-data", f"package.json{sep}.",
                              "--add-data", f"{os.path.join('dist_chrome', 'chrome')}{sep}chrome",
                              os.path.join("src", "flaresolverr.py")],
-                            cwd=os.pardir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                            cwd=os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir),
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if result.returncode != 0:
         print(result.stderr.decode('utf-8'))
         raise Exception("Error running pyInstaller")
