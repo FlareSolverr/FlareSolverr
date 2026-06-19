@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import sys
 import zipfile
+import tarfile
 
 import requests
 
@@ -25,7 +26,7 @@ def clean_files():
 
 def download_chromium():
     # https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/
-    revision = "1453032" if os.name == 'nt' else '1453031'
+    revision = "1522586" if os.name == 'nt' else '1522586'
     arch = 'Win_x64' if os.name == 'nt' else 'Linux_x64'
     dl_file = 'chrome-win' if os.name == 'nt' else 'chrome-linux'
     dl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'dist_chrome')
@@ -87,9 +88,24 @@ def compress_package():
     compr_format = 'zip' if os.name == 'nt' else 'gztar'
     compr_file_name = 'flaresolverr_windows_x64' if os.name == 'nt' else 'flaresolverr_linux_x64'
     compr_file_path = os.path.join(dist_folder, compr_file_name)
-    shutil.make_archive(compr_file_path, compr_format, package_folder)
-    print("Compressed file path: " + compr_file_path)
+    
+    if compr_format == 'zip':
+        shutil.make_archive(compr_file_path, compr_format, package_folder)
+        print("Compressed file path: " + compr_file_path)
+    else:
+        def _reset_tarinfo(tarinfo):
+            tarinfo.uid = 0
+            tarinfo.gid = 0
+            tarinfo.uname = ""
+            tarinfo.gname = ""
+            return tarinfo
 
+        tar_path = compr_file_path + '.tar.gz'
+        with tarfile.open(tar_path, 'w:gz') as tar:
+            for entry in os.listdir(package_folder):
+                fullpath = os.path.join(package_folder, entry)
+                tar.add(fullpath, arcname=entry, filter=_reset_tarinfo)
+        print("Compressed file path: " + tar_path)
 
 if __name__ == "__main__":
     print("Building package...")
