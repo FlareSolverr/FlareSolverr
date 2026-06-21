@@ -491,6 +491,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     if req.executeJs:
         challenge_res.executeJsResult = _execute_js(driver, req.executeJs)
+        # executeJs may set or refresh cookies (e.g. completing an in-page step).
+        # The cookie jar captured above is now stale, so re-snapshot it; otherwise
+        # a caller that re-fetches with the returned cookies sees the pre-action page.
+        challenge_res.cookies = driver.get_cookies()
 
     res.result = challenge_res
     return res
