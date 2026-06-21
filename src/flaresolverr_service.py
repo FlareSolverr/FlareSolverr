@@ -1,4 +1,5 @@
 import logging
+import os
 import platform
 import sys
 import time
@@ -21,6 +22,12 @@ from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
                   ChallengeResolutionT, HealthResponse, IndexResponse,
                   V1RequestBase, V1ResponseBase)
 from sessions import SessionsStorage
+
+# max seconds an executeJs script may run before it is abandoned.
+try:
+    EXECUTE_JS_TIMEOUT = int(os.environ.get('EXECUTE_JS_TIMEOUT', '20'))
+except ValueError:
+    EXECUTE_JS_TIMEOUT = 10
 
 ACCESS_DENIED_TITLES = [
     # Cloudflare
@@ -482,8 +489,42 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     if req.returnScreenshot:
         challenge_res.screenshot = driver.get_screenshot_as_base64()
 
+    if req.executeJs:
+        challenge_res.executeJsResult = _execute_js(driver, req.executeJs)
+
     res.result = challenge_res
     return res
+
+
+def _execute_js(driver: WebDriver, script: str) -> str:
+    """Run user-supplied JS on the solved page and return its result
+    as a string. The script may `return` a value or a Promise (awaited).
+
+    It evaluates `(() => { <script> })()` through
+    CDP `Runtime.evaluate` with `awaitPromise=true` in the page's real main-world event
+    loop, instead of Selenium's `execute_async_script`. The CDP path is what lets an
+    in-page web worker (e.g. a proof-of-work worker started by the script) actually run
+    and the returned Promise resolve — the async-script callback path did not. Bounded by
+    EXECUTE_JS_TIMEOUT so a hung script cannot block the response."""
+    expression = "(() => { " + script + "\n})()"
+    try:
+        res = driver.execute_cdp_cmd('Runtime.evaluate', {
+            'expression': expression,
+            'awaitPromise': True,
+            'returnByValue': True,
+            'userGesture': True,
+            'timeout': EXECUTE_JS_TIMEOUT * 1000,
+        })
+    except Exception as e:
+        logging.warning("executeJs failed: " + str(e))
+        return "EXECUTE_JS_ERROR: " + str(e)
+
+    exc = res.get('exceptionDetails')
+    if exc:
+        msg = exc.get('exception', {}).get('description') or exc.get('text') or 'exception'
+        return "EXECUTE_JS_ERROR: " + str(msg)
+    value = res.get('result', {}).get('value')
+    return str(value) if value is not None else ""
 
 
 def _post_request(req: V1RequestBase, driver: WebDriver):

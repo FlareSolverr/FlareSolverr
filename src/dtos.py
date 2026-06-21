@@ -12,6 +12,7 @@ class ChallengeResolutionResultT:
     userAgent: str = None
     screenshot: str | None = None
     turnstile_token: str = None
+    executeJsResult: str = None  # result of the optional executeJs script
 
     def __init__(self, _dict):
         self.__dict__.update(_dict)
@@ -51,6 +52,9 @@ class V1RequestBase(object):
     disableMedia: bool = None
     # Optional when you've got a turnstile captcha that needs to be clicked after X number of Tab presses
     tabs_till_verify : int = None
+    # optional JS to run on the solved page; result returned as solution.executeJsResult.
+    # May `return` a value or a Promise (awaited). Bounded by EXECUTE_JS_TIMEOUT seconds.
+    executeJs: str = None
 
     def __init__(self, _dict):
         self.__dict__.update(_dict)
