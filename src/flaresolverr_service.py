@@ -113,9 +113,24 @@ def health_endpoint() -> HealthResponse:
     return res
 
 
+def _redact_for_log(obj):
+    """Recursively replace bulky executeJs/executeJsResult string values with a
+    short size placeholder so request/response logs don't dump the whole script or
+    the returned page HTML."""
+    if isinstance(obj, dict):
+        return {
+            k: (f"<{len(v)} chars>" if k in ('executeJs', 'executeJsResult') and isinstance(v, str)
+                else _redact_for_log(v))
+            for k, v in obj.items()
+        }
+    if isinstance(obj, list):
+        return [_redact_for_log(x) for x in obj]
+    return obj
+
+
 def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
     start_ts = int(time.time() * 1000)
-    logging.info(f"Incoming request => POST /v1 body: {utils.object_to_dict(req)}")
+    logging.info(f"Incoming request => POST /v1 body: {_redact_for_log(utils.object_to_dict(req))}")
     res: V1ResponseBase
     try:
         res = _controller_v1_handler(req)
@@ -129,7 +144,7 @@ def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
     res.startTimestamp = start_ts
     res.endTimestamp = int(time.time() * 1000)
     res.version = utils.get_flaresolverr_version()
-    logging.debug(f"Response => POST /v1 body: {utils.object_to_dict(res)}")
+    logging.debug(f"Response => POST /v1 body: {_redact_for_log(utils.object_to_dict(res))}")
     logging.info(f"Response in {(res.endTimestamp - res.startTimestamp) / 1000} s")
     return res
 
