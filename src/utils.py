@@ -222,6 +222,20 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     if proxy_extension_dir is not None:
         shutil.rmtree(proxy_extension_dir)
 
+    # Strip ChromeDriver's `cdc_`/`$cdc`/`$webdriver` marker properties from every
+    # document before page scripts run. undetected_chromedriver renames them in the
+    # driver binary, but pointer-trust captchas (Filecrypt's m.js) scan for these
+    # names and flag the browser as automated if any survive; this is a cheap
+    # belt-and-suspenders that runs on every navigation.
+    try:
+        driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {'source': (
+            "(function(){try{Object.getOwnPropertyNames(window).forEach(function(k){"
+            "if(/cdc_|\\$cdc|\\$chrome_asyncScriptInfo|\\$webdriver/.test(k)){"
+            "try{delete window[k];}catch(e){}}});}catch(e){}})();"
+        )})
+    except Exception as e:
+        logging.debug("Could not install cdc_ cleanup script: %s" % e)
+
     # selenium vanilla
     # options = webdriver.ChromeOptions()
     # options.add_argument('--no-sandbox')

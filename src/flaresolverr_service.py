@@ -1,6 +1,8 @@
+import json
 import logging
 import os
 import platform
+import random
 import sys
 import time
 from datetime import timedelta
@@ -28,6 +30,15 @@ try:
     EXECUTE_JS_TIMEOUT = int(os.environ.get('EXECUTE_JS_TIMEOUT', '20'))
 except ValueError:
     EXECUTE_JS_TIMEOUT = 10
+
+# max seconds to await the page Promise in trustedClick mode. Larger than
+# EXECUTE_JS_TIMEOUT because a trusted-click proof-of-work solve may legitimately
+# run tens of seconds (an escalated difficulty-20 challenge), whereas a plain
+# executeJs script is expected to return quickly.
+try:
+    TRUSTED_CLICK_TIMEOUT = int(os.environ.get('TRUSTED_CLICK_TIMEOUT', '90'))
+except ValueError:
+    TRUSTED_CLICK_TIMEOUT = 90
 
 ACCESS_DENIED_TITLES = [
     # Cloudflare
@@ -490,7 +501,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         challenge_res.screenshot = driver.get_screenshot_as_base64()
 
     if req.executeJs:
-        challenge_res.executeJsResult = _execute_js(driver, req.executeJs)
+        if req.trustedClick:
+            challenge_res.executeJsResult = _execute_js_trusted_click(driver, req.executeJs)
+        else:
+            challenge_res.executeJsResult = _execute_js(driver, req.executeJs)
         # executeJs may set or refresh cookies (e.g. completing an in-page step).
         # The cookie jar captured above is now stale, so re-snapshot it; otherwise
         # a caller that re-fetches with the returned cookies sees the pre-action page.
@@ -521,6 +535,87 @@ def _execute_js(driver: WebDriver, script: str) -> str:
         })
     except Exception as e:
         logging.warning("executeJs failed: " + str(e))
+        return "EXECUTE_JS_ERROR: " + str(e)
+
+    exc = res.get('exceptionDetails')
+    if exc:
+        msg = exc.get('exception', {}).get('description') or exc.get('text') or 'exception'
+        return "EXECUTE_JS_ERROR: " + str(msg)
+    value = res.get('result', {}).get('value')
+    return str(value) if value is not None else ""
+
+
+def _trusted_pointer_gesture(driver: WebDriver, x: float, y: float) -> None:
+    """Move the mouse to (x, y) along a human-like path and click, using CDP
+    Input.dispatchMouseEvent. Unlike JS-dispatched events these carry
+    isTrusted=true, which pointer-trust captchas (e.g. Filecrypt's PoW signer)
+    require. Coordinates are viewport CSS pixels (deviceScaleFactor 1)."""
+    def mouse(kind, mx, my, button='none', buttons=0, click_count=0):
+        # Integer coordinates: a real mouse reports whole-pixel positions, and the
+        # pointer-trust signer rejects the fractional deltas that interpolation
+        # would otherwise produce.
+        driver.execute_cdp_cmd('Input.dispatchMouseEvent', {
+            'type': kind, 'x': round(mx), 'y': round(my),
+            'button': button, 'buttons': buttons,
+            'clickCount': click_count, 'pointerType': 'mouse',
+        })
+
+    x, y = round(x), round(y)
+    start_x = x - random.uniform(120, 180)
+    start_y = y - random.uniform(90, 150)
+    steps = random.randint(22, 30)
+    for i in range(1, steps + 1):
+        t = i / steps
+        # ease-in-out so the pointer accelerates then settles onto the target
+        te = 2 * t * t if t < 0.5 else -1 + (4 - 2 * t) * t
+        mx = start_x + (x - start_x) * te + random.uniform(-1.5, 1.5)
+        my = start_y + (y - start_y) * te + random.uniform(-1.5, 1.5)
+        mouse('mouseMoved', mx, my)
+        time.sleep(random.uniform(0.006, 0.015))
+    mouse('mouseMoved', x, y)
+    time.sleep(random.uniform(0.03, 0.08))
+    mouse('mousePressed', x, y, button='left', buttons=1, click_count=1)
+    time.sleep(random.uniform(0.06, 0.14))
+    mouse('mouseReleased', x, y, button='left', buttons=0, click_count=1)
+
+
+def _execute_js_trusted_click(driver: WebDriver, script: str) -> str:
+    """Two-phase executeJs that injects a *trusted* click between arm and await.
+
+    Phase 1 (arm): run the caller's script, which installs its hooks, assigns
+    ``window.__FRS_AWAIT`` (a Promise resolved when the in-page action completes),
+    and returns ``{"trustedClick":{"x":<cssPx>,"y":<cssPx>}}``. Phase 2: dispatch a
+    trusted pointer approach + click at that point via CDP. Phase 3 (await): resolve
+    ``window.__FRS_AWAIT`` and return its value. Bounded by EXECUTE_JS_TIMEOUT."""
+    # Keep the page in the foreground and treated as focused: an occluded/blurred
+    # renderer is background-throttled, which starves in-page proof-of-work workers.
+    for cmd, params in (('Page.bringToFront', {}),
+                        ('Emulation.setFocusEmulationEnabled', {'enabled': True})):
+        try:
+            driver.execute_cdp_cmd(cmd, params)
+        except Exception:
+            pass
+
+    arm = _execute_js(driver, script)
+    if arm.startswith("EXECUTE_JS_ERROR"):
+        return arm
+    try:
+        coords = (json.loads(arm) or {}).get('trustedClick')
+        cx, cy = float(coords['x']), float(coords['y'])
+    except Exception:
+        return "EXECUTE_JS_ERROR: trustedClick arm script did not return {trustedClick:{x,y}}: " + arm[:200]
+
+    _trusted_pointer_gesture(driver, cx, cy)
+
+    try:
+        res = driver.execute_cdp_cmd('Runtime.evaluate', {
+            'expression': "(() => window.__FRS_AWAIT)()",
+            'awaitPromise': True,
+            'returnByValue': True,
+            'timeout': TRUSTED_CLICK_TIMEOUT * 1000,
+        })
+    except Exception as e:
+        logging.warning("executeJs (trusted await) failed: " + str(e))
         return "EXECUTE_JS_ERROR: " + str(e)
 
     exc = res.get('exceptionDetails')
