@@ -4,7 +4,7 @@ import sys
 import time
 from datetime import timedelta
 from html import escape
-from urllib.parse import unquote, quote
+from urllib.parse import unquote, quote, urlparse
 
 from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
@@ -141,6 +141,8 @@ def _controller_v1_handler(req: V1RequestBase) -> V1ResponseBase:
         res = _cmd_request_get(req)
     elif req.cmd == 'request.post':
         res = _cmd_request_post(req)
+    elif req.cmd == 'request.post_json':
+        res = _cmd_request_post_json(req)
     else:
         raise Exception(f"Request parameter 'cmd' = '{req.cmd}' is invalid.")
 
@@ -180,6 +182,76 @@ def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     res.status = challenge_res.status
     res.message = challenge_res.message
     res.solution = challenge_res.result
+    return res
+
+
+def _cmd_request_post_json(req: V1RequestBase) -> V1ResponseBase:
+    if req.url is None:
+        raise Exception("Request parameter 'url' is mandatory in 'request.post_json' command.")
+    if req.jsonBody is None:
+        raise Exception("Request parameter 'jsonBody' is mandatory in 'request.post_json' command.")
+    if not req.session:
+        raise Exception("Request parameter 'session' is mandatory in 'request.post_json' command.")
+
+    timeout = int(req.maxTimeout) / 1000
+
+    # Navigate to the origin first so Chrome solves the Cloudflare challenge.
+    parsed = urlparse(req.url)
+    origin_url = f"{parsed.scheme}://{parsed.netloc}"
+    origin_req = V1RequestBase({
+        "cmd": "request.get",
+        "url": origin_url,
+        "session": req.session,
+        "maxTimeout": req.maxTimeout,
+    })
+    _resolve_challenge(origin_req, 'GET')
+
+    ttl = timedelta(minutes=req.session_ttl_minutes) if req.session_ttl_minutes else None
+    session, _ = SESSIONS_STORAGE.get(req.session, ttl)
+    driver = session.driver
+
+    driver.set_script_timeout(timeout)
+
+    fetch_script = """
+        var done = arguments[arguments.length - 1];
+        fetch(arguments[0], {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: arguments[1],
+            credentials: 'include'
+        })
+        .then(function(r) {
+            return r.text().then(function(text) {
+                done(JSON.stringify({s: r.status, b: text}));
+            });
+        })
+        .catch(function(e) {
+            done(JSON.stringify({s: 0, b: e.toString()}));
+        });
+    """
+
+    try:
+        raw = func_timeout(
+            timeout,
+            driver.execute_async_script,
+            (fetch_script, req.url, req.jsonBody),
+        )
+    except FunctionTimedOut:
+        raise Exception(f'Error executing request.post_json. Timeout after {timeout} seconds.')
+    except Exception as e:
+        raise Exception(f'Error executing request.post_json: {str(e)}')
+
+    challenge_res = ChallengeResolutionResultT({})
+    challenge_res.url = req.url
+    challenge_res.status = 200
+    challenge_res.cookies = driver.get_cookies()
+    challenge_res.userAgent = utils.get_user_agent(driver)
+    challenge_res.response = raw
+
+    res = V1ResponseBase({})
+    res.status = STATUS_OK
+    res.message = "OK"
+    res.solution = challenge_res
     return res
 
 
