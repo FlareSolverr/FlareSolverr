@@ -1,0 +1,19 @@
+<service>
+  <id>FlareSolverr</id>
+  <name>FlareSolverr</name>
+  <description>FlareSolverr proxy service</description>
+  <executable>C:\Program Files\FlareSolverr\flaresolverr.exe</executable>
+  <workingdirectory>C:\Program Files\FlareSolverr</workingdirectory>
+  <startmode>Automatic</startmode>
+  <onfailure action="restart" delay="5 sec" />
+  <resetfailure>1 hour</resetfailure>
+  <log mode="roll-by-size-time">
+    <sizeThreshold>10485760</sizeThreshold>
+    <pattern>yyyyMMdd</pattern>
+    <keepFiles>8</keepFiles>
+  </log>
+  <env name="CAPTCHA_SOLVER" value="none" />
+  <env name="HOST" value="127.0.0.1" />
+  <env name="LOG_LEVEL" value="info" />
+  <env name="PORT" value="8191" />
+</service>
