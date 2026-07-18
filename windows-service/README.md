@@ -8,7 +8,7 @@ This directory contains:
 
 - `install-windows-service.ps1`: installs, starts, stops, or uninstalls the
   Windows service.
-- `winsw/FlareSolverr.xml`: WinSW service configuration template.
+- `winsw/FlareSolverrService.xml`: WinSW service configuration template.
 
 ## Install
 
@@ -22,6 +22,15 @@ Run PowerShell as Administrator from the repository root or from this directory:
 
 The installer downloads WinSW when it is not already present, writes the service
 configuration, installs the service, and starts it.
+
+If script execution is restricted on the host, run the command from an elevated
+PowerShell session with a process-scoped bypass:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\windows-service\install-windows-service.ps1 `
+  -FlareSolverrPath "C:\Program Files\FlareSolverr\flaresolverr.exe" `
+  -ServiceDirectory "C:\Program Files\FlareSolverr"
+```
 
 ## Configure
 

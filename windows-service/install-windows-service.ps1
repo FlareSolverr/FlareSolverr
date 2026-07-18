@@ -5,7 +5,8 @@ param(
     [string]$Description = "FlareSolverr proxy service",
     [string]$ServiceDirectory = "C:\Program Files\FlareSolverr",
     [string]$FlareSolverrPath = "C:\Program Files\FlareSolverr\flaresolverr.exe",
-    [string]$WinSWVersion = "2.13.0",
+    [string]$WinSWVersion = "2.12.0",
+    [string]$WinSWWrapperName = "FlareSolverrService",
     [hashtable]$Environment = @{
         LOG_LEVEL = "info"
         HOST = "127.0.0.1"
@@ -39,8 +40,14 @@ function Get-WinSWDownloadUrl {
 
 Assert-Administrator
 
-$serviceExe = Join-Path $ServiceDirectory "$ServiceName.exe"
-$serviceXml = Join-Path $ServiceDirectory "$ServiceName.xml"
+$serviceExe = Join-Path $ServiceDirectory "$WinSWWrapperName.exe"
+$serviceXml = Join-Path $ServiceDirectory "$WinSWWrapperName.xml"
+
+$serviceExeFullPath = [IO.Path]::GetFullPath($serviceExe)
+$flareSolverrFullPath = [IO.Path]::GetFullPath($FlareSolverrPath)
+if ($serviceExeFullPath.Equals($flareSolverrFullPath, [StringComparison]::OrdinalIgnoreCase)) {
+    throw "WinSW wrapper path must be different from the FlareSolverr executable path."
+}
 
 if ($Uninstall) {
     $existing = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
