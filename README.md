@@ -203,7 +203,6 @@ session. When you no longer need to use a session you should make sure to close 
 | waitInSeconds       | Optional, default none. Length to wait in seconds after solving the challenge, and before returning the results. Useful to allow it to load dynamic content.                                                                                                                                                                                 |
 | disableMedia        | Optional, default false. When true FlareSolverr will prevent media resources (images, CSS, and fonts) from being loaded to speed up navigation.                                                                                                                                                                                              |
 | tabs_till_verify    | Optional, default none. Number of times the `Tab` button is needed to be pressed to end up on the turnstile captcha, in order to verify it. After verifying the captcha, the result will be stored in the solution under `turnstile_token`.                                                                                                  |
-| executeJs           | Optional, default none. JavaScript to run on the page after the challenge is solved. The snippet may `return` a value or a `Promise` (which is awaited); the result is returned as a string in the `executeJsResult` field of the solution. Bounded by `EXECUTE_JS_TIMEOUT` seconds (default 20). Useful for reading post-challenge state or driving an in-page action that must run in the solved browser context. Eg: `"executeJs": "return document.title;"` |
 
 > **Warning**
 > If you want to use Cloudflare clearance cookie in your scripts, make sure you use the FlareSolverr User-Agent too. If they don't match you will see the challenge.
@@ -296,7 +295,6 @@ This works like `request.get`, with the addition of the postData parameter. Note
 | HOST               | 0.0.0.0                | Listening interface. You don't need to change this if you are running on Docker.                                                         |
 | PROMETHEUS_ENABLED | false                  | Enable Prometheus exporter. See the Prometheus section below.                                                                            |
 | PROMETHEUS_PORT    | 8192                   | Listening port for Prometheus exporter. See the Prometheus section below.                                                                |
-| EXECUTE_JS_TIMEOUT | 20                     | Max seconds an `executeJs` snippet may run before it is abandoned.                                                                       |
 
 Environment variables are set differently depending on the operating system. Some examples:
 
