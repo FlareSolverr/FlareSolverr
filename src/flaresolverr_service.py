@@ -305,10 +305,16 @@ def _get_turnstile_token(driver: WebDriver, tabs: int):
 
         # reset focus
         driver.execute_script("""
+            let old = document.getElementById('__focus_helper');
+            if (old) old.remove();
+
             let el = document.createElement('button');
-            el.style.position='fixed';
-            el.style.top='0';
-            el.style.left='0';
+            el.id = '__focus_helper';
+            el.style.position = 'fixed';
+            el.style.top = '0';
+            el.style.left = '0';
+            el.style.opacity = '0.01';
+            el.style.pointerEvents = 'none';
             document.body.prepend(el);
             el.focus();
         """)
