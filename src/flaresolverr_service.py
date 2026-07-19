@@ -466,7 +466,6 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     challenge_res = ChallengeResolutionResultT({})
     challenge_res.url = driver.current_url
     challenge_res.status = 200  # todo: fix, selenium not provides this info
-    challenge_res.cookies = driver.get_cookies()
     challenge_res.userAgent = utils.get_user_agent(driver)
     challenge_res.turnstile_token = turnstile_token
 
@@ -481,6 +480,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     if req.returnScreenshot:
         challenge_res.screenshot = driver.get_screenshot_as_base64()
+
+    # Get cookies after all waits to capture cookies set during JavaScript execution
+    challenge_res.cookies = driver.get_cookies()
 
     res.result = challenge_res
     return res
