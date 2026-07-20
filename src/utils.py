@@ -19,6 +19,10 @@ USER_AGENT = None
 XVFB_DISPLAY = None
 PATCHED_DRIVER_PATH = None
 
+SENSITIVE_LOG_FIELDS = frozenset({
+    'cookies', 'headers', 'password', 'postdata', 'proxy', 'response', 'screenshot', 'turnstile_token'
+})
+
 
 def get_config_log_html() -> bool:
     return os.environ.get('LOG_HTML', 'false').lower() == 'true'
@@ -81,27 +85,26 @@ def create_proxy_extension(proxy: dict) -> str:
     }
     """
 
-    background_js = """
-    var config = {
-        mode: "fixed_servers",
-        rules: {
-            singleProxy: {
-                scheme: "%s",
-                host: "%s",
-                port: %d
+    config = {
+        "mode": "fixed_servers",
+        "rules": {
+            "singleProxy": {
+                "scheme": scheme,
+                "host": host,
+                "port": port,
             },
-            bypassList: ["localhost"]
-        }
-    };
+            "bypassList": ["localhost"],
+        },
+    }
+    credentials = {"username": username, "password": password}
+    background_js = """
+    var config = %s;
 
     chrome.proxy.settings.set({value: config, scope: "regular"}, function() {});
 
     function callbackFn(details) {
         return {
-            authCredentials: {
-                username: "%s",
-                password: "%s"
-            }
+            authCredentials: %s
         };
     }
 
@@ -110,13 +113,7 @@ def create_proxy_extension(proxy: dict) -> str:
         { urls: ["<all_urls>"] },
         ['blocking']
     );
-    """ % (
-        scheme,
-        host,
-        port,
-        username,
-        password
-    )
+    """ % (json.dumps(config), json.dumps(credentials))
 
     proxy_extension_dir = tempfile.mkdtemp()
 
@@ -347,3 +344,15 @@ def object_to_dict(_object):
     json_dict = json.loads(json.dumps(_object, default=lambda o: o.__dict__))
     # remove hidden fields
     return {k: v for k, v in json_dict.items() if not k.startswith('__')}
+
+
+def redact_sensitive_data(data):
+    """Return a logging-safe copy of API data without request or session secrets."""
+    if isinstance(data, dict):
+        return {
+            key: '[REDACTED]' if key.lower() in SENSITIVE_LOG_FIELDS else redact_sensitive_data(value)
+            for key, value in data.items()
+        }
+    if isinstance(data, list):
+        return [redact_sensitive_data(value) for value in data]
+    return data

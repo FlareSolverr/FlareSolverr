@@ -4,7 +4,7 @@ import sys
 import time
 from datetime import timedelta
 from html import escape
-from urllib.parse import unquote, quote
+from urllib.parse import parse_qsl, quote
 
 from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
@@ -97,7 +97,7 @@ def health_endpoint() -> HealthResponse:
 
 def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
     start_ts = int(time.time() * 1000)
-    logging.info(f"Incoming request => POST /v1 body: {utils.object_to_dict(req)}")
+    logging.info(f"Incoming request => POST /v1 body: {utils.redact_sensitive_data(utils.object_to_dict(req))}")
     res: V1ResponseBase
     try:
         res = _controller_v1_handler(req)
@@ -111,7 +111,7 @@ def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
     res.startTimestamp = start_ts
     res.endTimestamp = int(time.time() * 1000)
     res.version = utils.get_flaresolverr_version()
-    logging.debug(f"Response => POST /v1 body: {utils.object_to_dict(res)}")
+    logging.debug(f"Response => POST /v1 body: {utils.redact_sensitive_data(utils.object_to_dict(res))}")
     logging.info(f"Response in {(res.endTimestamp - res.startTimestamp) / 1000} s")
     return res
 
@@ -168,6 +168,8 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
 
 def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     # do some validations
+    if req.url is None:
+        raise Exception("Request parameter 'url' is mandatory in 'request.post' command.")
     if req.postData is None:
         raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
     if req.returnRawHtml is not None:
@@ -487,26 +489,12 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
-    post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData and req.postData[0] != '?' else req.postData[1:] if req.postData else ''
-    pairs = query_string.split('&')
-    for pair in pairs:
-        parts = pair.split('=', 1)
-        # noinspection PyBroadException
-        try:
-            name = unquote(parts[0])
-        except Exception:
-            name = parts[0]
+    post_form = f'<form id="hackForm" action="{escape(req.url, quote=True)}" method="POST">'
+    query_string = req.postData[1:] if req.postData.startswith('?') else req.postData
+    for name, value in parse_qsl(query_string, keep_blank_values=True):
         if name == 'submit':
             continue
-        # noinspection PyBroadException
-        try:
-            value = unquote(parts[1]) if len(parts) > 1 else ''
-        except Exception:
-            value = parts[1] if len(parts) > 1 else ''
-        # Protection of " character, for syntax
-        value=value.replace('"','&quot;')
-        post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
+        post_form += f'<input type="text" name="{escape(name, quote=True)}" value="{escape(value, quote=True)}"><br>'
     post_form += '</form>'
     html_content = f"""
         <!DOCTYPE html>
@@ -516,4 +504,4 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             <script>document.getElementById('hackForm').submit();</script>
         </body>
         </html>"""
-    driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
+    driver.get("data:text/html;charset=utf-8," + quote(html_content, safe=""))

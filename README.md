@@ -294,6 +294,7 @@ This works like `request.get`, with the addition of the postData parameter. Note
 | DISABLE_MEDIA      | false                  | To disable loading images, CSS, and other media in the web browser to save network bandwidth.                                            |
 | TEST_URL           | https://www.google.com | FlareSolverr makes a request on start to make sure the web browser is working. You can change that URL if it is blocked in your country. |
 | PORT               | 8191                   | Listening port. You don't need to change this if you are running on Docker.                                                              |
+| PORT_BIND          | 127.0.0.1              | Docker Compose host interface for `PORT`. Set this to `0.0.0.0` only when you deliberately need remote access. |
 | HOST               | 0.0.0.0                | Listening interface. You don't need to change this if you are running on Docker.                                                         |
 | PROMETHEUS_ENABLED | false                  | Enable Prometheus exporter. See the Prometheus section below.                                                                            |
 | PROMETHEUS_PORT    | 8192                   | Listening port for Prometheus exporter. See the Prometheus section below.                                                                |
