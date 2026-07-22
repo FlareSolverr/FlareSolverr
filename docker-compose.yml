@@ -10,6 +10,8 @@ services:
       - LOG_FILE=${LOG_FILE:-none}
       - LOG_HTML=${LOG_HTML:-false}
       - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      # Required when CAPTCHA_SOLVER=2captcha
+      - TWOCAPTCHA_API_KEY=${TWOCAPTCHA_API_KEY:-}
       - TZ=Europe/London
     ports:
       - "${PORT:-8191}:8191"

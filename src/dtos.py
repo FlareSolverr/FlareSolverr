@@ -12,6 +12,9 @@ class ChallengeResolutionResultT:
     userAgent: str = None
     screenshot: str | None = None
     turnstile_token: str = None
+    # populated when a captcha was solved automatically by a configured solver:
+    # {"type": "turnstile"|"hcaptcha"|"recaptcha", "token": "<solution>"}
+    captcha: dict = None
 
     def __init__(self, _dict):
         self.__dict__.update(_dict)

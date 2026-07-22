@@ -3,6 +3,8 @@ waitress==3.0.2
 selenium==4.39.0
 func-timeout==4.3.5
 prometheus-client==0.23.1
+# Captcha solver adapters (CAPTCHA_SOLVER=2captcha)
+2captcha-python==2.1.0
 # Required by undetected_chromedriver
 requests==2.32.5
 certifi==2025.11.12

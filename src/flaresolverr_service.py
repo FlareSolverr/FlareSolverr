@@ -16,6 +16,7 @@ from selenium.webdriver.support.expected_conditions import (
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 
+import captcha
 import utils
 from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
                   ChallengeResolutionT, HealthResponse, IndexResponse,
@@ -333,6 +334,62 @@ def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
             logging.debug(f'Turnstile challenge not found')
     return turnstile_token
 
+
+def _solve_captcha_if_present(req: V1RequestBase, driver: WebDriver, attempted: set):
+    """Detect a captcha on the current page and solve it with the configured solver.
+
+    Returns a dict ``{'type': str, 'token': str}`` when a captcha was solved and
+    its token injected into the page, or ``None`` when no solver is configured or
+    no supported captcha with a usable site key is present. Each site key is only
+    submitted to the solver once (tracked in ``attempted``) to avoid paying for
+    and re-injecting the same captcha on every retry.
+    """
+    solver = captcha.get_solver()
+    if solver is None:
+        return None
+
+    try:
+        facts = driver.execute_script(captcha.CAPTCHA_DETECT_JS)
+    except Exception as e:
+        logging.debug(f"Captcha detection script failed: {e}")
+        return None
+
+    detected = captcha.detect_captcha(facts, driver.current_url)
+    if detected is None:
+        return None
+
+    ctype = detected["type"]
+    sitekey = detected["sitekey"]
+    if sitekey in attempted:
+        return None
+    attempted.add(sitekey)
+
+    url = driver.current_url
+    useragent = utils.USER_AGENT or utils.get_user_agent(driver)
+    logging.info(f"{ctype} captcha detected (sitekey={sitekey}); "
+                 f"solving with the configured captcha solver...")
+
+    try:
+        if ctype == captcha.TURNSTILE:
+            token = solver.solve_turnstile(url=url, sitekey=sitekey,
+                                           action=detected.get("action"),
+                                           data=detected.get("data"),
+                                           useragent=useragent)
+        elif ctype == captcha.HCAPTCHA:
+            token = solver.solve_hcaptcha(url=url, sitekey=sitekey)
+        else:  # captcha.RECAPTCHA
+            token = solver.solve_recaptcha(url=url, sitekey=sitekey,
+                                           version=detected.get("version", "v2"),
+                                           action=detected.get("action"))
+    except Exception as e:
+        raise Exception(f"Error solving the {ctype} captcha with the configured solver. {e}")
+
+    logging.info(f"{ctype} captcha solved; injecting the token into the page.")
+    driver.execute_script(captcha.CAPTCHA_INJECT_JS[ctype], token)
+    time.sleep(2)
+    return {"type": ctype, "token": token}
+
+
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
@@ -422,6 +479,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
                 logging.info("Challenge detected. Selector found: " + selector)
                 break
 
+    # site keys already submitted to the captcha solver (avoid paying twice)
+    attempted_captchas = set()
+    solved_captcha = None
+
     attempt = 0
     if challenge_found:
         while True:
@@ -444,7 +505,13 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             except TimeoutException:
                 logging.debug("Timeout waiting for selector")
 
-                click_verify(driver)
+                # if a captcha solver is configured and a captcha is present,
+                # solve it automatically; otherwise fall back to clicking.
+                captcha_result = _solve_captcha_if_present(req, driver, attempted_captchas)
+                if captcha_result is not None:
+                    solved_captcha = captcha_result
+                else:
+                    click_verify(driver)
 
                 # update the html (cloudflare reloads the page every 5 s)
                 html_element = driver.find_element(By.TAG_NAME, "html")
@@ -460,8 +527,20 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         logging.info("Challenge solved!")
         res.message = "Challenge solved!"
     else:
-        logging.info("Challenge not detected!")
-        res.message = "Challenge not detected!"
+        # no JS challenge was detected, but the page itself may be a bare
+        # captcha (hCaptcha / reCAPTCHA / Turnstile widget) we can solve.
+        solved_captcha = _solve_captcha_if_present(req, driver, attempted_captchas)
+        if solved_captcha is not None:
+            logging.info("Captcha solved!")
+            res.message = "Captcha solved!"
+        else:
+            logging.info("Challenge not detected!")
+            res.message = "Challenge not detected!"
+
+    # expose the token from an automatically solved captcha
+    if solved_captcha is not None:
+        if solved_captcha["type"] == captcha.TURNSTILE and not turnstile_token:
+            turnstile_token = solved_captcha["token"]
 
     challenge_res = ChallengeResolutionResultT({})
     challenge_res.url = driver.current_url
@@ -469,6 +548,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     challenge_res.cookies = driver.get_cookies()
     challenge_res.userAgent = utils.get_user_agent(driver)
     challenge_res.turnstile_token = turnstile_token
+    if solved_captcha is not None:
+        challenge_res.captcha = {"type": solved_captcha["type"], "token": solved_captcha["token"]}
 
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info

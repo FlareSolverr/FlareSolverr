@@ -287,7 +287,8 @@ This works like `request.get`, with the addition of the postData parameter. Note
 | PROXY_URL          | none                   | URL for proxy. Will be overwritten by `request` or `sessions` proxy, if used. Example: `http://127.0.0.1:8080`.                          |
 | PROXY_USERNAME     | none                   | Username for proxy. Will be overwritten by `request` or `sessions` proxy, if used. Example: `testuser`.                                  |
 | PROXY_PASSWORD     | none                   | Password for proxy. Will be overwritten by `request` or `sessions` proxy, if used. Example: `testpass`.                                  |
-| CAPTCHA_SOLVER     | none                   | Captcha solving method. It is used when a captcha is encountered. See the Captcha Solvers section.                                       |
+| CAPTCHA_SOLVER     | none                   | Captcha solving method. It is used when a captcha is encountered. Set to `2captcha` to use the 2captcha adapter. See the Captcha Solvers section. |
+| TWOCAPTCHA_API_KEY | none                   | API key for [2captcha](https://2captcha.com). Required when `CAPTCHA_SOLVER=2captcha`.                                                    |
 | TZ                 | UTC                    | Timezone used in the logs and the web browser. Example: `TZ=Europe/London`.                                                              |
 | LANG               | none                   | Language used in the web browser. Example: `LANG=en_GB`.                                                                                 |
 | HEADLESS           | true                   | Only for debugging. To run the web browser in headless mode or visible.                                                                  |
@@ -333,15 +334,49 @@ flaresolverr_request_duration_created{domain="nowsecure.nl"} 1.6901416571570296e
 
 ## Captcha Solvers
 
-> **Warning**
-> At this time none of the captcha solvers work. You can check the status in the open issues. Any help is welcome.
+Sometimes CloudFlare (and other sites) not only give mathematical computations and browser tests, they also require the
+user to solve a captcha (Cloudflare **Turnstile**, **hCaptcha** or Google **reCAPTCHA**). FlareSolverr can be configured
+to solve these automatically through a third-party captcha-solving service.
 
-Sometimes CloudFlare not only gives mathematical computations and browser tests, sometimes they also require the user to
-solve a captcha.
-If this is the case, FlareSolverr will return the error `Captcha detected but no automatic solver is configured.`
+A captcha solver is an *adapter* file inside the `src/captcha` directory. The active adapter is selected with the
+`CAPTCHA_SOLVER` environment variable, whose value is the adapter file name without the `.py` extension. When it is unset
+or set to `none`, no captcha solving is attempted (default behaviour).
 
-FlareSolverr can be customized to solve the CAPTCHA automatically by setting the environment variable `CAPTCHA_SOLVER`
-to the file name of one of the adapters inside the `/captcha` directory.
+### 2captcha
+
+[2captcha](https://2captcha.com) is a paid captcha-solving service. To enable it:
+
+```shell
+CAPTCHA_SOLVER=2captcha
+TWOCAPTCHA_API_KEY=<your 2captcha api key>
+```
+
+Supported captcha types: Cloudflare Turnstile, hCaptcha and reCAPTCHA v2/v3.
+
+Optional environment variables for fine-tuning the 2captcha client:
+
+| Name                        | Default        | Notes                                                                 |
+| --------------------------- | -------------- | --------------------------------------------------------------------- |
+| TWOCAPTCHA_SERVER           | `2captcha.com` | API host. Use `rucaptcha.com` for RuCaptcha.                          |
+| TWOCAPTCHA_SOFT_ID          | none           | Software id sent to the API.                                          |
+| TWOCAPTCHA_DEFAULT_TIMEOUT  | `120`          | Seconds to wait for a solution before giving up.                      |
+| TWOCAPTCHA_POLLING_INTERVAL | `10`           | Seconds between result polls.                                         |
+
+How it works: when a request hits a page with a supported captcha, FlareSolverr detects it, extracts the site key, sends
+it to 2captcha, waits for the token and injects it back into the page (triggering the widget callback). The solved page
+(cookies and HTML) is then returned as usual. For a solved Turnstile the token is also available in the response under
+`solution.turnstile_token`, and every automatically solved captcha is reported under `solution.captcha`
+(`{"type": "...", "token": "..."}`).
+
+> **Note**
+> Solving a captcha through an external service can take from a few seconds up to a minute. Increase the request
+> `maxTimeout` (e.g. `120000`) so the solver has enough time to return a token.
+
+### Writing your own adapter
+
+Create `src/captcha/<name>.py` exposing a `get_solver()` function that returns an object implementing the
+`CaptchaSolver` interface (`solve_turnstile`, `solve_hcaptcha`, `solve_recaptcha`) defined in `src/captcha/__init__.py`,
+then set `CAPTCHA_SOLVER=<name>`.
 
 ## Related projects
 

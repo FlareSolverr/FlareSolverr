@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+* Add pluggable captcha solvers with a 2captcha adapter (`CAPTCHA_SOLVER=2captcha`, `TWOCAPTCHA_API_KEY`). Automatically detects and solves Cloudflare Turnstile, hCaptcha and reCAPTCHA v2/v3.
+
 ## v3.5.0 (2026/05/26)
 * Add formatting to log file
 * Resolve turnstile captcha. Thanks @denis-svg
