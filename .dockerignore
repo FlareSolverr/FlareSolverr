@@ -3,3 +3,6 @@
 .idea/
 html_samples/
 resources/
+.venv/
+**/__pycache__/
+*.pyc
