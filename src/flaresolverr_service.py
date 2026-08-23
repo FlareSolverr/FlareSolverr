@@ -53,7 +53,6 @@ TURNSTILE_SELECTORS = [
     "input[name='cf-turnstile-response']"
 ]
 
-SHORT_TIMEOUT = 1
 SESSIONS_STORAGE = SessionsStorage()
 
 
@@ -422,6 +421,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
                 logging.info("Challenge detected. Selector found: " + selector)
                 break
 
+    browser_wait_timeout = utils.get_config_browser_wait_timeout()
     attempt = 0
     if challenge_found:
         while True:
@@ -430,12 +430,12 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
                 # wait until the title changes
                 for title in CHALLENGE_TITLES:
                     logging.debug("Waiting for title (attempt " + str(attempt) + "): " + title)
-                    WebDriverWait(driver, SHORT_TIMEOUT).until_not(title_is(title))
+                    WebDriverWait(driver, browser_wait_timeout).until_not(title_is(title))
 
                 # then wait until all the selectors disappear
                 for selector in CHALLENGE_SELECTORS:
                     logging.debug("Waiting for selector (attempt " + str(attempt) + "): " + selector)
-                    WebDriverWait(driver, SHORT_TIMEOUT).until_not(
+                    WebDriverWait(driver, browser_wait_timeout).until_not(
                         presence_of_element_located((By.CSS_SELECTOR, selector)))
 
                 # all elements not found
@@ -453,7 +453,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         logging.debug("Waiting for redirect")
         # noinspection PyBroadException
         try:
-            WebDriverWait(driver, SHORT_TIMEOUT).until(staleness_of(html_element))
+            WebDriverWait(driver, browser_wait_timeout).until(staleness_of(html_element))
         except Exception:
             logging.debug("Timeout waiting for redirect")
 
