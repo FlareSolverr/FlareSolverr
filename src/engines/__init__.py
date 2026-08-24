@@ -1,7 +1,7 @@
 """Engine registry. Selects the browser backend from the `BROWSER_ENGINE` env var."""
 
-import logging
 import os
+import sys
 
 from engines.base import Engine
 
@@ -29,7 +29,17 @@ def create_engine(name: str = None) -> Engine:
         return UndetectedChromeEngine()
 
     if name in _SCRAPLING_ALIASES:
-        from engines.scrapling_engine import ScraplingEngine
+        if sys.version_info < (3, 10):
+            raise Exception("BROWSER_ENGINE='scrapling' requires Python 3.10 or newer "
+                            f"(running {sys.version.split()[0]}). Use BROWSER_ENGINE=uc instead.")
+        try:
+            from engines.scrapling_engine import ScraplingEngine
+        except ImportError as e:
+            raise Exception(
+                "BROWSER_ENGINE='scrapling' needs the Scrapling dependencies: "
+                "`pip install -r requirements-scrapling.txt`. They are not installed on "
+                "32-bit platforms, because playwright/patchright publish no driver for "
+                f"them -- use BROWSER_ENGINE=uc there. Original error: {e}") from e
         return ScraplingEngine()
 
     raise Exception(

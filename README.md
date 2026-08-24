@@ -14,14 +14,22 @@ FlareSolverr is a proxy server to bypass Cloudflare and DDoS-GUARD protection.
 ## How it works
 
 FlareSolverr starts a proxy server, and it waits for user requests in an idle state using few resources.
-When some request arrives, it uses [Selenium](https://www.selenium.dev) with the
-[undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver)
-to create a web browser (Chrome). It opens the URL with user parameters and waits until the Cloudflare challenge
-is solved (or timeout). The HTML code and the cookies are sent back to the user, and those cookies can be used to
-bypass Cloudflare using other HTTP clients.
+When some request arrives, it creates a web browser (Chrome), opens the URL with the user parameters and waits until
+the challenge is solved (or timeout). The HTML code and the cookies are sent back to the user, and those cookies can be
+used to bypass Cloudflare using other HTTP clients.
+
+Which browser stack does the work is selectable with the `BROWSER_ENGINE` environment variable:
+
+| `BROWSER_ENGINE` | Stack | Notes |
+| ---------------- | ----- | ----- |
+| `uc` *(default)* | [Selenium](https://www.selenium.dev) + [undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver) | The long-standing engine. Available on every platform the image is built for. |
+| `scrapling` | [Scrapling](https://github.com/D4Vinci/Scrapling) (patchright + Chromium) | Adds Scrapling's Turnstile/interstitial solver, and reports the **real** HTTP status and response headers. Needs 64-bit Linux, macOS or Windows and Python 3.10+. |
+
+See [Browser engines](#browser-engines) for what changes when you switch.
 
 **NOTE**: Web browsers consume a lot of memory. If you are running FlareSolverr on a machine with few RAM, do not make
-many requests at once. With each request a new browser is launched.
+many requests at once. With the `uc` engine a new browser is launched per request; the `scrapling` engine instead
+reuses one browser with a pool of tabs (`SCRAPLING_MAX_PAGES`).
 
 It is also possible to use a permanent session. However, if you use sessions, you should make sure to close them as
 soon as you are done using them.
@@ -297,12 +305,89 @@ This works like `request.get`, with the addition of the postData parameter. Note
 | HOST               | 0.0.0.0                | Listening interface. You don't need to change this if you are running on Docker.                                                         |
 | PROMETHEUS_ENABLED | false                  | Enable Prometheus exporter. See the Prometheus section below.                                                                            |
 | PROMETHEUS_PORT    | 8192                   | Listening port for Prometheus exporter. See the Prometheus section below.                                                                |
+| BROWSER_ENGINE     | uc                     | Browser backend: `uc` (Selenium + undetected-chromedriver) or `scrapling` (Scrapling / patchright). See the Browser engines section.     |
+
+### `BROWSER_ENGINE=scrapling` only
+
+| Name                        | Default | Notes                                                                                                                                                                        |
+| --------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SCRAPLING_MAX_PAGES         | 4       | Browser tabs served concurrently per browser. Requests beyond this wait for a free tab instead of launching another browser.                                                  |
+| SCRAPLING_EPHEMERAL_SESSIONS| false   | Close the browser after every session-less request, like the `uc` engine does. Off by default: reusing the browser keeps `cf_clearance` warm, which is the big latency win.    |
+| SCRAPLING_SOLVE_CLOUDFLARE  | true    | Solve Cloudflare Turnstile/interstitial challenges. Turning this off leaves challenges unsolved; it exists for debugging.                                                     |
+| SCRAPLING_EAGER_CF_SOLVE    | false   | Let Scrapling enter its solver on every navigation instead of only when a challenge is detected. Slower on clean pages (see Browser engines); mainly a fallback.               |
+| SCRAPLING_GOOGLE_REFERER    | true    | Send `Referer: https://www.google.com/`, which is Scrapling's default and helps against Cloudflare. Set to `false` for sites that inspect the referer.                         |
 
 Environment variables are set differently depending on the operating system. Some examples:
 
 - Docker: Take a look at the Docker section in this document. Environment variables can be set in the `docker-compose.yml` file or in the Docker CLI command.
 - Linux: Run `export LOG_LEVEL=debug` and then run `flaresolverr` in the same shell.
 - Windows: Open `cmd.exe`, run `set LOG_LEVEL=debug` and then run `flaresolverr.exe` in the same shell.
+
+## Browser engines
+
+`BROWSER_ENGINE=scrapling` swaps the browser stack for [Scrapling](https://github.com/D4Vinci/Scrapling).
+The `/v1` API is unchanged and existing clients need no edits, but some responses get
+**better**, and two of those are visible differences you should know about.
+
+### Response fields that change
+
+| Field | `uc` | `scrapling` |
+| ----- | ---- | ----------- |
+| `solution.status` | Always `200`, regardless of the real response (a long-standing `todo` in the code -- Selenium cannot report it) | The **real** HTTP status of the final navigation |
+| `solution.headers` | Always `{}` (same reason) | The **real** response headers |
+| `solution.cookies` | Selenium shape: `expiry`, omitted for session cookies | Both `expires` (Playwright/CDP) and `expiry` (Selenium), plus `session` and `size`, so either style of client keeps working |
+| `solution.message` | From title/selector matching | Reported when a challenge was actually detected and solved |
+
+If you have code asserting `status == 200` or `headers == {}`, that is what will move.
+FlareSolverr's own `tests_sites.py` asserts both and needs updating for this engine.
+
+### Behaviour differences
+
+- **Sessions.** A per-request `proxy` cannot be attached to an already-running browser,
+  so session-less requests are grouped into one browser per distinct proxy. An explicit
+  `session` still gets its own browser, as before.
+- **Proxy authentication works.** Playwright authenticates proxies natively, so
+  `proxy.username` / `proxy.password` no longer need the generated Chrome extension that
+  the `uc` engine builds. (Note that Chrome is phasing out the MV2 extensions that
+  mechanism relies on.)
+- **`disableMedia` does not block CSS.** It blocks images, media and fonts only. The
+  Turnstile solver clicks the widget's bounding box, so it needs layout to be computed;
+  blocking stylesheets breaks solving.
+- **Timeouts actually clean up.** `maxTimeout` is enforced by cancelling the work rather
+  than by killing the thread running it, so a timed-out request closes its browser
+  instead of orphaning it.
+- **`tabs_till_verify` is mostly obsolete.** It is still accepted, but Scrapling's solver
+  reaches embedded Turnstile widgets on its own.
+
+### Performance note
+
+Scrapling's built-in `solve_cloudflare` enters its solver on every navigation, and the
+solver's first act is to wait up to 5s for network idle -- so a page with no challenge
+pays for one anyway. This engine instead runs Scrapling's own detector first and only
+invokes the solver when a challenge is really present. Measured on a warm page, median
+per-request time: **0.031s vs 0.549s**. Set `SCRAPLING_EAGER_CF_SOLVE=true` to restore
+Scrapling's behaviour; it is also selected automatically if a Scrapling upgrade moves the
+internals this optimisation calls.
+
+### Installing
+
+The Docker image installs the Scrapling dependencies automatically on 64-bit
+platforms, and reuses the Chromium already in the image (no extra browser download).
+32-bit images (`linux/386`, `linux/arm/v7`) ship the `uc` engine only, because
+playwright/patchright publish no driver for them.
+
+From source:
+
+```bash
+pip install -r requirements.txt -r requirements-scrapling.txt
+# only if no system Chrome/Chromium is present, or CHROME_EXE_PATH is unset:
+python -m patchright install chromium
+BROWSER_ENGINE=scrapling python src/flaresolverr.py
+```
+
+On Linux the browser runs head-full inside Xvfb (as with the `uc` engine), because
+patchright is least detectable that way. On macOS and Windows, where there is no Xvfb,
+`HEADLESS=true` means real headless.
 
 ## Prometheus exporter
 

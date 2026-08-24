@@ -124,6 +124,9 @@ if __name__ == "__main__":
     logging.getLogger('urllib3').setLevel(logging.ERROR)
     logging.getLogger('selenium.webdriver.remote.remote_connection').setLevel(logging.WARNING)
     logging.getLogger('undetected_chromedriver').setLevel(logging.WARNING)
+    # Scrapling logs one INFO line per fetch, which duplicates our own request log
+    logging.getLogger('scrapling').setLevel(
+        logging.DEBUG if log_level == 'DEBUG' else logging.WARNING)
 
     logging.info(f'FlareSolverr {utils.get_flaresolverr_version()}')
     logging.debug('Debug log enabled')
@@ -149,4 +152,9 @@ if __name__ == "__main__":
         def run(self, handler):
             from waitress import serve
             serve(handler, host=self.host, port=self.port, asyncore_use_poll=True)
-    run(app, host=server_host, port=server_port, quiet=True, server=WaitressServerPoll)
+    try:
+        run(app, host=server_host, port=server_port, quiet=True, server=WaitressServerPoll)
+    finally:
+        # Give the engine a chance to close its browsers instead of leaving them to be
+        # reaped as zombies when the container stops.
+        flaresolverr_service.shutdown()

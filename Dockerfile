@@ -46,13 +46,24 @@ RUN dpkg -i /libgl1-mesa-dri.deb \
 VOLUME /config
 
 # Install Python dependencies
-COPY requirements.txt .
+COPY requirements.txt requirements-scrapling.txt ./
 RUN pip install -r requirements.txt \
+    # BROWSER_ENGINE=scrapling, only where playwright/patchright publish a Node driver.
+    # 32-bit arches (linux/386, linux/arm/v7) keep the undetected-chromedriver engine.
+    && if [ "$(uname -m)" = "x86_64" ] || [ "$(uname -m)" = "aarch64" ]; then \
+           pip install -r requirements-scrapling.txt; \
+       else \
+           echo "Skipping Scrapling on $(uname -m): no playwright driver for this arch"; \
+       fi \
     # Remove temporary files
     && rm -rf /root/.cache
 
 USER flaresolverr
 
+# No `patchright install chromium` here on purpose: the image already ships Debian's
+# chromium, and both engines are pointed at it (utils.get_chrome_exe_path, surfaced to
+# Scrapling as `executable_path`). That keeps ~150 MB of duplicate browser out of the
+# image. Override with CHROME_EXE_PATH if you want a different binary.
 RUN mkdir -p "/app/.config/chromium/Crash Reports/pending"
 
 COPY src .

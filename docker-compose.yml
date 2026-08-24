@@ -10,6 +10,8 @@ services:
       - LOG_FILE=${LOG_FILE:-none}
       - LOG_HTML=${LOG_HTML:-false}
       - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      # 'uc' (default) or 'scrapling'. See the "Browser engines" section of the README.
+      - BROWSER_ENGINE=${BROWSER_ENGINE:-uc}
       - TZ=Europe/London
     ports:
       - "${PORT:-8191}:8191"

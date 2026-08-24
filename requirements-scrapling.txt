@@ -1,0 +1,6 @@
+# Dependencies for BROWSER_ENGINE=scrapling. Kept out of requirements.txt on purpose:
+# Scrapling pulls in playwright + patchright, whose bundled Node driver ships only for
+# 64-bit Linux (x86_64 / aarch64), macOS and Windows. The FlareSolverr image is also
+# built for linux/386 and linux/arm/v7, where these wheels do not exist -- those images
+# get the undetected-chromedriver engine only.
+scrapling[fetchers]==0.4.15
