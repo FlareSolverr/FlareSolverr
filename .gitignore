@@ -127,3 +127,5 @@ dmypy.json
 
 # node
 node_modules/
+# local dev
+.venv/
