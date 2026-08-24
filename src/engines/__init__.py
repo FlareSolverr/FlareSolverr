@@ -29,7 +29,7 @@ def create_engine(name: str = None) -> Engine:
         return UndetectedChromeEngine()
 
     if name in _SCRAPLING_ALIASES:
-        from engines.scrapling import ScraplingEngine
+        from engines.scrapling_engine import ScraplingEngine
         return ScraplingEngine()
 
     raise Exception(
