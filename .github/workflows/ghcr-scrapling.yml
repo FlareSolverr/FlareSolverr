@@ -1,0 +1,164 @@
+# Publishes this fork's image to GHCR so it can be consumed with a plain `docker pull`.
+#
+#   docker pull ghcr.io/aslansutu/flaresolverr:scrapling
+#
+# Differences from the inherited release-docker.yml (which is disabled on this fork):
+#   - authenticates with the built-in GITHUB_TOKEN instead of a PAT
+#   - GHCR only; no DockerHub, whose credentials this fork does not have
+#   - amd64 only, and it smoke-tests the built image before publishing it
+name: GHCR image
+
+on:
+  push:
+    branches:
+      - "feat/scrapling-engine"
+    tags:
+      # Deliberately not `v*.*.*`: that pattern would also wake the inherited
+      # release.yml / release-docker.yml, which need secrets this fork lacks.
+      - "scrapling-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Unit tests
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt -r requirements-scrapling.txt
+
+      # No browser and no network needed, so this is a real gate rather than a flaky one.
+      - name: Run engine tests
+        working-directory: src
+        run: python -m unittest tests_engines -v
+
+  image:
+    name: Build, smoke test and publish
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # GHCR rejects uppercase names, and this fork is aslansutu/FlareSolverr.
+      - name: Downcase repository name
+        run: echo "REPOSITORY=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Docker meta
+        id: docker_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ env.REPOSITORY }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=scrapling
+            type=sha,prefix=scrapling-,format=short
+            type=match,pattern=scrapling-v(.*),group=1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Built into the local daemon first so the image is verified before anyone can pull it.
+      # The publish step below reuses these layers from the cache, so this is not paid twice.
+      - name: Build for testing
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          load: true
+          tags: flaresolverr:smoke-test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test both engines
+        run: |
+          set -euo pipefail
+
+          wait_ready() {
+            for _ in $(seq 1 90); do
+              if curl -sf "http://localhost:$1/health" >/dev/null; then return 0; fi
+              sleep 2
+            done
+            echo "::error::$2 did not become healthy"
+            return 1
+          }
+
+          solve() {
+            curl -sf -X POST "http://localhost:$1/v1" \
+              -H 'Content-Type: application/json' \
+              -d '{"cmd":"request.get","url":"https://example.com","maxTimeout":90000}'
+          }
+
+          # The default engine must keep working: this image is a superset of upstream,
+          # not a replacement for it.
+          docker run -d --name fs-uc -p 8191:8191 -e LOG_LEVEL=debug flaresolverr:smoke-test
+          docker run -d --name fs-scrapling -p 8291:8191 -e LOG_LEVEL=debug \
+            -e BROWSER_ENGINE=scrapling flaresolverr:smoke-test
+
+          wait_ready 8191 "uc engine"
+          wait_ready 8291 "scrapling engine"
+
+          solve 8191 > /tmp/uc.json
+          solve 8291 > /tmp/scrapling.json
+
+          python3 - <<'PY'
+          import json
+
+          uc = json.load(open('/tmp/uc.json'))
+          assert uc['status'] == 'ok', uc
+          assert 'Example Domain' in uc['solution']['response'], uc['solution']['response'][:400]
+          print('uc engine ok')
+
+          scr = json.load(open('/tmp/scrapling.json'))
+          assert scr['status'] == 'ok', scr
+          assert 'Example Domain' in scr['solution']['response'], scr['solution']['response'][:400]
+          # These two are the point of the engine: uc hardcodes 200 and returns no headers
+          # at all, so a real status and a populated header map prove which engine answered.
+          assert scr['solution']['status'] == 200, scr['solution']['status']
+          assert len(scr['solution']['headers']) > 0, 'headers were empty'
+          print('scrapling engine ok, headers:', len(scr['solution']['headers']))
+          PY
+
+      - name: Container logs
+        if: always()
+        run: |
+          for c in fs-uc fs-scrapling; do
+            echo "::group::$c"
+            docker logs "$c" 2>&1 | tail -60 || true
+            echo "::endgroup::"
+          done
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
