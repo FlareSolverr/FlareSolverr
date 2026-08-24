@@ -4,7 +4,7 @@ import time
 import utils
 from dtos import (STATUS_ERROR, STATUS_OK, HealthResponse, IndexResponse,
                   V1RequestBase, V1ResponseBase)
-from engines import create_engine, get_config_engine_name
+from engines import create_engine
 
 ENGINE = create_engine()
 
