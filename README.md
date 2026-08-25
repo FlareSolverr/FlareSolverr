@@ -35,7 +35,7 @@ already included within the image.
 
 Docker images are available in:
 
-- GitHub Registry => https://github.com/orgs/FlareSolverr/packages/container/package/flaresolverr
+- GitHub Registry => https://github.com/FlareSolverr/FlareSolverr/pkgs/container/flaresolverr
 - DockerHub => https://hub.docker.com/r/flaresolverr/flaresolverr
 
 Supported architectures are:
