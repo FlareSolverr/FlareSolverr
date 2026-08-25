@@ -110,6 +110,12 @@ This is the recommended way for Windows users.
 
 We provide an example Systemd unit file `flaresolverr.service` as reference. You have to modify the file to suit your needs: paths, user and environment variables.
 
+### Windows service
+
+The precompiled Windows binary can be run as a Windows service with the WinSW wrapper.
+See `windows-service/README.md` for an installer script, service configuration
+template, environment variable examples, and uninstall instructions.
+
 ## Usage
 
 Example Bash request:
