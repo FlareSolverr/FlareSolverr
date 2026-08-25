@@ -1,3 +1,4 @@
+import json
 import logging
 import platform
 import sys
@@ -487,9 +488,22 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
+    post_data = req.postData if req.postData and req.postData[0] != '?' else req.postData[1:] if req.postData else ''
+
+    # If postData is valid JSON, use fetch() with application/json to preserve
+    # numeric and boolean types. Form-encoded POST converts all values to strings,
+    # which breaks APIs that require numbers (e.g. feeRate: 50 becomes "50").
+    stripped = post_data.strip()
+    if stripped.startswith(('{', '[')):
+        try:
+            json.loads(stripped)
+            _json_post_request(req, driver, stripped)
+            return
+        except (json.JSONDecodeError, ValueError):
+            pass  # not valid JSON — fall through to form-encoded approach
+
     post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData and req.postData[0] != '?' else req.postData[1:] if req.postData else ''
-    pairs = query_string.split('&')
+    pairs = post_data.split('&')
     for pair in pairs:
         parts = pair.split('=', 1)
         # noinspection PyBroadException
@@ -517,3 +531,35 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
         </body>
         </html>"""
     driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
+
+
+def _json_post_request(req: V1RequestBase, driver: WebDriver, post_data: str):
+    """Send a JSON POST using fetch() so numeric/boolean types are preserved.
+
+    Navigates to the target URL first (GET) to establish a same-origin context,
+    which allows the subsequent fetch() to bypass CORS restrictions.
+    The fetch response overwrites the page so driver.page_source contains it.
+    """
+    logging.debug("JSON postData detected, using fetch() with Content-Type: application/json")
+    driver.get(req.url)
+
+    script = """
+        var callback = arguments[arguments.length - 1];
+        fetch(arguments[0], {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: arguments[1]
+        }).then(function(response) {
+            return response.text().then(function(text) {
+                document.open();
+                document.write(text);
+                document.close();
+                callback('ok');
+            });
+        }).catch(function(e) {
+            callback('error: ' + e.message);
+        });
+    """
+    result = driver.execute_async_script(script, req.url, post_data)
+    if result and result.startswith('error:'):
+        logging.warning("JSON POST fetch() failed: %s", result)
