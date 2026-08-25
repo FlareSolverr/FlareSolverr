@@ -12,6 +12,7 @@ class ChallengeResolutionResultT:
     userAgent: str = None
     screenshot: str | None = None
     turnstile_token: str = None
+    __raw_download__: dict = None
 
     def __init__(self, _dict):
         self.__dict__.update(_dict)
@@ -44,7 +45,8 @@ class V1RequestBase(object):
     postData: str = None
     returnOnlyCookies: bool = None
     returnScreenshot: bool = None
-    download: bool = None   # deprecated v2.0.0, not used
+    download: bool = None
+    returnRawFile: bool = None
     returnRawHtml: bool = None  # deprecated v2.0.0, not used
     waitInSeconds: int = None
     # Optional resource blocking flag (blocks images, CSS, and fonts)
