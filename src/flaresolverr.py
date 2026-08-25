@@ -90,6 +90,7 @@ if __name__ == "__main__":
     log_file = os.environ.get('LOG_FILE', None)
     log_html = utils.get_config_log_html()
     headless = utils.get_config_headless()
+    browser_wait_timeout = utils.get_config_browser_wait_timeout()
     server_host = os.environ.get('HOST', '0.0.0.0')
     server_port = int(os.environ.get('PORT', 8191))
 

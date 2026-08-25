@@ -32,6 +32,10 @@ def get_config_disable_media() -> bool:
     return os.environ.get('DISABLE_MEDIA', 'false').lower() == 'true'
 
 
+def get_config_browser_wait_timeout() -> int:
+    return int(os.environ.get('BROWSER_WAIT_TIMEOUT', 1))
+
+
 def get_flaresolverr_version() -> str:
     global FLARESOLVERR_VERSION
     if FLARESOLVERR_VERSION is not None:
