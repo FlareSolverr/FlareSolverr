@@ -250,11 +250,22 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
     except Exception as e:
         raise Exception('Error solving the challenge. ' + str(e).replace('\n', '\\n'))
     finally:
-        if not req.session and driver is not None:
+        if req.session and driver is not None and utils.get_config_session_auto_park():
+            _park_session(driver, req.session)
+        elif not req.session and driver is not None:
             if utils.PLATFORM_VERSION == "nt":
                 driver.close()
             driver.quit()
             logging.debug('A used instance of webdriver has been destroyed')
+
+
+def _park_session(driver: WebDriver, session_id: str) -> None:
+    """Stop the current page workload without destroying a persistent session."""
+    try:
+        driver.get('about:blank')
+        logging.debug(f'Persistent session parked on about:blank (session_id={session_id})')
+    except Exception as e:
+        logging.warning(f'Could not park persistent session (session_id={session_id}): {e}')
 
 
 def click_verify(driver: WebDriver, num_tabs: int = 1):

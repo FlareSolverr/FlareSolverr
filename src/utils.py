@@ -32,6 +32,10 @@ def get_config_disable_media() -> bool:
     return os.environ.get('DISABLE_MEDIA', 'false').lower() == 'true'
 
 
+def get_config_session_auto_park() -> bool:
+    return os.environ.get('SESSION_AUTO_PARK', 'false').lower() == 'true'
+
+
 def get_config_browser_wait_timeout() -> int:
     return int(os.environ.get('BROWSER_WAIT_TIMEOUT', 1))
 
