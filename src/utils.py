@@ -153,8 +153,14 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         options.add_argument('--disable-gpu-sandbox')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
-    # disable breaking popup
-    options.add_argument("--disable-features=LocalNetworkAccessChecks")
+
+    # Chrome parses --disable-features as a single value: passing the switch a
+    # second time keeps the last value and silently discards the earlier one
+    # whole, along with every feature it named. Collect the names here and emit
+    # one switch once, below, after every branch that may add to them.
+    disabled_features = [
+        'LocalNetworkAccessChecks',  # disable breaking popup
+    ]
 
     language = os.environ.get('LANG', None)
     if language is not None:
@@ -167,12 +173,14 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     proxy_extension_dir = None
     if proxy and all(key in proxy for key in ['url', 'username', 'password']):
         proxy_extension_dir = create_proxy_extension(proxy)
-        options.add_argument("--disable-features=DisableLoadExtensionCommandLineSwitch")
+        disabled_features.append('DisableLoadExtensionCommandLineSwitch')
         options.add_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
     elif proxy and 'url' in proxy:
         proxy_url = proxy['url']
         logging.debug("Using webdriver proxy: %s", proxy_url)
         options.add_argument('--proxy-server=%s' % proxy_url)
+
+    options.add_argument('--disable-features=%s' % ','.join(disabled_features))
 
     # note: headless mode is detected (headless = True)
     # we launch the browser in head-full mode with the window hidden
