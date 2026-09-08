@@ -39,7 +39,7 @@ CHALLENGE_TITLES = [
     'Just a moment...',
     # DDoS-GUARD
     'DDoS-Guard'
-]
+] + utils.get_config_extra_challenge_titles()
 CHALLENGE_SELECTORS = [
     # Cloudflare
     '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js', '#turnstile-wrapper', '.lds-ring',
