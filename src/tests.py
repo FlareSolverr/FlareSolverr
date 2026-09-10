@@ -1,3 +1,4 @@
+import os
 import unittest
 from typing import Optional
 
@@ -111,6 +112,33 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertIn(self.google_url, solution.url)
         self.assertEqual(solution.status, 200)
         self.assertIs(len(solution.headers), 0)
+        self.assertIn("<title>Google</title>", solution.response)
+        self.assertGreater(len(solution.cookies), 0)
+        self.assertIn("Chrome/", solution.userAgent)
+
+    def test_v1_endpoint_request_get_keeping_zygote(self):
+        previous = os.environ.get('NO_ZYGOTE')
+        os.environ['NO_ZYGOTE'] = 'false'
+        try:
+            res = self.app.post_json("/v1", {
+                "cmd": "request.get",
+                "url": self.google_url
+            })
+        finally:
+            if previous is None:
+                del os.environ['NO_ZYGOTE']
+            else:
+                os.environ['NO_ZYGOTE'] = previous
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+        self.assertEqual("Challenge not detected!", body.message)
+        self.assertEqual(utils.get_flaresolverr_version(), body.version)
+
+        solution = body.solution
+        self.assertIn(self.google_url, solution.url)
+        self.assertEqual(solution.status, 200)
         self.assertIn("<title>Google</title>", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
