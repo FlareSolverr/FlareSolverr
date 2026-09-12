@@ -36,6 +36,10 @@ def get_config_browser_wait_timeout() -> int:
     return int(os.environ.get('BROWSER_WAIT_TIMEOUT', 1))
 
 
+def get_config_no_zygote() -> bool:
+    return os.environ.get('NO_ZYGOTE', 'true').lower() == 'true'
+
+
 def get_flaresolverr_version() -> str:
     global FLARESOLVERR_VERSION
     if FLARESOLVERR_VERSION is not None:
@@ -146,7 +150,9 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     options.add_argument('--disable-setuid-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     # this option removes the zygote sandbox (it seems that the resolution is a bit faster)
-    options.add_argument('--no-zygote')
+    # set NO_ZYGOTE=false to keep it and save memory instead
+    if get_config_no_zygote():
+        options.add_argument('--no-zygote')
     # attempt to fix Docker ARM32 build
     IS_ARMARCH = platform.machine().startswith(('arm', 'aarch'))
     if IS_ARMARCH:

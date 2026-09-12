@@ -296,6 +296,8 @@ This works like `request.get`, with the addition of the postData parameter. Note
 | TEST_URL             | https://www.google.com | FlareSolverr makes a request on start to make sure the web browser is working. You can change that URL if it is blocked in your country. |
 | PORT                 | 8191                   | Listening port. You don't need to change this if you are running on Docker.                                                              |
 | HOST                 | 0.0.0.0                | Listening interface. You don't need to change this if you are running on Docker.                                                         |
+| THREADS              | 4                      | Number of web server worker threads. One worker per request, so this also caps how many web browsers run at once.                        |
+| NO_ZYGOTE            | true                   | Removes the web browser zygote sandbox. Set to `false` to keep it and use less memory.                                                   |
 | PROMETHEUS_ENABLED   | false                  | Enable Prometheus exporter. See the Prometheus section below.                                                                            |
 | PROMETHEUS_PORT      | 8192                   | Listening port for Prometheus exporter. See the Prometheus section below.                                                                |
 
