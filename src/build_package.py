@@ -60,7 +60,7 @@ def download_chromium():
         # Give executable permissions for *nix
         # file * | grep executable | cut -d: -f1
         print("Giving executable permissions...")
-        execs = ['chrome', 'chrome_crashpad_handler', 'chrome_sandbox', 'chrome-wrapper', 'xdg-mime', 'xdg-settings']
+        execs = ['chrome', 'chrome_crashpad_handler', 'chrome_sandbox', 'chrome-wrapper']
         for exec_file in execs:
             exec_path = os.path.join(chrome_path, exec_file)
             os.chmod(exec_path, 0o755)
