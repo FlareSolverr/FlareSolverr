@@ -292,6 +292,7 @@ This works like `request.get`, with the addition of the postData parameter. Note
 | LANG                 | none                   | Language used in the web browser. Example: `LANG=en_GB`.                                                                                 |
 | HEADLESS             | true                   | Only for debugging. To run the web browser in headless mode or visible.                                                                  |
 | DISABLE_MEDIA        | false                  | To disable loading images, CSS, and other media in the web browser to save network bandwidth.                                            |
+| SESSION_AUTO_PARK    | false                  | Navigate persistent sessions to `about:blank` after each request to stop the solved page from consuming resources while idle.            |
 | BROWSER_WAIT_TIMEOUT | 1                    | Seconds to wait for the web browser to reach an expected page state on each attempt. Increase it on slow hosts or slow websites.         |
 | TEST_URL             | https://www.google.com | FlareSolverr makes a request on start to make sure the web browser is working. You can change that URL if it is blocked in your country. |
 | PORT                 | 8191                   | Listening port. You don't need to change this if you are running on Docker.                                                              |
