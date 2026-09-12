@@ -2,8 +2,6 @@
 
 ## v3.5.2 (2026/09/12)
 * Update build_package.py
-
-## v3.5.1 (2026/09/12)
 * Disable breaking Local Network Access Checks popup
 * Make the challenge wait timeout configurable. Thanks @aki-ks
 * Fixed multiple buttons bug for tabs_till_verify. Thanks @denis-svg
