@@ -36,6 +36,20 @@ def get_config_browser_wait_timeout() -> int:
     return int(os.environ.get('BROWSER_WAIT_TIMEOUT', 1))
 
 
+def get_config_extra_challenge_titles() -> list:
+    raw = os.environ.get('ADDITIONAL_CHALLENGE_TITLES', '[]')
+    try:
+        titles = json.loads(raw)
+    except ValueError:
+        logging.warning(f"ADDITIONAL_CHALLENGE_TITLES is not a valid json, ignoring.")
+        return []
+
+    if not isinstance(titles, list):
+        logging.warning("ADDITIONAL_CHALLENGE_TITLES must be a JSON array, ignoring.")
+        return []
+
+    return [str(t) for t in titles]
+
 def get_flaresolverr_version() -> str:
     global FLARESOLVERR_VERSION
     if FLARESOLVERR_VERSION is not None:

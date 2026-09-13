@@ -39,7 +39,7 @@ CHALLENGE_TITLES = [
     'Just a moment...',
     # DDoS-GUARD
     'DDoS-Guard'
-]
+] + utils.get_config_extra_challenge_titles()
 CHALLENGE_SELECTORS = [
     # Cloudflare
     '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js', '#turnstile-wrapper', '.lds-ring',
@@ -436,7 +436,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
                 # wait until the title changes
                 for title in CHALLENGE_TITLES:
                     logging.debug("Waiting for title (attempt " + str(attempt) + "): " + title)
-                    WebDriverWait(driver, browser_wait_timeout).until_not(title_is(title))
+                    WebDriverWait(driver, browser_wait_timeout).until_not(
+                        lambda d: d.title.lower() == title.lower()
+                    )
 
                 # then wait until all the selectors disappear
                 for selector in CHALLENGE_SELECTORS:
