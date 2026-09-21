@@ -28,6 +28,15 @@ soon as you are done using them.
 
 ## Installation
 
+### Easypanel
+
+If you'd rather not manage the container yourself, [Easypanel](https://easypanel.io) is a self-hosted deployment platform with a one-click FlareSolverr template:
+
+[![Deploy on Easypanel][easypanel-btn]][easypanel-deploy]
+
+[easypanel-btn]: https://easypanel.io/img/deploy-on-easypanel-40.svg
+[easypanel-deploy]: https://easypanel.io/templates/flaresolverr
+
 ### Docker
 
 It is recommended to install using a Docker container because the project depends on an external browser that is
