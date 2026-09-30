@@ -56,13 +56,33 @@ def get_current_platform() -> str:
     return PLATFORM_VERSION
 
 
+def _validate_proxy_field(value: str, field_name: str) -> str:
+    """Validate a proxy credential field to prevent injection in the extension."""
+    if not isinstance(value, str):
+        raise ValueError(f"Proxy {field_name} must be a string")
+    # Reject control characters and quotes that could break out of JS string literals
+    for i, ch in enumerate(value):
+        if ord(ch) < 0x20 or ch in ('"', '\\', '`'):
+            raise ValueError(
+                f"Proxy {field_name} contains an invalid character at position {i}"
+            )
+    return value
+
+
 def create_proxy_extension(proxy: dict) -> str:
     parsed_url = urllib.parse.urlparse(proxy['url'])
     scheme = parsed_url.scheme
     host = parsed_url.hostname
     port = parsed_url.port
-    username = proxy['username']
-    password = proxy['password']
+    username = _validate_proxy_field(proxy['username'], 'username')
+    password = _validate_proxy_field(proxy['password'], 'password')
+
+    # Validate scheme and port to prevent injection
+    if scheme not in ('http', 'https', 'socks4', 'socks5'):
+        raise ValueError(f"Invalid proxy scheme: {scheme}")
+    if not isinstance(port, int) or port < 1 or port > 65535:
+        raise ValueError(f"Invalid proxy port: {port}")
+
     manifest_json = """
     {
         "version": "1.0.0",
@@ -85,13 +105,17 @@ def create_proxy_extension(proxy: dict) -> str:
     }
     """
 
+    # Use json.dumps() for safe embedding of caller values into JavaScript.
+    # This prevents injection: any quotes, backticks, or control characters
+    # in username/password are escaped as JSON string literals, which are
+    # also valid JavaScript string literals.
     background_js = """
     var config = {
         mode: "fixed_servers",
         rules: {
             singleProxy: {
-                scheme: "%s",
-                host: "%s",
+                scheme: %s,
+                host: %s,
                 port: %d
             },
             bypassList: ["localhost"]
@@ -103,8 +127,8 @@ def create_proxy_extension(proxy: dict) -> str:
     function callbackFn(details) {
         return {
             authCredentials: {
-                username: "%s",
-                password: "%s"
+                username: %s,
+                password: %s
             }
         };
     }
@@ -115,11 +139,11 @@ def create_proxy_extension(proxy: dict) -> str:
         ['blocking']
     );
     """ % (
-        scheme,
-        host,
+        json.dumps(scheme),
+        json.dumps(host),
         port,
-        username,
-        password
+        json.dumps(username),
+        json.dumps(password)
     )
 
     proxy_extension_dir = tempfile.mkdtemp()
