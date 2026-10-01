@@ -61,6 +61,11 @@ COPY package.json ../
 EXPOSE 8191
 EXPOSE 8192
 
+# The application now defaults to binding 127.0.0.1. Inside the container we
+# still want to listen on all interfaces so the published container port keeps
+# working; host exposure stays on loopback via the published port mapping.
+ENV HOST=0.0.0.0
+
 # dumb-init avoids zombie chromium processes
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 

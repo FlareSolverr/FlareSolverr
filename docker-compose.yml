@@ -12,7 +12,9 @@ services:
       - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
       - TZ=Europe/London
     ports:
-      - "${PORT:-8191}:8191"
+      # Publish to loopback only. FlareSolverr is unauthenticated by
+      # default and must not be exposed to the network.
+      - "127.0.0.1:${PORT:-8191}:8191"
     volumes:
       - /var/lib/flaresolver:/config
     restart: unless-stopped

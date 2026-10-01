@@ -1,10 +1,11 @@
 import json
 import logging
 import os
+import secrets
 import sys
 
 import certifi
-from bottle import run, response, Bottle, request, ServerAdapter
+from bottle import run, response, Bottle, request, ServerAdapter, HTTPResponse
 
 from bottle_plugins.error_plugin import error_plugin
 from bottle_plugins.logger_plugin import logger_plugin
@@ -28,6 +29,58 @@ class JSONErrorBottle(Bottle):
 
 
 app = JSONErrorBottle()
+
+# Shared-secret authentication for the command surface.
+#
+# /v1 can drive headless browsers, fetch arbitrary URLs (including internal
+# ones) and read back cookies/sessions, so it must never be reachable
+# anonymously. Operators set API_TOKEN; if it is left unset a random token is
+# generated at startup and logged, so the surface can never be driven
+# anonymously by default.
+API_TOKEN = os.environ.get('API_TOKEN', None)
+
+
+def _load_auth_token():
+    global API_TOKEN
+    if API_TOKEN is None or API_TOKEN == '':
+        API_TOKEN = secrets.token_urlsafe(32)
+        logging.warning(
+            'API_TOKEN is not set. A random token was generated for this run: %s',
+            API_TOKEN,
+        )
+        logging.warning(
+            'Set the API_TOKEN environment variable to use a stable value, and '
+            'send it as "Authorization: Bearer <token>" when calling /v1.'
+        )
+
+
+@app.hook('before_request')
+def _require_auth():
+    """
+    Require a bearer token for every route that can execute commands.
+
+    /health and / are intentionally left unauthenticated: they expose no
+    commands and are used by container health checks.
+    """
+    if request.path in ('/health', '/'):
+        return
+    if request.method == 'OPTIONS':
+        return
+    header = request.headers.get('Authorization', '')
+    prefix = 'Bearer '
+    supplied = header[len(prefix):] if header.startswith(prefix) else None
+    if supplied is None or not secrets.compare_digest(supplied, API_TOKEN or ''):
+        # Raise (rather than return) so the request is short-circuited before
+        # the command dispatcher runs. Bottle ignores before_request return
+        # values, but turns a raised HTTPResponse into the response.
+        raise HTTPResponse(
+            body=json.dumps(dict(
+                error='Unauthorized. Send a valid token as "Authorization: Bearer <token>".',
+                status_code=401,
+            )),
+            status=401,
+            headers={'Content-Type': 'application/json'},
+        )
 
 
 @app.route('/')
@@ -91,7 +144,7 @@ if __name__ == "__main__":
     log_html = utils.get_config_log_html()
     headless = utils.get_config_headless()
     browser_wait_timeout = utils.get_config_browser_wait_timeout()
-    server_host = os.environ.get('HOST', '0.0.0.0')
+    server_host = os.environ.get('HOST', '127.0.0.1')
     server_port = int(os.environ.get('PORT', 8191))
 
     # configure logger
@@ -137,6 +190,8 @@ if __name__ == "__main__":
 
     # start bootle plugins
     # plugin order is important
+    _load_auth_token()
+
     app.install(logger_plugin)
     app.install(error_plugin)
     prometheus_plugin.setup()
