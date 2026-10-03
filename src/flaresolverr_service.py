@@ -1,3 +1,5 @@
+import base64
+import json
 import logging
 import platform
 import sys
@@ -16,7 +18,9 @@ from selenium.webdriver.support.expected_conditions import (
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 
+import requests
 import utils
+from websockets.sync.client import connect
 from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
                   ChallengeResolutionT, HealthResponse, IndexResponse,
                   V1RequestBase, V1ResponseBase)
@@ -151,7 +155,9 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
     if req.url is None:
         raise Exception("Request parameter 'url' is mandatory in 'request.get' command.")
     if req.postData is not None:
-        raise Exception("Cannot use 'postBody' when sending a GET request.")
+        raise Exception("Cannot use 'postData' when sending a GET request.")
+    if req.postDataRaw is not None:
+        raise Exception("Cannot use 'postDataRaw' when sending a GET request.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
@@ -167,8 +173,10 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
 
 def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     # do some validations
-    if req.postData is None:
-        raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
+    if req.postData is None and req.postDataRaw is None:
+        raise Exception("Request parameter 'postData' or 'postDataRaw' is mandatory in 'request.post' command.")
+    if req.postData is not None and req.postDataRaw is not None:
+        raise Exception("Cannot use both 'postData' and 'postDataRaw' in the same request.")
     if req.returnRawHtml is not None:
         logging.warning("Request parameter 'returnRawHtml' was removed in FlareSolverr v2.")
     if req.download is not None:
@@ -266,7 +274,7 @@ def click_verify(driver: WebDriver, num_tabs: int = 1):
             actions.send_keys(Keys.TAB).pause(0.1)
         actions.pause(1)
         actions.send_keys(Keys.SPACE).perform()
-        
+
         logging.debug(f"Cloudflare verify checkbox clicked after {num_tabs} tabs!")
     except Exception:
         logging.debug("Cloudflare verify checkbox not found on the page.")
@@ -300,7 +308,7 @@ def _get_turnstile_token(driver: WebDriver, tabs: int):
             if turnstile_token != current_value:
                 logging.info(f"Turnstile token: {turnstile_token}")
                 return turnstile_token
-        logging.debug(f"Failed to extract token possibly click failed")        
+        logging.debug(f"Failed to extract token possibly click failed")
 
         # reset focus
         driver.execute_script("""
@@ -327,7 +335,7 @@ def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
 
         turnstile_challenge_found = False
         for selector in TURNSTILE_SELECTORS:
-            found_elements = driver.find_elements(By.CSS_SELECTOR, selector)   
+            found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
             if len(found_elements) > 0:
                 turnstile_challenge_found = True
                 logging.info("Turnstile challenge detected. Selector found: " + selector)
@@ -483,6 +491,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             time.sleep(req.waitInSeconds)
 
         challenge_res.response = driver.page_source
+        # chrome pretty renders the json response, extract the content
+        if req.postDataRaw is not None and 'class="json-formatter-container"' in challenge_res.response:
+            challenge_res.response = driver.execute_script("return document.querySelector('body > pre').textContent")
 
     if req.returnScreenshot:
         challenge_res.screenshot = driver.get_screenshot_as_base64()
@@ -494,7 +505,55 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     return res
 
 
+def _post_request_raw(req: V1RequestBase, driver: WebDriver):
+    target_url = req.url
+    debugger = driver.capabilities["goog:chromeOptions"]["debuggerAddress"]
+    targets = requests.get(f"http://{debugger}/json/list").json()
+    target_id = driver.current_window_handle.removeprefix("CDwindow-")
+    target = next(target for target in targets if target["id"] == target_id and target["type"] == "page")
+    post_data = base64.b64encode(req.postDataRaw.encode("utf-8")).decode("ascii")
+    headers = [{"name": "Content-Type", "value": req.postDataContentType or "application/x-www-form-urlencoded"}]
+
+    with connect(target["webSocketDebuggerUrl"]) as cdp:
+        command_id = 0
+
+        def send(method, params=None):
+            nonlocal command_id
+            command_id += 1
+            cdp.send(json.dumps({"id": command_id, "method": method, "params": params or {}}))
+
+        try:
+            send("Fetch.enable", {"patterns": [{"urlPattern": "*", "requestStage": "Request"}]})
+            send("Page.navigate", {"url": target_url})
+            deadline = time.monotonic() + 10
+            request_id = None
+            while time.monotonic() < deadline and request_id is None:
+                message = json.loads(cdp.recv(timeout=deadline - time.monotonic()))
+                if message.get("method") != "Fetch.requestPaused":
+                    continue
+                params = message["params"]
+                if params["request"]["url"] == target_url:
+                    request_id = params["requestId"]
+                    send("Fetch.continueRequest", {
+                        "requestId": request_id, "method": "POST", "postData": post_data, "headers": headers
+                    })
+                else:
+                    send("Fetch.continueRequest", {"requestId": params["requestId"]})
+            if request_id is None:
+                raise Exception("Failed to intercept the POST request for raw body data.")
+        finally:
+            send("Fetch.disable")
+
+    browser_wait_timeout = utils.get_config_browser_wait_timeout()
+    WebDriverWait(driver, browser_wait_timeout).until(
+        lambda current: current.execute_script("return document.readyState") == "complete"
+    )
+
+
 def _post_request(req: V1RequestBase, driver: WebDriver):
+    if req.postDataRaw is not None:
+        _post_request_raw(req, driver)
+        return
     post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
     query_string = req.postData if req.postData and req.postData[0] != '?' else req.postData[1:] if req.postData else ''
     pairs = query_string.split('&')
