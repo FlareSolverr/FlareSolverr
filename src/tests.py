@@ -30,8 +30,11 @@ class TestFlareSolverr(unittest.TestCase):
     cloudflare_blocked_url = "https://cpasbiens3.fr/index.php?do=search&subaction=search"
 
     app = TestApp(flaresolverr.app)
-    # wait until the server is ready
-    app.get('/')
+
+    @classmethod
+    def setUpClass(cls):
+        # Wait until the server is ready after multiprocessing has bootstrapped.
+        cls.app.get('/')
 
     def test_wrong_endpoint(self):
         res = self.app.get('/wrong', status=404)
