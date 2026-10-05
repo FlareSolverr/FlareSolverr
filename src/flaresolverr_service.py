@@ -4,6 +4,7 @@ import sys
 import time
 from datetime import timedelta
 from html import escape
+from random import uniform
 from urllib.parse import unquote, quote
 
 from func_timeout import FunctionTimedOut, func_timeout
@@ -261,10 +262,10 @@ def click_verify(driver: WebDriver, num_tabs: int = 1):
     try:
         logging.debug("Try to find the Cloudflare verify checkbox...")
         actions = ActionChains(driver)
-        actions.pause(5)
+        actions.pause(5 + uniform(0.1, 0.5))
         for _ in range(num_tabs):
-            actions.send_keys(Keys.TAB).pause(0.1)
-        actions.pause(1)
+            actions.send_keys(Keys.TAB).pause(0.1 + uniform(0.02, 0.1))
+        actions.pause(1 + uniform(0.1, 0.5))
         actions.send_keys(Keys.SPACE).perform()
         
         logging.debug(f"Cloudflare verify checkbox clicked after {num_tabs} tabs!")
