@@ -155,6 +155,9 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     options.add_argument('--ignore-ssl-errors')
     # disable breaking popup
     options.add_argument("--disable-features=LocalNetworkAccessChecks")
+    # disable AI model download
+    options.add_argument("--disable-features=OptimizationGuideOnDeviceModel")
+    options.add_argument("--disable-features=GlicActor,GlicActorUi,PromptAPIForGeminiNano,PromptAPIX,PromptAPINoTranslation,SummarizationAPIForGeminiNano,WriterAPIForGeminiNano,TranslationAPI,LanguageDetectionAPI,AIPromptAPI,AIRewriteAPI,AIWritingAssistant,AIGenerativeSuggestions,AIGeneratedFlags,AICompositionFeature,HistoryAI,TabOrganizer,SmartSuggestion")
 
     language = os.environ.get('LANG', None)
     if language is not None:
