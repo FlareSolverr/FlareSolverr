@@ -160,6 +160,26 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     # one switch once, below, after every branch that may add to them.
     disabled_features = [
         'LocalNetworkAccessChecks',  # disable breaking popup
+        # disable AI model download
+        'OptimizationGuideOnDeviceModel',
+        'GlicActor',
+        'GlicActorUi',
+        'PromptAPIForGeminiNano',
+        'PromptAPIX',
+        'PromptAPINoTranslation',
+        'SummarizationAPIForGeminiNano',
+        'WriterAPIForGeminiNano',
+        'TranslationAPI',
+        'LanguageDetectionAPI',
+        'AIPromptAPI',
+        'AIRewriteAPI',
+        'AIWritingAssistant',
+        'AIGenerativeSuggestions',
+        'AIGeneratedFlags',
+        'AICompositionFeature',
+        'HistoryAI',
+        'TabOrganizer',
+        'SmartSuggestion',
     ]
 
     language = os.environ.get('LANG', None)

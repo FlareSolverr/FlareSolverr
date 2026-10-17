@@ -15,4 +15,6 @@ services:
       - "${PORT:-8191}:8191"
     volumes:
       - /var/lib/flaresolver:/config
+    tmpfs:
+      - /tmp:size=256M,mode=1777
     restart: unless-stopped
