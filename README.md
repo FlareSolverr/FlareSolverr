@@ -76,6 +76,31 @@ Remember to restart the Docker daemon and the container after the update.
 
 DO NOT expose FlareSolverr to the internet, as it can be abused.
 
+**Storage & NVMe/SSD Performance Optimization**
+
+By default, on every challenge request, headless browser creates and destroys temporary profile and other relevant data 
+inside `/tmp`. When running inside Docker without a RAM-backed mount, Docker's driver writes these transient files 
+directly to the host storage layer (volume), which can generate significant NVMe/SSD read/write wear over time.
+
+To route all temporary browser profile operations directly to RAM and reduce host disk writes, mount `/tmp` under `tmpfs` in the container.
+
+Add the following `tmpfs` block to your `flaresolverr` service:
+
+```yaml
+services:
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    # ... other settings ...
+    tmpfs:
+      - /tmp:size=256M,mode=1777
+```
+
+If you are using Docker CLI (Docker run) pass `--tmpfs /tmp:size=256M,mode=1777` flag.
+
+**Note on sizing:** size=256M setting acts as a maximum RAM allocation ceiling. Feel free to increase/decrease depending 
+on your FlareSolverr usage. Approx usage is between 10MB - 30MB per request, cleared once the request finishes.
+
 ### Precompiled binaries
 
 > **Warning**
