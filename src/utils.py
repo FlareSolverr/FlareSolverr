@@ -85,14 +85,18 @@ def create_proxy_extension(proxy: dict) -> str:
     }
     """
 
+    # Values below originate from the untrusted `proxy` object of the /v1 API
+    # request. They must be encoded as JSON string/number literals, never
+    # interpolated as raw text, so none of them can break out of their
+    # intended position in the generated JavaScript.
     background_js = """
     var config = {
         mode: "fixed_servers",
         rules: {
             singleProxy: {
-                scheme: "%s",
-                host: "%s",
-                port: %d
+                scheme: %s,
+                host: %s,
+                port: %s
             },
             bypassList: ["localhost"]
         }
@@ -103,8 +107,8 @@ def create_proxy_extension(proxy: dict) -> str:
     function callbackFn(details) {
         return {
             authCredentials: {
-                username: "%s",
-                password: "%s"
+                username: %s,
+                password: %s
             }
         };
     }
@@ -115,11 +119,11 @@ def create_proxy_extension(proxy: dict) -> str:
         ['blocking']
     );
     """ % (
-        scheme,
-        host,
-        port,
-        username,
-        password
+        json.dumps(scheme),
+        json.dumps(host),
+        json.dumps(port),
+        json.dumps(username),
+        json.dumps(password)
     )
 
     proxy_extension_dir = tempfile.mkdtemp()
