@@ -13,7 +13,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.expected_conditions import (
-    presence_of_element_located, staleness_of, title_is)
+    presence_of_element_located, staleness_of)
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -41,13 +41,22 @@ CHALLENGE_TITLES = [
     # DDoS-GUARD
     'DDoS-Guard'
 ]
+WAIT_TITLES = []
 CHALLENGE_SELECTORS = [
     # Cloudflare
     '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js', '#turnstile-wrapper', '.lds-ring',
     # Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
     'td.info #js_info',
     # Fairlane / pararius.com
-    'div.vc div.text-box h2'
+    'div.vc div.text-box h2',
+    # DDoS-Guard js-challenge interstitial
+    'script[src*="/.well-known/ddos-guard/js-challenge/"]'
+]
+CAPTCHA_PAGE_SELECTORS = [
+    # DDoS-Guard manual captcha page, served at ?check=1 when the automated js-challenge
+    # rejects the browser or IP. FlareSolverr cannot solve it, so fail loudly instead of
+    # returning it as a solved challenge.
+    'script[src*="/.well-known/ddos-guard/ddg-captcha-page/"]'
 ]
 
 TURNSTILE_SELECTORS = [
@@ -339,6 +348,30 @@ def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
             logging.debug(f'Turnstile challenge not found')
     return turnstile_token
 
+class _title_matches_ignoring_case:
+    """A case-insensitive title-match wait condition.
+
+    Challenge detection compares titles case-insensitively, so the wait that clears the
+    challenge must too: DDoS-Guard changes its title from "DDoS-Guard" to "DDOS-GUARD"
+    when it escalates to its manual captcha page, and a case-sensitive wait mistakes that
+    flip for a solved challenge.
+    """
+
+    def __init__(self, title: str):
+        self.title = title.lower()
+
+    def __call__(self, driver) -> bool:
+        return driver.title.lower() == self.title
+
+
+def _raise_if_captcha_page(driver: WebDriver) -> None:
+    for selector in CAPTCHA_PAGE_SELECTORS:
+        if len(driver.find_elements(By.CSS_SELECTOR, selector)) > 0:
+            raise Exception('DDoS-Guard returned its manual captcha page: the automated '
+                            'browser check failed for this IP and browser, and FlareSolverr '
+                            'cannot solve captchas.')
+
+
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
@@ -411,6 +444,20 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         if len(found_elements) > 0:
             raise Exception('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
+    # a repeat visit from a flagged IP can land directly on the DDoS-Guard captcha page
+    _raise_if_captcha_page(driver)
+
+    browser_wait_timeout = utils.get_config_browser_wait_timeout()
+    wait_titles = WAIT_TITLES + utils.get_config_additional_wait_titles()
+    # confirm any redirect titles have completed.
+    for title in wait_titles:
+        while True:
+            try:
+                logging.debug("Waiting for title: " + title)
+                WebDriverWait(driver, browser_wait_timeout).until_not(_title_matches_ignoring_case(title))
+                break
+            except TimeoutException:
+                logging.debug("Timeout waiting for title: " + title)
 
     # find challenge by title
     challenge_found = False
@@ -428,7 +475,6 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
                 logging.info("Challenge detected. Selector found: " + selector)
                 break
 
-    browser_wait_timeout = utils.get_config_browser_wait_timeout()
     attempt = 0
     if challenge_found:
         while True:
@@ -437,7 +483,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
                 # wait until the title changes
                 for title in CHALLENGE_TITLES:
                     logging.debug("Waiting for title (attempt " + str(attempt) + "): " + title)
-                    WebDriverWait(driver, browser_wait_timeout).until_not(title_is(title))
+                    WebDriverWait(driver, browser_wait_timeout).until_not(_title_matches_ignoring_case(title))
 
                 # then wait until all the selectors disappear
                 for selector in CHALLENGE_SELECTORS:
@@ -451,6 +497,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             except TimeoutException:
                 logging.debug("Timeout waiting for selector")
 
+                # the js-challenge can escalate to a manual captcha mid-wait
+                _raise_if_captcha_page(driver)
+
                 click_verify(driver)
 
                 # update the html (cloudflare reloads the page every 5 s)
@@ -463,6 +512,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             WebDriverWait(driver, browser_wait_timeout).until(staleness_of(html_element))
         except Exception:
             logging.debug("Timeout waiting for redirect")
+
+        # never report the DDoS-Guard captcha page as a solved challenge
+        _raise_if_captcha_page(driver)
 
         logging.info("Challenge solved!")
         res.message = "Challenge solved!"
