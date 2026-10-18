@@ -53,6 +53,7 @@ TURNSTILE_SELECTORS = [
     "input[name='cf-turnstile-response']"
 ]
 
+TURNSTILE_WAIT_TIMEOUT = 10
 SESSIONS_STORAGE = SessionsStorage()
 
 
@@ -293,6 +294,10 @@ def click_verify(driver: WebDriver, num_tabs: int = 1):
 def _get_turnstile_token(driver: WebDriver, tabs: int):
     token_input = driver.find_element(By.CSS_SELECTOR, "input[name='cf-turnstile-response']")
     current_value = token_input.get_attribute("value")
+    # widget solved before we got here, it won't change again
+    if current_value:
+        logging.warning(f"Turnstile token already present before the first click, returning it: {current_value}")
+        return current_value
     while True:
         click_verify(driver, num_tabs=tabs)
         turnstile_token = token_input.get_attribute("value")
@@ -323,15 +328,19 @@ def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
     turnstile_token = None
     if req.tabs_till_verify is not None:
         logging.debug(f'Navigating to... {req.url} in order to pass the turnstile challenge')
+        # same "#/" url in a reused session doesn't reload, old token stays
+        driver.get("about:blank")
         driver.get(req.url)
 
+        # single-page apps render the widget after load
         turnstile_challenge_found = False
-        for selector in TURNSTILE_SELECTORS:
-            found_elements = driver.find_elements(By.CSS_SELECTOR, selector)   
-            if len(found_elements) > 0:
-                turnstile_challenge_found = True
-                logging.info("Turnstile challenge detected. Selector found: " + selector)
-                break
+        try:
+            WebDriverWait(driver, TURNSTILE_WAIT_TIMEOUT).until(
+                lambda d: any(d.find_elements(By.CSS_SELECTOR, s) for s in TURNSTILE_SELECTORS))
+            turnstile_challenge_found = True
+            logging.info("Turnstile challenge detected")
+        except TimeoutException:
+            pass
         if turnstile_challenge_found:
             turnstile_token = _get_turnstile_token(driver=driver, tabs=req.tabs_till_verify)
         else:
