@@ -18,6 +18,7 @@ CHROME_MAJOR_VERSION = None
 USER_AGENT = None
 XVFB_DISPLAY = None
 PATCHED_DRIVER_PATH = None
+ADDITIONAL_CHALLENGE_TITLES = None
 
 
 def get_config_log_html() -> bool:
@@ -383,3 +384,33 @@ def object_to_dict(_object):
     json_dict = json.loads(json.dumps(_object, default=lambda o: o.__dict__))
     # remove hidden fields
     return {k: v for k, v in json_dict.items() if not k.startswith('__')}
+
+
+def get_config_additional_challenge_titles() -> list:
+    global ADDITIONAL_CHALLENGE_TITLES
+    if ADDITIONAL_CHALLENGE_TITLES is not None:
+        return ADDITIONAL_CHALLENGE_TITLES
+
+    ADDITIONAL_CHALLENGE_TITLES = __get_config_extra_titles("ADDITIONAL_CHALLENGE_TITLES")
+    return ADDITIONAL_CHALLENGE_TITLES
+
+
+def __get_config_extra_titles(var: str) -> list:
+    raw = os.environ.get(var, '[]')
+    try:
+        parsed = json.loads(raw)
+    except ValueError:
+        logging.warning(f"{var} is not valid JSON, ignoring: {raw!r}")
+        parsed = []
+    if not isinstance(parsed, list):
+        logging.warning(f"{var} must be a JSON array, ignoring: {raw!r}")
+        parsed = []
+
+    titles = []
+    for title in parsed:
+        if isinstance(title, str) and title.strip():
+            titles.append(title)
+        else:
+            logging.warning(f"{var}: ignoring invalid entry {title!r}")
+
+    return titles
