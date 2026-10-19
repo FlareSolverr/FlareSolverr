@@ -1,6 +1,142 @@
 # Changelog
 
-## v3.3.5 (2023/09/15)
+## v3.5.2 (2026/09/12)
+* Update build_package.py
+* Disable breaking Local Network Access Checks popup
+* Make the challenge wait timeout configurable. Thanks @aki-ks
+* Fixed multiple buttons bug for tabs_till_verify. Thanks @denis-svg
+* Fix cookies being retrieved before waitInSeconds delay. Thanks @Br1an67
+* Bump dependencies & Chromium
+
+## v3.5.0 (2026/05/26)
+* Add formatting to log file
+* Resolve turnstile captcha. Thanks @denis-svg
+* Bump dependencies. Thanks @flower
+* Fix tar.gz having wrong uid/gid. Thanks @NikoCat233
+* Revert base image & Python
+
+## v3.4.6 (2025/11/29)
+* Add disable image, css, fonts option with CDP. Thanks @Ananto30
+
+## v3.4.5 (2025/11/11)
+* Revert to Python v3.13
+
+## v3.4.4 (2025/11/04)
+* Bump dependencies, Chromium, and some other general fixes. Thanks @flowerey
+
+## v3.4.3 (2025/10/28)
+* Update proxy extension
+
+## v3.4.2 (2025/10/09)
+* Bump dependencies & CI actions. Thanks @flowerey
+* Add optional wait time after resolving the challenge before returning. Thanks @kennedyoliveira
+* Add proxy ENVs. Thanks @Robokishan
+* Handle empty string and keys without value in postData. Thanks @eZ4RK0
+* Add quote protection for password containing it. Thanks @warrenberberd
+* Add returnScreenshot parameter to screenshot the final web page. Thanks @estebanthi
+* Add log file support. Thanks @acg5159
+
+## v3.4.1 (2025/09/15)
+* Fix regex pattern syntax in utils.py
+* Change access denied title check to use startswith
+
+## v3.4.0 (2025/08/25)
+* Modernize and upgrade application. Thanks @TheCrazyLex
+* Remove disable software rasterizer option for ARM builds. Thanks @smrodman83
+
+## v3.3.25 (2025/06/14)
+* Remove `use-gl` argument. Thanks @qwerty12
+* u_c: remove apparent c&p typo. Thanks @ok3721
+* Bump requirements
+
+## v3.3.24 (2025/06/04)
+* Remove hidden character
+
+## v3.3.23 (2025/06/04)
+* Update base image to bookworm. Thanks @rwjack
+
+## v3.3.22 (2025/06/03)
+* Disable search engine choice screen
+* Fix headless=false stalling. Thanks @MAKMED1337
+* Change from click to keys. Thanks @sh4dowb
+* Don't open devtools
+* Bump Chromium to v137 for build
+* Bump requirements
+
+## v3.3.21 (2024/06/26)
+* Add challenge selector to catch reloading page on non-English systems
+* Escape values for generated form used in request.post. Thanks @mynameisbogdan
+
+## v3.3.20 (2024/06/21)
+* maxTimeout should always be int
+* Check not running in Docker before logging version_main error
+* Update Cloudflare challenge and checkbox selectors. Thanks @tenettow & @21hsmw
+
+## v3.3.19 (2024/05/23)
+* Fix occasional headless issue on Linux when set to "false". Thanks @21hsmw
+
+## v3.3.18 (2024/05/20)
+
+* Fix LANG ENV for Linux
+* Fix Chrome v124+ not closing on Windows. Thanks @RileyXX
+
+## v3.3.17 (2024/04/09)
+
+* Fix file descriptor leak in service on quit(). Thanks @zkulis
+
+## v3.3.16 (2024/02/28)
+
+* Fix of the subprocess.STARTUPINFO() call. Thanks @ceconelo
+* Add FreeBSD support. Thanks @Asthowen
+* Use headless configuration properly. Thanks @hashworks
+
+## v3.3.15 (2024/02/20)
+
+* Fix looping challenges
+
+## v3.3.14-hotfix2 (2024/02/17)
+
+* Hotfix 2 - bad Chromium build, instances failed to terminate
+
+## v3.3.14-hotfix (2024/02/17)
+
+* Hotfix for Linux build - some Chrome files no longer exist
+
+## v3.3.14 (2024/02/17)
+
+* Update Chrome downloads. Thanks @opemvbs
+
+## v3.3.13 (2024/01/07)
+
+* Fix too many open files error
+
+## v3.3.12 (2023/12/15)
+
+* Fix looping challenges and invalid cookies
+
+## v3.3.11 (2023/12/11)
+
+* Update UC 3.5.4 & Selenium 4.15.2. Thanks @txtsd
+
+## v3.3.10 (2023/11/14)
+
+* Add LANG ENV - resolves issues with YGGtorrent
+
+## v3.3.9 (2023/11/13)
+
+* Fix for Docker build, capture TypeError
+
+## v3.3.8 (2023/11/13)
+
+* Fix headless=true for Chrome 117+. Thanks @NabiKAZ
+* Support running Chrome 119 from source. Thanks @koleg and @Chris7X
+* Fix "OSError: [WinError 6] The handle is invalid" on exit. Thanks @enesgorkemgenc
+
+## v3.3.7 (2023/11/05)
+
+* Bump to rebuild. Thanks @JoachimDorchies
+
+## v3.3.6 (2023/09/15)
 
 * Update checkbox selector, again
 

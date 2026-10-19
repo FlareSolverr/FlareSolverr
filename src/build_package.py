@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import sys
 import zipfile
+import tarfile
 
 import requests
 
@@ -25,7 +26,7 @@ def clean_files():
 
 def download_chromium():
     # https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/
-    revision = "1140001" if os.name == 'nt' else '1140000'
+    revision = "1681099" if os.name == 'nt' else '1681097'
     arch = 'Win_x64' if os.name == 'nt' else 'Linux_x64'
     dl_file = 'chrome-win' if os.name == 'nt' else 'chrome-linux'
     dl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'dist_chrome')
@@ -59,8 +60,7 @@ def download_chromium():
         # Give executable permissions for *nix
         # file * | grep executable | cut -d: -f1
         print("Giving executable permissions...")
-        execs = ['chrome', 'chrome_crashpad_handler', 'chrome_sandbox', 'chrome-wrapper', 'nacl_helper',
-                 'nacl_helper_bootstrap', 'nacl_irt_x86_64.nexe', 'xdg-mime', 'xdg-settings']
+        execs = ['chrome', 'chrome_crashpad_handler', 'chrome_sandbox', 'chrome-wrapper']
         for exec_file in execs:
             exec_path = os.path.join(chrome_path, exec_file)
             os.chmod(exec_path, 0o755)
@@ -88,9 +88,24 @@ def compress_package():
     compr_format = 'zip' if os.name == 'nt' else 'gztar'
     compr_file_name = 'flaresolverr_windows_x64' if os.name == 'nt' else 'flaresolverr_linux_x64'
     compr_file_path = os.path.join(dist_folder, compr_file_name)
-    shutil.make_archive(compr_file_path, compr_format, package_folder)
-    print("Compressed file path: " + compr_file_path)
+    
+    if compr_format == 'zip':
+        shutil.make_archive(compr_file_path, compr_format, package_folder)
+        print("Compressed file path: " + compr_file_path)
+    else:
+        def _reset_tarinfo(tarinfo):
+            tarinfo.uid = 0
+            tarinfo.gid = 0
+            tarinfo.uname = ""
+            tarinfo.gname = ""
+            return tarinfo
 
+        tar_path = compr_file_path + '.tar.gz'
+        with tarfile.open(tar_path, 'w:gz') as tar:
+            for entry in os.listdir(package_folder):
+                fullpath = os.path.join(package_folder, entry)
+                tar.add(fullpath, arcname=entry, filter=_reset_tarinfo)
+        print("Compressed file path: " + tar_path)
 
 if __name__ == "__main__":
     print("Building package...")

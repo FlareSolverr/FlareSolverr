@@ -1,15 +1,18 @@
 import json
 import logging
 import os
+import platform
 import re
 import shutil
-import urllib.parse
+import sys
 import tempfile
+import urllib.parse
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 import undetected_chromedriver as uc
 
 FLARESOLVERR_VERSION = None
+PLATFORM_VERSION = None
 CHROME_EXE_PATH = None
 CHROME_MAJOR_VERSION = None
 USER_AGENT = None
@@ -25,6 +28,14 @@ def get_config_headless() -> bool:
     return os.environ.get('HEADLESS', 'true').lower() == 'true'
 
 
+def get_config_disable_media() -> bool:
+    return os.environ.get('DISABLE_MEDIA', 'false').lower() == 'true'
+
+
+def get_config_browser_wait_timeout() -> int:
+    return int(os.environ.get('BROWSER_WAIT_TIMEOUT', 1))
+
+
 def get_flaresolverr_version() -> str:
     global FLARESOLVERR_VERSION
     if FLARESOLVERR_VERSION is not None:
@@ -37,6 +48,13 @@ def get_flaresolverr_version() -> str:
         FLARESOLVERR_VERSION = json.loads(f.read())['version']
         return FLARESOLVERR_VERSION
 
+def get_current_platform() -> str:
+    global PLATFORM_VERSION
+    if PLATFORM_VERSION is not None:
+        return PLATFORM_VERSION
+    PLATFORM_VERSION = os.name
+    return PLATFORM_VERSION
+
 
 def create_proxy_extension(proxy: dict) -> str:
     parsed_url = urllib.parse.urlparse(proxy['url'])
@@ -48,30 +66,37 @@ def create_proxy_extension(proxy: dict) -> str:
     manifest_json = """
     {
         "version": "1.0.0",
-        "manifest_version": 2,
+        "manifest_version": 3,
         "name": "Chrome Proxy",
         "permissions": [
             "proxy",
             "tabs",
-            "unlimitedStorage",
             "storage",
-            "<all_urls>",
             "webRequest",
-            "webRequestBlocking"
+            "webRequestAuthProvider"
         ],
-        "background": {"scripts": ["background.js"]},
+        "host_permissions": [
+          "<all_urls>"
+        ],
+        "background": {
+          "service_worker": "background.js"
+        },
         "minimum_chrome_version": "76.0.0"
     }
     """
 
+    # Values below originate from the untrusted `proxy` object of the /v1 API
+    # request. They must be encoded as JSON string/number literals, never
+    # interpolated as raw text, so none of them can break out of their
+    # intended position in the generated JavaScript.
     background_js = """
     var config = {
         mode: "fixed_servers",
         rules: {
             singleProxy: {
-                scheme: "%s",
-                host: "%s",
-                port: %d
+                scheme: %s,
+                host: %s,
+                port: %s
             },
             bypassList: ["localhost"]
         }
@@ -82,8 +107,8 @@ def create_proxy_extension(proxy: dict) -> str:
     function callbackFn(details) {
         return {
             authCredentials: {
-                username: "%s",
-                password: "%s"
+                username: %s,
+                password: %s
             }
         };
     }
@@ -94,11 +119,11 @@ def create_proxy_extension(proxy: dict) -> str:
         ['blocking']
     );
     """ % (
-        scheme,
-        host,
-        port,
-        username,
-        password
+        json.dumps(scheme),
+        json.dumps(host),
+        json.dumps(port),
+        json.dumps(username),
+        json.dumps(password)
     )
 
     proxy_extension_dir = tempfile.mkdtemp()
@@ -113,39 +138,75 @@ def create_proxy_extension(proxy: dict) -> str:
 
 
 def get_webdriver(proxy: dict = None) -> WebDriver:
-    global PATCHED_DRIVER_PATH
+    global PATCHED_DRIVER_PATH, USER_AGENT
     logging.debug('Launching web browser...')
 
     # undetected_chromedriver
     options = uc.ChromeOptions()
     options.add_argument('--no-sandbox')
     options.add_argument('--window-size=1920,1080')
+    options.add_argument('--disable-search-engine-choice-screen')
     # todo: this param shows a warning in chrome head-full
     options.add_argument('--disable-setuid-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     # this option removes the zygote sandbox (it seems that the resolution is a bit faster)
     options.add_argument('--no-zygote')
     # attempt to fix Docker ARM32 build
-    options.add_argument('--disable-gpu-sandbox')
-    options.add_argument('--disable-software-rasterizer')
+    IS_ARMARCH = platform.machine().startswith(('arm', 'aarch'))
+    if IS_ARMARCH:
+        options.add_argument('--disable-gpu-sandbox')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
-    # fix GL errors in ASUSTOR NAS
-    # https://github.com/FlareSolverr/FlareSolverr/issues/782
-    # https://github.com/microsoft/vscode/issues/127800#issuecomment-873342069
-    # https://peter.sh/experiments/chromium-command-line-switches/#use-gl
-    options.add_argument('--use-gl=swiftshader')
+
+    # Chrome parses --disable-features as a single value: passing the switch a
+    # second time keeps the last value and silently discards the earlier one
+    # whole, along with every feature it named. Collect the names here and emit
+    # one switch once, below, after every branch that may add to them.
+    disabled_features = [
+        'LocalNetworkAccessChecks',  # disable breaking popup
+        # disable AI model download
+        'OptimizationGuideOnDeviceModel',
+        'GlicActor',
+        'GlicActorUi',
+        'PromptAPIForGeminiNano',
+        'PromptAPIX',
+        'PromptAPINoTranslation',
+        'SummarizationAPIForGeminiNano',
+        'WriterAPIForGeminiNano',
+        'TranslationAPI',
+        'LanguageDetectionAPI',
+        'AIPromptAPI',
+        'AIRewriteAPI',
+        'AIWritingAssistant',
+        'AIGenerativeSuggestions',
+        'AIGeneratedFlags',
+        'AICompositionFeature',
+        'HistoryAI',
+        'TabOrganizer',
+        'SmartSuggestion',
+    ]
+
+    language = os.environ.get('LANG', None)
+    if language is not None:
+        options.add_argument('--accept-lang=%s' % language)
+
+    # Fix for Chrome 117 | https://github.com/FlareSolverr/FlareSolverr/issues/910
+    if USER_AGENT is not None:
+        options.add_argument('--user-agent=%s' % USER_AGENT)
 
     proxy_extension_dir = None
     if proxy and all(key in proxy for key in ['url', 'username', 'password']):
         proxy_extension_dir = create_proxy_extension(proxy)
+        disabled_features.append('DisableLoadExtensionCommandLineSwitch')
         options.add_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
     elif proxy and 'url' in proxy:
         proxy_url = proxy['url']
         logging.debug("Using webdriver proxy: %s", proxy_url)
         options.add_argument('--proxy-server=%s' % proxy_url)
 
-    # note: headless mode is detected (options.headless = True)
+    options.add_argument('--disable-features=%s' % ','.join(disabled_features))
+
+    # note: headless mode is detected (headless = True)
     # we launch the browser in head-full mode with the window hidden
     windows_headless = False
     if get_config_headless():
@@ -153,6 +214,8 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
             windows_headless = True
         else:
             start_xvfb_display()
+    # For normal headless mode:
+    # options.add_argument('--headless')
 
     # if we are inside the Docker container, we avoid downloading the driver
     driver_exe_path = None
@@ -162,10 +225,6 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         driver_exe_path = "/app/chromedriver"
     else:
         version_main = get_chrome_major_version()
-        # Fix for Chrome 115
-        # https://github.com/seleniumbase/SeleniumBase/pull/1967
-        if int(version_main) > 114:
-            version_main = 114
         if PATCHED_DRIVER_PATH is not None:
             driver_exe_path = PATCHED_DRIVER_PATH
 
@@ -174,9 +233,14 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
 
     # downloads and patches the chromedriver
     # if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
-    driver = uc.Chrome(options=options, browser_executable_path=browser_executable_path,
-                       driver_executable_path=driver_exe_path, version_main=version_main,
-                       windows_headless=windows_headless, headless=windows_headless)
+    try:
+        driver = uc.Chrome(options=options, browser_executable_path=browser_executable_path,
+                           driver_executable_path=driver_exe_path, version_main=version_main,
+                           windows_headless=windows_headless, headless=get_config_headless())
+    except Exception as e:
+        logging.error("Error starting Chrome: %s" % e)
+        # No point in continuing if we cannot retrieve the driver
+        raise e
 
     # save the patched driver to avoid re-downloads
     if driver_exe_path is None:
@@ -278,7 +342,7 @@ def extract_version_nt_folder() -> str:
             paths = [f.path for f in os.scandir(path) if f.is_dir()]
             for path in paths:
                 filename = os.path.basename(path)
-                pattern = '\d+\.\d+\.\d+\.\d+'
+                pattern = r'\d+\.\d+\.\d+\.\d+'
                 match = re.search(pattern, filename)
                 if match and match.group():
                     # Found a Chrome version.
@@ -295,11 +359,15 @@ def get_user_agent(driver=None) -> str:
         if driver is None:
             driver = get_webdriver()
         USER_AGENT = driver.execute_script("return navigator.userAgent")
+        # Fix for Chrome 117 | https://github.com/FlareSolverr/FlareSolverr/issues/910
+        USER_AGENT = re.sub('HEADLESS', '', USER_AGENT, flags=re.IGNORECASE)
         return USER_AGENT
     except Exception as e:
         raise Exception("Error getting browser User-Agent. " + str(e))
     finally:
         if driver is not None:
+            if PLATFORM_VERSION == "nt":
+                driver.close()
             driver.quit()
 
 

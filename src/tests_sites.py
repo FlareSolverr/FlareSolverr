@@ -51,7 +51,7 @@ class TestFlareSolverr(unittest.TestCase):
              '<title>Access denied</title>'),
             ('badasstorrents', 'https://badasstorrents.com/torrents/search/720p/date/desc',
              '<title>Latest Torrents - BadassTorrents</title>'),
-            ('bt4g', 'https://bt4g.org/search/2022', '<title>Download 2022 Torrents - BT4G</title>'),
+            ('bt4g', 'https://bt4gprx.com/search?q=2022', '<title>Download 2022 Torrents - BT4G</title>'),
             ('cinemaz', 'https://cinemaz.to/api/v1/jackett/torrents?in=1&type=0&search=',
              '<title>Access denied</title>'),
             ('epublibre', 'https://epublibre.unblockit.cat/catalogo/index/0/nuevo/todos/sin/todos/--/ajax',

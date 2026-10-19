@@ -66,6 +66,8 @@ class SessionsStorage:
             return False
 
         session = self.sessions.pop(session_id)
+        if utils.PLATFORM_VERSION == "nt":
+            session.driver.close()
         session.driver.quit()
         return True
 
