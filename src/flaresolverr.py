@@ -12,6 +12,7 @@ from bottle_plugins import prometheus_plugin
 from dtos import V1RequestBase
 import flaresolverr_service
 import utils
+from logging_utils import SensitiveDataFilter
 
 env_proxy_url = os.environ.get('PROXY_URL', None)
 env_proxy_username = os.environ.get('PROXY_USERNAME', None)
@@ -120,6 +121,9 @@ if __name__ == "__main__":
                 logging.StreamHandler(sys.stdout)
             ]
         )
+
+    for handler in logging.getLogger().handlers:
+        handler.addFilter(SensitiveDataFilter())
 
     # disable warning traces from urllib3
     logging.getLogger('urllib3').setLevel(logging.ERROR)
