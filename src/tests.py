@@ -7,6 +7,19 @@ from dtos import IndexResponse, HealthResponse, V1ResponseBase, STATUS_OK, STATU
 import flaresolverr
 import utils
 
+# Fixed token used by the test client so the (now required) authentication
+# gate on /v1 can be exercised without generating a random token.
+TEST_API_TOKEN = 'test-api-token'
+flaresolverr.API_TOKEN = TEST_API_TOKEN
+
+
+class AuthenticatedTestApp(TestApp):
+    """TestApp that attaches the shared-secret bearer token to every request."""
+
+    def do_request(self, req, status=None, expect_errors=None):
+        req.headers['Authorization'] = 'Bearer ' + TEST_API_TOKEN
+        return super().do_request(req, status=status, expect_errors=expect_errors)
+
 
 def _find_obj_by_key(key: str, value: str, _list: list) -> Optional[dict]:
     for obj in _list:
@@ -28,7 +41,7 @@ class TestFlareSolverr(unittest.TestCase):
     custom_cloudflare_url = "https://www.muziekfabriek.org/"
     cloudflare_blocked_url = "https://cpasbiens3.fr/index.php?do=search&subaction=search"
 
-    app = TestApp(flaresolverr.app)
+    app = AuthenticatedTestApp(flaresolverr.app)
     # wait until the server is ready
     app.get('/')
 
