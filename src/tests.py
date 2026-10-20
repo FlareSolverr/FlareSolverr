@@ -1,3 +1,4 @@
+import json
 import unittest
 from typing import Optional
 
@@ -29,8 +30,11 @@ class TestFlareSolverr(unittest.TestCase):
     cloudflare_blocked_url = "https://cpasbiens3.fr/index.php?do=search&subaction=search"
 
     app = TestApp(flaresolverr.app)
-    # wait until the server is ready
-    app.get('/')
+
+    @classmethod
+    def setUpClass(cls):
+        # Wait until the server is ready after multiprocessing has bootstrapped.
+        cls.app.get('/')
 
     def test_wrong_endpoint(self):
         res = self.app.get('/wrong', status=404)
@@ -505,6 +509,22 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertEqual(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
 
+    def test_v1_endpoint_request_post_raw_json_no_cloudflare(self):
+        raw_body = '{"key":"value","number":42}'
+        res = self.app.post_json('/v1', {
+            "cmd": "request.post",
+            "url": self.post_url,
+            "postDataRaw": raw_body,
+            "postDataContentType": "application/json"
+        })
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+        self.assertEqual("Challenge not detected!", body.message)
+        self.assertEqual(json.loads(raw_body), json.loads(body.solution.response)["json"])
+        self.assertNotIn("json-formatter-container", body.solution.response)
+
     def test_v1_endpoint_request_post_cloudflare(self):
         res = self.app.post_json('/v1', {
             "cmd": "request.post",
@@ -541,7 +561,7 @@ class TestFlareSolverr(unittest.TestCase):
 
         body = V1ResponseBase(res.json)
         self.assertEqual(STATUS_ERROR, body.status)
-        self.assertIn("Request parameter 'postData' is mandatory in 'request.post' command", body.message)
+        self.assertIn("Request parameter 'postData' or 'postDataRaw' is mandatory in 'request.post' command", body.message)
 
     def test_v1_endpoint_request_post_deprecated_param(self):
         res = self.app.post_json('/v1', {
