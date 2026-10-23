@@ -5,7 +5,7 @@ func-timeout==4.3.5
 prometheus-client==0.26.0
 # Required by undetected_chromedriver
 requests==2.34.2
-certifi==2026.7.22
+certifi==2026.10.19
 websockets==17.0.1
 packaging==26.3
 # Only required for Linux and macOS
