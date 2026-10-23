@@ -8,7 +8,7 @@ from random import uniform
 from urllib.parse import unquote, quote
 
 from func_timeout import FunctionTimedOut, func_timeout
-from selenium.common import TimeoutException
+from selenium.common import InvalidCookieDomainException, TimeoutException
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -387,7 +387,13 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
         logging.debug(f'Setting cookies...')
         for cookie in req.cookies:
             driver.delete_cookie(cookie['name'])
-            driver.add_cookie(cookie)
+            try:
+                driver.add_cookie(cookie)
+            except InvalidCookieDomainException:
+                # the browser only accepts cookies for the current page's host, and the site may have redirected
+                # to another host (e.g. an ad page), so skip this cookie instead of failing the whole request
+                logging.warning(f"Skipping cookie '{cookie.get('name')}': its domain '{cookie.get('domain')}' "
+                                f"does not match the page {driver.current_url}")
         # reload the page
         if method == 'POST':
             _post_request(req, driver)
