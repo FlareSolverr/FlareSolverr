@@ -22,6 +22,8 @@ from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
                   ChallengeResolutionT, HealthResponse, IndexResponse,
                   V1RequestBase, V1ResponseBase)
 from sessions import SessionsStorage
+from turnstile_click import (click_turnstile, get_turnstile_response,
+                             reset_turnstile, wait_for_turnstile)
 
 ACCESS_DENIED_TITLES = [
     # Cloudflare
@@ -53,6 +55,10 @@ CHALLENGE_SELECTORS = [
 TURNSTILE_SELECTORS = [
     "input[name='cf-turnstile-response']"
 ]
+TURNSTILE_RENDER_TIMEOUT = 30
+TURNSTILE_AUTO_PASS_WAIT = 3
+TURNSTILE_RESULT_WAIT = 12
+TURNSTILE_MAX_CLICK_ATTEMPTS = 5
 
 SESSIONS_STORAGE = SessionsStorage()
 
@@ -291,6 +297,60 @@ def click_verify(driver: WebDriver, num_tabs: int = 1):
 
     time.sleep(2)
 
+def _wait_turnstile_result(driver: WebDriver, start_url: str, initial_token, timeout: float):
+    """
+    Polls until Turnstile returns a new token or the page navigates away (the site consumed the token).
+    Returns (solved, token).
+    """
+    last_token = None
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            current_url = driver.current_url
+        except Exception:
+            current_url = start_url
+        if current_url != start_url:
+            logging.info("Turnstile solved, the page navigated to: " + current_url)
+            return True, last_token
+        token = get_turnstile_response(driver)
+        if token and token != initial_token:
+            last_token = token
+            # give the site's callback a moment to consume the token and redirect
+            time.sleep(1)
+            try:
+                if driver.current_url != start_url:
+                    continue
+            except Exception:
+                pass
+            logging.info(f"Turnstile token: {token}")
+            return True, token
+        time.sleep(0.5)
+    return False, None
+
+
+def _get_turnstile_token_by_click(driver: WebDriver, start_url: str):
+    initial_token = get_turnstile_response(driver)
+
+    # managed widgets may pass without interaction
+    solved, token = _wait_turnstile_result(driver, start_url, initial_token, TURNSTILE_AUTO_PASS_WAIT)
+    if solved:
+        logging.info("Turnstile passed without clicking")
+        return token
+
+    for attempt in range(1, TURNSTILE_MAX_CLICK_ATTEMPTS + 1):
+        logging.debug(f"Turnstile click attempt {attempt}/{TURNSTILE_MAX_CLICK_ATTEMPTS}")
+        if click_turnstile(driver):
+            solved, token = _wait_turnstile_result(driver, start_url, initial_token, TURNSTILE_RESULT_WAIT)
+            if solved:
+                return token
+            logging.debug("No Turnstile token after the click")
+        if attempt >= 2 and reset_turnstile(driver):
+            # after an error the widget does not accept more clicks until it is reset
+            logging.debug("Turnstile widget reset")
+            time.sleep(2)
+    raise Exception(f"Turnstile not solved after {TURNSTILE_MAX_CLICK_ATTEMPTS} click attempts.")
+
+
 def _get_turnstile_token(driver: WebDriver, tabs: int):
     token_input = driver.find_element(By.CSS_SELECTOR, "input[name='cf-turnstile-response']")
     current_value = token_input.get_attribute("value")
@@ -301,7 +361,7 @@ def _get_turnstile_token(driver: WebDriver, tabs: int):
             if turnstile_token != current_value:
                 logging.info(f"Turnstile token: {turnstile_token}")
                 return turnstile_token
-        logging.debug(f"Failed to extract token possibly click failed")        
+        logging.debug(f"Failed to extract token possibly click failed")
 
         # reset focus
         driver.execute_script("""
@@ -322,19 +382,28 @@ def _get_turnstile_token(driver: WebDriver, tabs: int):
 
 def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
     turnstile_token = None
-    if req.tabs_till_verify is not None:
+    if req.tabs_till_verify is not None or req.turnstile == 'click':
         logging.debug(f'Navigating to... {req.url} in order to pass the turnstile challenge')
         driver.get(req.url)
 
         turnstile_challenge_found = False
-        for selector in TURNSTILE_SELECTORS:
-            found_elements = driver.find_elements(By.CSS_SELECTOR, selector)   
-            if len(found_elements) > 0:
-                turnstile_challenge_found = True
-                logging.info("Turnstile challenge detected. Selector found: " + selector)
-                break
+        if req.turnstile == 'click':
+            # embedded widgets are usually rendered by the site's JS some time after the page load
+            turnstile_challenge_found = wait_for_turnstile(driver, TURNSTILE_RENDER_TIMEOUT)
+            if turnstile_challenge_found:
+                logging.info("Turnstile challenge detected. Iframe found.")
+        else:
+            for selector in TURNSTILE_SELECTORS:
+                found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
+                if len(found_elements) > 0:
+                    turnstile_challenge_found = True
+                    logging.info("Turnstile challenge detected. Selector found: " + selector)
+                    break
         if turnstile_challenge_found:
-            turnstile_token = _get_turnstile_token(driver=driver, tabs=req.tabs_till_verify)
+            if req.turnstile == 'click':
+                turnstile_token = _get_turnstile_token_by_click(driver=driver, start_url=driver.current_url)
+            else:
+                turnstile_token = _get_turnstile_token(driver=driver, tabs=req.tabs_till_verify)
         else:
             logging.debug(f'Turnstile challenge not found')
     return turnstile_token
@@ -377,7 +446,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     if method == "POST":
         _post_request(req, driver)
     else:
-        if req.tabs_till_verify is None:
+        if req.tabs_till_verify is None and req.turnstile != 'click':
             driver.get(req.url)
         else:
             turnstile_token = _resolve_turnstile_captcha(req, driver)
@@ -451,7 +520,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             except TimeoutException:
                 logging.debug("Timeout waiting for selector")
 
-                click_verify(driver)
+                if click_turnstile(driver):
+                    time.sleep(3)
+                else:
+                    click_verify(driver)
 
                 # update the html (cloudflare reloads the page every 5 s)
                 html_element = driver.find_element(By.TAG_NAME, "html")
@@ -466,12 +538,15 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
         logging.info("Challenge solved!")
         res.message = "Challenge solved!"
+    elif turnstile_token or (req.turnstile == 'click' and driver.current_url != req.url):
+        # the site may consume the token and navigate away before it can be read
+        logging.info("Turnstile solved!")
+        res.message = "Turnstile solved!"
     else:
         logging.info("Challenge not detected!")
         res.message = "Challenge not detected!"
 
     challenge_res = ChallengeResolutionResultT({})
-    challenge_res.url = driver.current_url
     challenge_res.status = 200  # todo: fix, selenium not provides this info
     challenge_res.userAgent = utils.get_user_agent(driver)
     challenge_res.turnstile_token = turnstile_token
@@ -484,6 +559,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             time.sleep(req.waitInSeconds)
 
         challenge_res.response = driver.page_source
+
+    # after the waits, so redirects done by the page's JS are reflected
+    challenge_res.url = driver.current_url
 
     if req.returnScreenshot:
         challenge_res.screenshot = driver.get_screenshot_as_base64()
