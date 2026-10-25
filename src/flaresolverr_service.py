@@ -2,6 +2,7 @@ import logging
 import platform
 import sys
 import time
+from contextlib import nullcontext
 from datetime import timedelta
 from html import escape
 from random import uniform
@@ -242,10 +243,13 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
                               f"lifetime={str(session.lifetime())}, ttl={str(ttl)})")
 
             driver = session.driver
+            lock = session.lock
         else:
             driver = utils.get_webdriver(req.proxy)
             logging.debug('New instance of webdriver has been created to perform the request')
-        return func_timeout(timeout, _evil_logic, (req, driver, method))
+            lock = nullcontext()
+        with lock:
+            return func_timeout(timeout, _evil_logic, (req, driver, method))
     except FunctionTimedOut:
         raise Exception(f'Error solving the challenge. Timeout after {timeout} seconds.')
     except Exception as e:
