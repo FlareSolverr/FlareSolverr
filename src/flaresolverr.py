@@ -93,6 +93,8 @@ if __name__ == "__main__":
     browser_wait_timeout = utils.get_config_browser_wait_timeout()
     server_host = os.environ.get('HOST', '0.0.0.0')
     server_port = int(os.environ.get('PORT', 8191))
+    # one worker per request, so this also caps concurrent browsers
+    server_threads = int(os.environ.get('THREADS', 4))
 
     # configure logger
     logger_format = '%(asctime)s %(levelname)-8s %(message)s'
@@ -149,5 +151,6 @@ if __name__ == "__main__":
     class WaitressServerPoll(ServerAdapter):
         def run(self, handler):
             from waitress import serve
-            serve(handler, host=self.host, port=self.port, asyncore_use_poll=True)
+            serve(handler, host=self.host, port=self.port, threads=server_threads,
+                  asyncore_use_poll=True)
     run(app, host=server_host, port=server_port, quiet=True, server=WaitressServerPoll)
