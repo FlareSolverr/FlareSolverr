@@ -1,5 +1,6 @@
 import logging
-from dataclasses import dataclass
+import threading
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
 from uuid import uuid1
@@ -14,6 +15,8 @@ class Session:
     session_id: str
     driver: WebDriver
     created_at: datetime
+    # only one request at a time may drive the WebDriver of a session
+    lock: threading.Lock = field(default_factory=threading.Lock, repr=False, compare=False)
 
     def lifetime(self) -> timedelta:
         return datetime.now() - self.created_at
@@ -24,6 +27,7 @@ class SessionsStorage:
 
     def __init__(self):
         self.sessions = {}
+        self.lock = threading.RLock()
 
     def create(self, session_id: Optional[str] = None, proxy: Optional[dict] = None,
                force_new: Optional[bool] = False) -> Tuple[Session, bool]:
@@ -39,19 +43,20 @@ class SessionsStorage:
         """
         session_id = session_id or str(uuid1())
 
-        if force_new:
-            self.destroy(session_id)
+        with self.lock:
+            if force_new:
+                self.destroy(session_id)
 
-        if self.exists(session_id):
-            return self.sessions[session_id], False
+            if self.exists(session_id):
+                return self.sessions[session_id], False
 
-        driver = utils.get_webdriver(proxy)
-        created_at = datetime.now()
-        session = Session(session_id, driver, created_at)
+            driver = utils.get_webdriver(proxy)
+            created_at = datetime.now()
+            session = Session(session_id, driver, created_at)
 
-        self.sessions[session_id] = session
+            self.sessions[session_id] = session
 
-        return session, True
+            return session, True
 
     def exists(self, session_id: str) -> bool:
         return session_id in self.sessions
@@ -62,23 +67,25 @@ class SessionsStorage:
         The function returns True if session was found and destroyed,
         and False if session_id wasn't found.
         """
-        if not self.exists(session_id):
-            return False
+        with self.lock:
+            if not self.exists(session_id):
+                return False
 
-        session = self.sessions.pop(session_id)
+            session = self.sessions.pop(session_id)
         if utils.PLATFORM_VERSION == "nt":
             session.driver.close()
         session.driver.quit()
         return True
 
     def get(self, session_id: str, ttl: Optional[timedelta] = None) -> Tuple[Session, bool]:
-        session, fresh = self.create(session_id)
+        with self.lock:
+            session, fresh = self.create(session_id)
 
-        if ttl is not None and not fresh and session.lifetime() > ttl:
-            logging.debug(f'session\'s lifetime has expired, so the session is recreated (session_id={session_id})')
-            session, fresh = self.create(session_id, force_new=True)
+            if ttl is not None and not fresh and session.lifetime() > ttl:
+                logging.debug(f'session\'s lifetime has expired, so the session is recreated (session_id={session_id})')
+                session, fresh = self.create(session_id, force_new=True)
 
-        return session, fresh
+            return session, fresh
 
     def session_ids(self) -> list[str]:
         return list(self.sessions.keys())
