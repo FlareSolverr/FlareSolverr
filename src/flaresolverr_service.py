@@ -61,6 +61,9 @@ def test_browser_installation():
     logging.info("Testing web browser installation...")
     logging.info("Platform: " + platform.platform())
 
+    utils.cleanup_stale_temp_dirs()
+    utils.check_disk_space()
+
     chrome_exe_path = utils.get_chrome_exe_path()
     if chrome_exe_path is None:
         logging.error("Chrome / Chromium web browser not installed!")
