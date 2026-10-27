@@ -143,6 +143,8 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
 
     # undetected_chromedriver
     options = uc.ChromeOptions()
+    # dismiss page alerts instead of failing with "unexpected alert open" (#1804)
+    options.set_capability('unhandledPromptBehavior', 'dismiss')
     options.add_argument('--no-sandbox')
     options.add_argument('--window-size=1920,1080')
     options.add_argument('--disable-search-engine-choice-screen')
