@@ -27,6 +27,7 @@ class TestFlareSolverr(unittest.TestCase):
     fairlane_url = "https://www.pararius.com/apartments/amsterdam"
     custom_cloudflare_url = "https://www.muziekfabriek.org/"
     cloudflare_blocked_url = "https://cpasbiens3.fr/index.php?do=search&subaction=search"
+    alert_url = "data:text/html,<title>Alert</title><script>alert('hello')</script>"
 
     app = TestApp(flaresolverr.app)
     # wait until the server is ready
@@ -261,6 +262,20 @@ class TestFlareSolverr(unittest.TestCase):
         self.assertGreater(body.startTimestamp, 10000)
         self.assertGreaterEqual(body.endTimestamp, body.startTimestamp)
         self.assertEqual(utils.get_flaresolverr_version(), body.version)
+
+    def test_v1_endpoint_request_get_page_with_alert(self):
+        res = self.app.post_json('/v1', {
+            "cmd": "request.get",
+            "url": self.alert_url
+        })
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+        self.assertEqual("Challenge not detected!", body.message)
+
+        solution = body.solution
+        self.assertIn("<title>Alert</title>", solution.response)
 
     def test_v1_endpoint_request_get_cookies_param(self):
         res = self.app.post_json('/v1', {
