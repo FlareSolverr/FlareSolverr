@@ -234,23 +234,31 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     # downloads and patches the chromedriver
     # if we don't set driver_executable_path it downloads, patches, and deletes the driver each time
     try:
-        driver = uc.Chrome(options=options, browser_executable_path=browser_executable_path,
-                           driver_executable_path=driver_exe_path, version_main=version_main,
-                           windows_headless=windows_headless, headless=get_config_headless())
-    except Exception as e:
-        logging.error("Error starting Chrome: %s" % e)
-        # No point in continuing if we cannot retrieve the driver
-        raise e
+        try:
+            driver = uc.Chrome(options=options, browser_executable_path=browser_executable_path,
+                               driver_executable_path=driver_exe_path, version_main=version_main,
+                               windows_headless=windows_headless, headless=get_config_headless())
+        except Exception as e:
+            # uc.Chrome closes the browser it started before raising
+            logging.error("Error starting Chrome: %s" % e)
+            # No point in continuing if we cannot retrieve the driver
+            raise e
 
-    # save the patched driver to avoid re-downloads
-    if driver_exe_path is None:
-        PATCHED_DRIVER_PATH = os.path.join(driver.patcher.data_path, driver.patcher.exe_name)
-        if PATCHED_DRIVER_PATH != driver.patcher.executable_path:
-            shutil.copy(driver.patcher.executable_path, PATCHED_DRIVER_PATH)
-
-    # clean up proxy extension directory
-    if proxy_extension_dir is not None:
-        shutil.rmtree(proxy_extension_dir)
+        # save the patched driver to avoid re-downloads
+        try:
+            if driver_exe_path is None:
+                patched_driver_path = os.path.join(driver.patcher.data_path, driver.patcher.exe_name)
+                if patched_driver_path != driver.patcher.executable_path:
+                    shutil.copy(driver.patcher.executable_path, patched_driver_path)
+                PATCHED_DRIVER_PATH = patched_driver_path
+        except BaseException:
+            # the caller never gets the driver, so it cannot quit it
+            driver.quit()
+            raise
+    finally:
+        # clean up proxy extension directory
+        if proxy_extension_dir is not None:
+            shutil.rmtree(proxy_extension_dir, ignore_errors=True)
 
     # selenium vanilla
     # options = webdriver.ChromeOptions()
@@ -366,9 +374,16 @@ def get_user_agent(driver=None) -> str:
         raise Exception("Error getting browser User-Agent. " + str(e))
     finally:
         if driver is not None:
-            if PLATFORM_VERSION == "nt":
-                driver.close()
-            driver.quit()
+            quit_driver(driver)
+
+
+def quit_driver(driver: WebDriver):
+    # quit() must run even if close() fails, it is what stops the browser
+    try:
+        if PLATFORM_VERSION == "nt":
+            driver.close()
+    finally:
+        driver.quit()
 
 
 def start_xvfb_display():
