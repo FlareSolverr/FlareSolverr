@@ -50,6 +50,15 @@ CHALLENGE_SELECTORS = [
     'div.vc div.text-box h2'
 ]
 
+# shown by Cloudflare once the challenge is passed, while waiting for the website to respond
+CHALLENGE_SUCCESS_SELECTORS = [
+    '#challenge-success-text'
+]
+CHALLENGE_SUCCESS_TEXTS = [
+    'Verification successful',
+    'Verificación correcta'
+]
+
 TURNSTILE_SELECTORS = [
     "input[name='cf-turnstile-response']"
 ]
@@ -258,6 +267,19 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
             logging.debug('A used instance of webdriver has been destroyed')
 
 
+def _is_challenge_verified(driver: WebDriver) -> bool:
+    try:
+        for selector in CHALLENGE_SUCCESS_SELECTORS:
+            for element in driver.find_elements(By.CSS_SELECTOR, selector):
+                if element.is_displayed():
+                    return True
+        body_text = driver.find_element(By.TAG_NAME, "body").text
+        return any(text.lower() in body_text.lower() for text in CHALLENGE_SUCCESS_TEXTS)
+    except Exception:
+        # the page may be reloading
+        return False
+
+
 def _reset_focus(driver: WebDriver):
     # move the keyboard focus to the top of the page, so the next TAB reaches
     # the first focusable element (usually the Cloudflare checkbox)
@@ -439,6 +461,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     browser_wait_timeout = utils.get_config_browser_wait_timeout()
     attempt = 0
+    challenge_verified = False
     if challenge_found:
         while True:
             try:
@@ -459,6 +482,14 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
             except TimeoutException:
                 logging.debug("Timeout waiting for selector")
+
+                # the challenge is passed, Cloudflare is waiting for the website to respond
+                if _is_challenge_verified(driver):
+                    if not challenge_verified:
+                        challenge_verified = True
+                        logging.info("Cloudflare verification successful. Waiting for the website to respond... "
+                                     "If it times out, increase maxTimeout.")
+                    continue
 
                 # the focus stays where the previous attempt left it, so reset it
                 # and try a different number of tabs on every attempt (1, 2, 3, 1...)
