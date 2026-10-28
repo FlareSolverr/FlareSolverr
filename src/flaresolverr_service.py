@@ -97,7 +97,8 @@ def health_endpoint() -> HealthResponse:
 
 def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
     start_ts = int(time.time() * 1000)
-    logging.info(f"Incoming request => POST /v1 body: {utils.object_to_dict(req)}")
+    if logging.getLogger().isEnabledFor(logging.INFO):
+        logging.info("Incoming request => POST /v1 body: %s", utils.object_to_dict(req))
     res: V1ResponseBase
     try:
         res = _controller_v1_handler(req)
@@ -111,7 +112,10 @@ def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
     res.startTimestamp = start_ts
     res.endTimestamp = int(time.time() * 1000)
     res.version = utils.get_flaresolverr_version()
-    logging.debug(f"Response => POST /v1 body: {utils.object_to_dict(res)}")
+    # HTML and screenshots can be large. Do not serialize them a second time
+    # for a log message that will be discarded at the default INFO level.
+    if logging.getLogger().isEnabledFor(logging.DEBUG):
+        logging.debug("Response => POST /v1 body: %s", utils.object_to_dict(res))
     logging.info(f"Response in {(res.endTimestamp - res.startTimestamp) / 1000} s")
     return res
 
@@ -395,8 +399,8 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             driver.get(req.url)
 
     # wait for the page
-    if utils.get_config_log_html():
-        logging.debug(f"Response HTML:\n{driver.page_source}")
+    if utils.get_config_log_html() and logging.getLogger().isEnabledFor(logging.DEBUG):
+        logging.debug("Response HTML:\n%s", driver.page_source)
     html_element = driver.find_element(By.TAG_NAME, "html")
     page_title = driver.title
 
@@ -406,11 +410,12 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             raise Exception('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
     # find access denied selectors
-    for selector in ACCESS_DENIED_SELECTORS:
-        found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
-        if len(found_elements) > 0:
-            raise Exception('Cloudflare has blocked this request. '
-                            'Probably your IP is banned for this site, check in your web browser.')
+    # A CSS selector list is an OR query. Keep the individual selectors for
+    # challenge waits below, but avoid one WebDriver round trip per selector
+    # during initial detection (especially on pages with no challenge).
+    if driver.find_elements(By.CSS_SELECTOR, ', '.join(ACCESS_DENIED_SELECTORS)):
+        raise Exception('Cloudflare has blocked this request. '
+                        'Probably your IP is banned for this site, check in your web browser.')
 
     # find challenge by title
     challenge_found = False
@@ -421,12 +426,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             break
     if not challenge_found:
         # find challenge by selectors
-        for selector in CHALLENGE_SELECTORS:
-            found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
-            if len(found_elements) > 0:
-                challenge_found = True
-                logging.info("Challenge detected. Selector found: " + selector)
-                break
+        selectors = ', '.join(CHALLENGE_SELECTORS)
+        if driver.find_elements(By.CSS_SELECTOR, selectors):
+            challenge_found = True
+            logging.info("Challenge detected. Matched selector list: " + selectors)
 
     browser_wait_timeout = utils.get_config_browser_wait_timeout()
     attempt = 0
