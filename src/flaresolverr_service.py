@@ -50,6 +50,15 @@ CHALLENGE_SELECTORS = [
     'div.vc div.text-box h2'
 ]
 
+# shown by Cloudflare once the challenge is passed, while waiting for the website to respond
+CHALLENGE_SUCCESS_SELECTORS = [
+    '#challenge-success-text'
+]
+CHALLENGE_SUCCESS_TEXTS = [
+    'Verification successful',
+    'Verificación correcta'
+]
+
 TURNSTILE_SELECTORS = [
     "input[name='cf-turnstile-response']"
 ]
@@ -258,6 +267,42 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
             logging.debug('A used instance of webdriver has been destroyed')
 
 
+def _is_challenge_verified(driver: WebDriver) -> bool:
+    try:
+        for selector in CHALLENGE_SUCCESS_SELECTORS:
+            for element in driver.find_elements(By.CSS_SELECTOR, selector):
+                if element.is_displayed():
+                    return True
+        body_text = driver.find_element(By.TAG_NAME, "body").text
+        return any(text.lower() in body_text.lower() for text in CHALLENGE_SUCCESS_TEXTS)
+    except Exception:
+        # the page may be reloading
+        return False
+
+
+def _reset_focus(driver: WebDriver):
+    # move the keyboard focus to the top of the page, so the next TAB reaches
+    # the first focusable element (usually the Cloudflare checkbox)
+    try:
+        driver.switch_to.default_content()
+        driver.execute_script("""
+            let old = document.getElementById('__focus_helper');
+            if (old) old.remove();
+
+            let el = document.createElement('button');
+            el.id = '__focus_helper';
+            el.style.position = 'fixed';
+            el.style.top = '0';
+            el.style.left = '0';
+            el.style.opacity = '0.01';
+            el.style.pointerEvents = 'none';
+            document.body.prepend(el);
+            el.focus();
+        """)
+    except Exception:
+        logging.debug("Unable to reset the focus on the page.")
+
+
 def click_verify(driver: WebDriver, num_tabs: int = 1):
     try:
         logging.debug("Try to find the Cloudflare verify checkbox...")
@@ -268,7 +313,7 @@ def click_verify(driver: WebDriver, num_tabs: int = 1):
         actions.pause(1 + uniform(0.1, 0.5))
         actions.send_keys(Keys.SPACE).perform()
         
-        logging.debug(f"Cloudflare verify checkbox clicked after {num_tabs} tabs!")
+        logging.debug(f"Cloudflare verify checkbox: pressed SPACE after {num_tabs} tabs")
     except Exception:
         logging.debug("Cloudflare verify checkbox not found on the page.")
     finally:
@@ -303,21 +348,7 @@ def _get_turnstile_token(driver: WebDriver, tabs: int):
                 return turnstile_token
         logging.debug(f"Failed to extract token possibly click failed")        
 
-        # reset focus
-        driver.execute_script("""
-            let old = document.getElementById('__focus_helper');
-            if (old) old.remove();
-
-            let el = document.createElement('button');
-            el.id = '__focus_helper';
-            el.style.position = 'fixed';
-            el.style.top = '0';
-            el.style.left = '0';
-            el.style.opacity = '0.01';
-            el.style.pointerEvents = 'none';
-            document.body.prepend(el);
-            el.focus();
-        """)
+        _reset_focus(driver)
         time.sleep(1)
 
 def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
@@ -430,6 +461,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     browser_wait_timeout = utils.get_config_browser_wait_timeout()
     attempt = 0
+    challenge_verified = False
     if challenge_found:
         while True:
             try:
@@ -451,7 +483,18 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             except TimeoutException:
                 logging.debug("Timeout waiting for selector")
 
-                click_verify(driver)
+                # the challenge is passed, Cloudflare is waiting for the website to respond
+                if _is_challenge_verified(driver):
+                    if not challenge_verified:
+                        challenge_verified = True
+                        logging.info("Cloudflare verification successful. Waiting for the website to respond... "
+                                     "If it times out, increase maxTimeout.")
+                    continue
+
+                # the focus stays where the previous attempt left it, so reset it
+                # and try a different number of tabs on every attempt (1, 2, 3, 1...)
+                _reset_focus(driver)
+                click_verify(driver, num_tabs=(attempt - 1) % 3 + 1)
 
                 # update the html (cloudflare reloads the page every 5 s)
                 html_element = driver.find_element(By.TAG_NAME, "html")
