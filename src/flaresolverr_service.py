@@ -258,6 +258,29 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
             logging.debug('A used instance of webdriver has been destroyed')
 
 
+def _reset_focus(driver: WebDriver):
+    # move the keyboard focus to the top of the page, so the next TAB reaches
+    # the first focusable element (usually the Cloudflare checkbox)
+    try:
+        driver.switch_to.default_content()
+        driver.execute_script("""
+            let old = document.getElementById('__focus_helper');
+            if (old) old.remove();
+
+            let el = document.createElement('button');
+            el.id = '__focus_helper';
+            el.style.position = 'fixed';
+            el.style.top = '0';
+            el.style.left = '0';
+            el.style.opacity = '0.01';
+            el.style.pointerEvents = 'none';
+            document.body.prepend(el);
+            el.focus();
+        """)
+    except Exception:
+        logging.debug("Unable to reset the focus on the page.")
+
+
 def click_verify(driver: WebDriver, num_tabs: int = 1):
     try:
         logging.debug("Try to find the Cloudflare verify checkbox...")
@@ -268,7 +291,7 @@ def click_verify(driver: WebDriver, num_tabs: int = 1):
         actions.pause(1 + uniform(0.1, 0.5))
         actions.send_keys(Keys.SPACE).perform()
         
-        logging.debug(f"Cloudflare verify checkbox clicked after {num_tabs} tabs!")
+        logging.debug(f"Cloudflare verify checkbox: pressed SPACE after {num_tabs} tabs")
     except Exception:
         logging.debug("Cloudflare verify checkbox not found on the page.")
     finally:
@@ -303,21 +326,7 @@ def _get_turnstile_token(driver: WebDriver, tabs: int):
                 return turnstile_token
         logging.debug(f"Failed to extract token possibly click failed")        
 
-        # reset focus
-        driver.execute_script("""
-            let old = document.getElementById('__focus_helper');
-            if (old) old.remove();
-
-            let el = document.createElement('button');
-            el.id = '__focus_helper';
-            el.style.position = 'fixed';
-            el.style.top = '0';
-            el.style.left = '0';
-            el.style.opacity = '0.01';
-            el.style.pointerEvents = 'none';
-            document.body.prepend(el);
-            el.focus();
-        """)
+        _reset_focus(driver)
         time.sleep(1)
 
 def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
@@ -451,7 +460,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             except TimeoutException:
                 logging.debug("Timeout waiting for selector")
 
-                click_verify(driver)
+                # the focus stays where the previous attempt left it, so reset it
+                # and try a different number of tabs on every attempt (1, 2, 3, 1...)
+                _reset_focus(driver)
+                click_verify(driver, num_tabs=(attempt - 1) % 3 + 1)
 
                 # update the html (cloudflare reloads the page every 5 s)
                 html_element = driver.find_element(By.TAG_NAME, "html")
