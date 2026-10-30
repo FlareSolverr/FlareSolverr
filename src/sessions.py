@@ -66,9 +66,7 @@ class SessionsStorage:
             return False
 
         session = self.sessions.pop(session_id)
-        if utils.PLATFORM_VERSION == "nt":
-            session.driver.close()
-        session.driver.quit()
+        utils.quit_driver(session.driver)
         return True
 
     def get(self, session_id: str, ttl: Optional[timedelta] = None) -> Tuple[Session, bool]:

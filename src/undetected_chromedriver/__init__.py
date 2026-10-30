@@ -25,6 +25,7 @@ import os
 import pathlib
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -39,6 +40,7 @@ import selenium.webdriver.remote.command
 import selenium.webdriver.remote.webdriver
 
 from .cdp import CDP
+from .dprocess import REGISTERED
 from .dprocess import start_detached
 from .options import ChromeOptions
 from .patcher import IS_POSIX
@@ -466,35 +468,41 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             )
             self.browser_pid = browser.pid
 
+        # from here on the browser is running: if anything below fails, nobody
+        # gets a reference to this instance, so it must clean up after itself
+        try:
+            service = selenium.webdriver.chromium.service.ChromiumService(
+                self.patcher.executable_path
+            )
 
-        service = selenium.webdriver.chromium.service.ChromiumService(
-            self.patcher.executable_path
-        )
+            super().__init__(
+                service=service,
+                options=options,
+                keep_alive=keep_alive,
+            )
 
-        super().__init__(
-            service=service,
-            options=options,
-            keep_alive=keep_alive,
-        )
+            self.reactor = None
 
-        self.reactor = None
+            if enable_cdp_events:
+                if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+                    logging.getLogger(
+                        "selenium.webdriver.remote.remote_connection"
+                    ).setLevel(20)
+                reactor = Reactor(self)
+                reactor.start()
+                self.reactor = reactor
 
-        if enable_cdp_events:
-            if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
-                logging.getLogger(
-                    "selenium.webdriver.remote.remote_connection"
-                ).setLevel(20)
-            reactor = Reactor(self)
-            reactor.start()
-            self.reactor = reactor
+            if advanced_elements:
+                self._web_element_cls = UCWebElement
+            else:
+                self._web_element_cls = WebElement
 
-        if advanced_elements:
-            self._web_element_cls = UCWebElement
-        else:
-            self._web_element_cls = WebElement
-
-        if headless or getattr(options, 'headless', None):
-            self._configure_headless()
+            if headless or getattr(options, 'headless', None):
+                self._configure_headless()
+        except BaseException:
+            logger.debug("failed to start the webdriver, closing the browser")
+            self.quit()
+            raise
 
     def _configure_headless(self):
         orig_get = self.get
@@ -779,11 +787,7 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             logger.debug("shutting down reactor")
         except AttributeError:
             pass
-        try:
-            os.kill(self.browser_pid, 15)
-            logger.debug("gracefully closed browser")
-        except Exception as e:  # noqa
-            pass
+        self._terminate_browser()
         if (
             hasattr(self, "keep_user_data_dir")
             and hasattr(self, "user_data_dir")
@@ -811,6 +815,66 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
         # dereference patcher, so patcher can start cleaning up as well.
         # this must come last, otherwise it will throw 'in use' errors
         self.patcher = None
+
+    def _terminate_browser(self, timeout=5):
+        """
+        Stops the browser started by __init__ and every process it spawned.
+
+        The browser is started in its own session (see dprocess.start_detached),
+        so on POSIX its pid is also its process group id: the whole tree
+        (renderers, gpu, crashpad...) is signalled at once. A browser that does
+        not exit within `timeout` seconds after SIGTERM (a stalled or overloaded
+        one) is killed with SIGKILL, so the profile can then be removed.
+        """
+        pid = getattr(self, "browser_pid", None)
+        if not pid:
+            return
+        # never signal the same pid twice, it may have been reused meanwhile
+        self.browser_pid = None
+        try:
+            REGISTERED.remove(pid)
+        except ValueError:
+            pass
+
+        if not IS_POSIX:
+            try:
+                os.kill(pid, signal.SIGTERM)
+                logger.debug("gracefully closed browser")
+            except Exception:  # noqa
+                pass
+            return
+
+        try:
+            group = os.getpgid(pid) == pid and pid != os.getpgrp()
+        except OSError:
+            # already gone
+            return
+
+        def kill(sig):
+            try:
+                if group:
+                    os.killpg(pid, sig)
+                else:
+                    os.kill(pid, sig)
+                return True
+            except OSError:
+                return False
+
+        if not kill(signal.SIGTERM):
+            return
+        deadline = time.monotonic() + timeout
+        while _is_process_alive(pid) and time.monotonic() < deadline:
+            time.sleep(0.1)
+        if _is_process_alive(pid):
+            logger.debug("browser did not exit after SIGTERM, killing it")
+            kill(signal.SIGKILL)
+            deadline = time.monotonic() + timeout
+            while _is_process_alive(pid) and time.monotonic() < deadline:
+                time.sleep(0.1)
+        elif group:
+            # the browser is gone, do not leave any of its children behind
+            kill(signal.SIGKILL)
+        logger.debug("closed browser")
 
     def __getattribute__(self, item):
         if not super().__getattribute__("debug"):
@@ -863,6 +927,28 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
             and hasattr(self.service.process, "kill")
         ):
             self.service.process.kill()
+
+
+def _is_process_alive(pid):
+    """
+    Tells whether `pid` is still running. A zombie counts as dead: the browser
+    is not our child, it is reaped by init (or by nobody, inside a container
+    where PID 1 does not reap orphans).
+    """
+    try:
+        with open("/proc/%d/stat" % pid) as fs:
+            return fs.read().rsplit(")", 1)[1].split()[0] != "Z"
+    except FileNotFoundError:
+        return False
+    except (OSError, IndexError):
+        pass
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except OSError:
+        pass
+    return True
 
 
 def find_chrome_executable():
