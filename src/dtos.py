@@ -12,6 +12,7 @@ class ChallengeResolutionResultT:
     userAgent: str = None
     screenshot: str | None = None
     turnstile_token: str = None
+    executeJsResult: str = None  # result of the optional executeJs script
 
     def __init__(self, _dict):
         self.__dict__.update(_dict)
@@ -51,6 +52,17 @@ class V1RequestBase(object):
     disableMedia: bool = None
     # Optional when you've got a turnstile captcha that needs to be clicked after X number of Tab presses
     tabs_till_verify : int = None
+    # optional JS to run on the solved page; result returned as solution.executeJsResult.
+    # May `return` a value or a Promise (awaited). Bounded by EXECUTE_JS_TIMEOUT seconds.
+    executeJs: str = None
+    # optional: drive a *trusted* (isTrusted=true) mouse click via CDP Input events,
+    # which JS-dispatched events cannot fake. When true, executeJs runs as a two-phase
+    # "arm" script: it installs its hooks, sets window.__FRS_AWAIT to a Promise, and
+    # returns JSON {"trustedClick":{"x":<cssPx>,"y":<cssPx>}} naming the viewport point
+    # to click. FlareSolverr then dispatches a human-like trusted pointer approach +
+    # click at that point and awaits window.__FRS_AWAIT, returning its resolved value
+    # as executeJsResult. Used for pointer-trust captchas (e.g. Filecrypt PoW).
+    trustedClick: bool = None
 
     def __init__(self, _dict):
         self.__dict__.update(_dict)
