@@ -1,10 +1,15 @@
+import json
 import logging
+import os
 import platform
+import random
+import re
 import sys
 import time
 from datetime import timedelta
 from html import escape
 from random import uniform
+from threading import BoundedSemaphore
 from urllib.parse import unquote, quote
 
 from func_timeout import FunctionTimedOut, func_timeout
@@ -18,10 +23,34 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 
 import utils
+import requests
+from turnstile import locate_turnstile
 from dtos import (STATUS_ERROR, STATUS_OK, ChallengeResolutionResultT,
                   ChallengeResolutionT, HealthResponse, IndexResponse,
                   V1RequestBase, V1ResponseBase)
 from sessions import SessionsStorage
+
+# max seconds an executeJs script may run before it is abandoned.
+try:
+    EXECUTE_JS_TIMEOUT = int(os.environ.get('EXECUTE_JS_TIMEOUT', '20'))
+except ValueError:
+    EXECUTE_JS_TIMEOUT = 10
+
+# max seconds to await the page Promise in trustedClick mode. Larger than
+# EXECUTE_JS_TIMEOUT because a trusted-click proof-of-work solve may legitimately
+# run tens of seconds (an escalated difficulty-20 challenge), whereas a plain
+# executeJs script is expected to return quickly.
+try:
+    TRUSTED_CLICK_TIMEOUT = int(os.environ.get('TRUSTED_CLICK_TIMEOUT', '100'))
+except ValueError:
+    TRUSTED_CLICK_TIMEOUT = 100
+
+TWOCAPTCHA_API_KEY = (
+    os.environ.get('TWOCAPTCHA_API_KEY')
+    or os.environ.get('TWO_CAPTCHA_KEY')
+    or os.environ.get('CAPTCHA_SOLVER_KEY')
+    or ''
+).strip()
 
 ACCESS_DENIED_TITLES = [
     # Cloudflare
@@ -47,7 +76,9 @@ CHALLENGE_SELECTORS = [
     # Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
     'td.info #js_info',
     # Fairlane / pararius.com
-    'div.vc div.text-box h2'
+    'div.vc div.text-box h2',
+    # Google reCAPTCHA
+    '.g-recaptcha', "iframe[src*='recaptcha/api2/anchor']", "iframe[src*='recaptcha/enterprise/anchor']"
 ]
 
 TURNSTILE_SELECTORS = [
@@ -55,6 +86,11 @@ TURNSTILE_SELECTORS = [
 ]
 
 SESSIONS_STORAGE = SessionsStorage()
+
+MAX_CONCURRENT_SOLVES = int(os.environ.get('MAX_CONCURRENT_SOLVES', '2'))
+if MAX_CONCURRENT_SOLVES < 1:
+    raise ValueError('MAX_CONCURRENT_SOLVES must be at least 1')
+_SOLVE_SLOTS = BoundedSemaphore(MAX_CONCURRENT_SOLVES)
 
 
 def test_browser_installation():
@@ -95,9 +131,26 @@ def health_endpoint() -> HealthResponse:
     return res
 
 
+def _redact_for_log(obj):
+    """Recursively replace bulky JavaScript request/result string values with a
+    short size placeholder so request/response logs don't dump the whole script or
+    the returned page HTML."""
+    if isinstance(obj, dict):
+        return {
+            k: (f"<{len(v)} chars>" if k in (
+                'executeJs', 'executeJsResult', 'documentStartJs'
+            ) and isinstance(v, str)
+                else _redact_for_log(v))
+            for k, v in obj.items()
+        }
+    if isinstance(obj, list):
+        return [_redact_for_log(x) for x in obj]
+    return obj
+
+
 def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
     start_ts = int(time.time() * 1000)
-    logging.info(f"Incoming request => POST /v1 body: {utils.object_to_dict(req)}")
+    logging.info(f"Incoming request => POST /v1 body: {_redact_for_log(utils.object_to_dict(req))}")
     res: V1ResponseBase
     try:
         res = _controller_v1_handler(req)
@@ -111,7 +164,7 @@ def controller_v1_endpoint(req: V1RequestBase) -> V1ResponseBase:
     res.startTimestamp = start_ts
     res.endTimestamp = int(time.time() * 1000)
     res.version = utils.get_flaresolverr_version()
-    logging.debug(f"Response => POST /v1 body: {utils.object_to_dict(res)}")
+    logging.debug(f"Response => POST /v1 body: {_redact_for_log(utils.object_to_dict(res))}")
     logging.info(f"Response in {(res.endTimestamp - res.startTimestamp) / 1000} s")
     return res
 
@@ -227,8 +280,17 @@ def _cmd_sessions_destroy(req: V1RequestBase) -> V1ResponseBase:
 
 
 def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
+    # Queue before launching or navigating a browser. Queued requests retain
+    # their full challenge timeout instead of competing for renderer CPU.
+    with _SOLVE_SLOTS:
+        return _resolve_challenge_in_browser(req, method)
+
+
+def _resolve_challenge_in_browser(req: V1RequestBase, method: str) -> ChallengeResolutionT:
     timeout = int(req.maxTimeout) / 1000
     driver = None
+    script_identifier = None
+    request_timed_out = False
     try:
         if req.session:
             session_id = req.session
@@ -245,20 +307,188 @@ def _resolve_challenge(req: V1RequestBase, method: str) -> ChallengeResolutionT:
         else:
             driver = utils.get_webdriver(req.proxy)
             logging.debug('New instance of webdriver has been created to perform the request')
-        return func_timeout(timeout, _evil_logic, (req, driver, method))
+        try:
+            script_identifier = _install_document_start_js(
+                req,
+                driver,
+                skip_data_documents=(method == "POST"),
+            )
+        except Exception:
+            if req.session and req.documentStartJs:
+                SESSIONS_STORAGE.destroy(req.session)
+            raise
+        return func_timeout(
+            timeout,
+            _evil_logic_request,
+            (
+                req,
+                driver,
+                method,
+                "installed" if script_identifier is not None else None,
+            ),
+        )
     except FunctionTimedOut:
+        request_timed_out = True
         raise Exception(f'Error solving the challenge. Timeout after {timeout} seconds.')
     except Exception as e:
         raise Exception('Error solving the challenge. ' + str(e).replace('\n', '\\n'))
     finally:
-        if not req.session and driver is not None:
-            if utils.PLATFORM_VERSION == "nt":
-                driver.close()
-            driver.quit()
-            logging.debug('A used instance of webdriver has been destroyed')
+        try:
+            if script_identifier is not None:
+                if request_timed_out and req.session:
+                    # func_timeout cannot guarantee its worker has stopped before it
+                    # returns. Never expose that browser to another retained-session
+                    # request while the old worker may still be unwinding.
+                    SESSIONS_STORAGE.destroy(req.session)
+                else:
+                    try:
+                        _remove_document_start_js(driver, script_identifier)
+                    except Exception:
+                        if req.session:
+                            SESSIONS_STORAGE.destroy(req.session)
+                        raise
+        finally:
+            if not req.session and driver is not None:
+                if utils.PLATFORM_VERSION == "nt":
+                    driver.close()
+                driver.quit()
+                logging.debug('A used instance of webdriver has been destroyed')
 
 
-def click_verify(driver: WebDriver, num_tabs: int = 1):
+def _solve_recaptcha_via_2captcha(api_key: str, sitekey: str, page_url: str) -> str | None:
+    try:
+        resp = requests.post(
+            "https://2captcha.com/in.php",
+            data={
+                "key": api_key,
+                "method": "userrecaptcha",
+                "googlekey": sitekey,
+                "pageurl": page_url,
+                "json": 1,
+            },
+            timeout=15,
+        )
+        data = resp.json()
+        if data.get("status") != 1:
+            logging.error(f"2Captcha submission failed: {data.get('request')}")
+            return None
+
+        request_id = data["request"]
+        for _ in range(36):
+            time.sleep(5)
+            poll_resp = requests.get(
+                "https://2captcha.com/res.php",
+                params={
+                    "key": api_key,
+                    "action": "get",
+                    "id": request_id,
+                    "json": 1,
+                },
+                timeout=10,
+            )
+            poll_data = poll_resp.json()
+            if poll_data.get("status") == 1:
+                return poll_data.get("request")
+            if poll_data.get("request") != "CAPCHA_NOT_READY":
+                logging.error(f"2Captcha polling error: {poll_data.get('request')}")
+                return None
+    except Exception as e:
+        logging.error(f"2Captcha solver exception: {e}")
+    return None
+
+
+def _submit_recaptcha_solution(driver: WebDriver, token: str):
+    driver.execute_script("""
+        var token = arguments[0];
+        var el = document.querySelector('[name="g-recaptcha-response"]') || document.getElementById('g-recaptcha-response');
+        if (el) el.value = token;
+        var widget = document.querySelector('.g-recaptcha, [data-callback]');
+        var cb = widget ? widget.getAttribute('data-callback') : null;
+        if (cb && typeof window[cb] === 'function') {
+            window[cb](token);
+        } else if (typeof window.onReturnCallback === 'function') {
+            window.onReturnCallback(token);
+        } else if (el && el.form) {
+            el.form.submit();
+        }
+    """, token)
+
+
+def _handle_recaptcha_challenge(driver: WebDriver, two_captcha_key: str = None):
+    anchors = driver.find_elements(
+        By.XPATH,
+        "//iframe[contains(@src, 'recaptcha/api2/anchor') or contains(@src, 'recaptcha/enterprise/anchor')]"
+    )
+    if not anchors:
+        return
+
+    logging.debug("Google reCAPTCHA checkbox iframe detected.")
+
+    # 1. Attempt clicking the checkbox directly
+    try:
+        driver.switch_to.frame(anchors[0])
+        checkbox = driver.find_element(By.ID, "recaptcha-anchor")
+        aria_checked = checkbox.get_attribute("aria-checked")
+        if aria_checked != "true":
+            logging.info("Clicking Google reCAPTCHA checkbox...")
+            checkbox.click()
+    except Exception as e:
+        logging.debug(f"Could not click reCAPTCHA anchor: {e}")
+    finally:
+        driver.switch_to.default_content()
+
+    time.sleep(2.5)
+
+    # 2. Check if the checkbox click alone resolved the challenge
+    token = driver.execute_script(
+        "var el = document.querySelector('[name=\"g-recaptcha-response\"]'); return el ? el.value : '';"
+    )
+    if token:
+        logging.info("Google reCAPTCHA solved via checkbox click.")
+        _submit_recaptcha_solution(driver, token)
+        return
+
+    # 3. Fallback to 2Captcha if configured
+    api_key = two_captcha_key or TWOCAPTCHA_API_KEY
+    if not api_key:
+        logging.debug("reCAPTCHA requires interactive solve, but no 2Captcha key is configured.")
+        return
+
+    sitekey = None
+    widgets = driver.find_elements(By.CSS_SELECTOR, "[data-sitekey]")
+    if widgets:
+        sitekey = widgets[0].get_attribute("data-sitekey")
+    if not sitekey:
+        src = anchors[0].get_attribute("src") or ""
+        match = re.search(r"[?&]k=([a-zA-Z0-9_-]+)", src)
+        if match:
+            sitekey = match.group(1)
+
+    if not sitekey:
+        logging.warning("Could not extract reCAPTCHA sitekey for 2Captcha fallback.")
+        return
+
+    logging.info(f"Solving reCAPTCHA via 2Captcha fallback (sitekey={sitekey[:8]}...)...")
+    solved_token = _solve_recaptcha_via_2captcha(api_key, sitekey, driver.current_url)
+    if solved_token:
+        logging.info("2Captcha returned token. Submitting solution...")
+        _submit_recaptcha_solution(driver, solved_token)
+
+
+def click_verify(driver: WebDriver, num_tabs: int = 1, two_captcha_key: str = None):
+    if num_tabs == 1 and driver.title in CHALLENGE_TITLES:
+        try:
+            turnstile = locate_turnstile(driver)
+            if turnstile is not None:
+                if turnstile is False:
+                    logging.debug("Turnstile widget is pending or already resolved")
+                    return
+                _trusted_pointer_gesture(driver, *turnstile)
+                time.sleep(0.25)
+                return
+        except Exception as e:
+            logging.debug(f"Turnstile CDP lookup failed; using legacy verify path: {e}")
+
     try:
         logging.debug("Try to find the Cloudflare verify checkbox...")
         actions = ActionChains(driver)
@@ -288,6 +518,14 @@ def click_verify(driver: WebDriver, num_tabs: int = 1):
             logging.debug("The Cloudflare 'Verify you are human' button found and clicked!")
     except Exception:
         logging.debug("The Cloudflare 'Verify you are human' button not found on the page.")
+
+    # Try Google reCAPTCHA v2 / Enterprise
+    try:
+        _handle_recaptcha_challenge(driver, two_captcha_key=two_captcha_key)
+    except Exception as e:
+        logging.debug(f"reCAPTCHA challenge handler exception: {e}")
+    finally:
+        driver.switch_to.default_content()
 
     time.sleep(2)
 
@@ -340,6 +578,40 @@ def _resolve_turnstile_captcha(req: V1RequestBase, driver: WebDriver):
     return turnstile_token
 
 def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> ChallengeResolutionT:
+    """Run request directly with request-scoped document-start cleanup.
+
+    Timed controller requests install and remove the script in
+    ``_resolve_challenge`` so cleanup cannot be stranded in the timed worker.
+    """
+    script_identifier = _install_document_start_js(
+        req,
+        driver,
+        skip_data_documents=(method == "POST"),
+    )
+    try:
+        return _evil_logic_request(
+            req,
+            driver,
+            method,
+            document_start_js_result=(
+                "installed" if script_identifier is not None else None
+            ),
+        )
+    finally:
+        try:
+            _remove_document_start_js(driver, script_identifier)
+        except Exception:
+            if req.session:
+                SESSIONS_STORAGE.destroy(req.session)
+            raise
+
+
+def _evil_logic_request(
+    req: V1RequestBase,
+    driver: WebDriver,
+    method: str,
+    document_start_js_result: str | None,
+) -> ChallengeResolutionT:
     res = ChallengeResolutionT({})
     res.status = STATUS_OK
     res.message = ""
@@ -409,6 +681,10 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     for selector in ACCESS_DENIED_SELECTORS:
         found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
         if len(found_elements) > 0:
+            # Check if this page hosts a reCAPTCHA challenge rather than an actual access block
+            if driver.find_elements(By.CSS_SELECTOR, ".g-recaptcha, iframe[src*='recaptcha'], textarea[name='g-recaptcha-response']"):
+                logging.debug("Access denied selector matched, but reCAPTCHA challenge elements were found on page.")
+                continue
             raise Exception('Cloudflare has blocked this request. '
                             'Probably your IP is banned for this site, check in your web browser.')
 
@@ -451,7 +727,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             except TimeoutException:
                 logging.debug("Timeout waiting for selector")
 
-                click_verify(driver)
+                click_verify(driver, two_captcha_key=req.twoCaptchaApiKey)
 
                 # update the html (cloudflare reloads the page every 5 s)
                 html_element = driver.find_element(By.TAG_NAME, "html")
@@ -475,6 +751,7 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     challenge_res.status = 200  # todo: fix, selenium not provides this info
     challenge_res.userAgent = utils.get_user_agent(driver)
     challenge_res.turnstile_token = turnstile_token
+    challenge_res.documentStartJsResult = document_start_js_result
 
     if not req.returnOnlyCookies:
         challenge_res.headers = {}  # todo: fix, selenium not provides this info
@@ -488,11 +765,175 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
     if req.returnScreenshot:
         challenge_res.screenshot = driver.get_screenshot_as_base64()
 
-    # Get cookies after all waits to capture cookies set during JavaScript execution
+    if req.executeJs:
+        if req.trustedClick:
+            challenge_res.executeJsResult = _execute_js_trusted_click(driver, req.executeJs)
+        else:
+            challenge_res.executeJsResult = _execute_js(driver, req.executeJs)
+
+    # Capture cookies after all waits and optional JavaScript actions.
     challenge_res.cookies = driver.get_cookies()
 
     res.result = challenge_res
     return res
+
+
+def _install_document_start_js(
+    req: V1RequestBase,
+    driver: WebDriver,
+    skip_data_documents: bool = False,
+) -> str | None:
+    """Register caller JavaScript before any requested-page navigation."""
+    if not req.documentStartJs:
+        return None
+
+    source = req.documentStartJs
+    if skip_data_documents:
+        source = (
+            "if (window.location.protocol !== 'data:') {\n"
+            f"{source}\n"
+            "}"
+        )
+
+    try:
+        result = driver.execute_cdp_cmd(
+            'Page.addScriptToEvaluateOnNewDocument',
+            {'source': source},
+        )
+    except Exception as e:
+        raise Exception(f'documentStartJs installation failed: {e}') from e
+
+    identifier = result.get('identifier') if isinstance(result, dict) else None
+    if not identifier:
+        raise Exception('documentStartJs installation failed: CDP returned no identifier')
+    return identifier
+
+
+def _remove_document_start_js(driver: WebDriver, identifier: str | None) -> None:
+    """Remove a request-scoped document-start script from a retained browser."""
+    if identifier is None:
+        return
+
+    try:
+        driver.execute_cdp_cmd(
+            'Page.removeScriptToEvaluateOnNewDocument',
+            {'identifier': identifier},
+        )
+    except Exception as e:
+        raise Exception(f'documentStartJs cleanup failed: {e}') from e
+
+
+def _execute_js(driver: WebDriver, script: str) -> str:
+    """Run user-supplied JS on the solved page and return its result
+    as a string. The script may `return` a value or a Promise (awaited).
+
+    It evaluates `(() => { <script> })()` through
+    CDP `Runtime.evaluate` with `awaitPromise=true` in the page's real main-world event
+    loop, instead of Selenium's `execute_async_script`. The CDP path is what lets an
+    in-page web worker (e.g. a proof-of-work worker started by the script) actually run
+    and the returned Promise resolve — the async-script callback path did not. Bounded by
+    EXECUTE_JS_TIMEOUT so a hung script cannot block the response."""
+    expression = "(() => { " + script + "\n})()"
+    try:
+        res = driver.execute_cdp_cmd('Runtime.evaluate', {
+            'expression': expression,
+            'awaitPromise': True,
+            'returnByValue': True,
+            'userGesture': True,
+            'timeout': EXECUTE_JS_TIMEOUT * 1000,
+        })
+    except Exception as e:
+        logging.warning("executeJs failed: " + str(e))
+        return "EXECUTE_JS_ERROR: " + str(e)
+
+    exc = res.get('exceptionDetails')
+    if exc:
+        msg = exc.get('exception', {}).get('description') or exc.get('text') or 'exception'
+        return "EXECUTE_JS_ERROR: " + str(msg)
+    value = res.get('result', {}).get('value')
+    return str(value) if value is not None else ""
+
+
+def _trusted_pointer_gesture(driver: WebDriver, x: float, y: float) -> None:
+    """Move the mouse to (x, y) along a human-like path and click, using CDP
+    Input.dispatchMouseEvent. Unlike JS-dispatched events these carry
+    isTrusted=true, which pointer-trust captchas (e.g. Filecrypt's PoW signer)
+    require. Coordinates are viewport CSS pixels (deviceScaleFactor 1)."""
+    def mouse(kind, mx, my, button='none', buttons=0, click_count=0):
+        # Integer coordinates: a real mouse reports whole-pixel positions, and the
+        # pointer-trust signer rejects the fractional deltas that interpolation
+        # would otherwise produce.
+        driver.execute_cdp_cmd('Input.dispatchMouseEvent', {
+            'type': kind, 'x': round(mx), 'y': round(my),
+            'button': button, 'buttons': buttons,
+            'clickCount': click_count, 'pointerType': 'mouse',
+        })
+
+    x, y = round(x), round(y)
+    start_x = x - random.uniform(120, 180)
+    start_y = y - random.uniform(90, 150)
+    steps = random.randint(22, 30)
+    for i in range(1, steps + 1):
+        t = i / steps
+        # ease-in-out so the pointer accelerates then settles onto the target
+        te = 2 * t * t if t < 0.5 else -1 + (4 - 2 * t) * t
+        mx = start_x + (x - start_x) * te + random.uniform(-1.5, 1.5)
+        my = start_y + (y - start_y) * te + random.uniform(-1.5, 1.5)
+        mouse('mouseMoved', mx, my)
+        time.sleep(random.uniform(0.006, 0.015))
+    mouse('mouseMoved', x, y)
+    time.sleep(random.uniform(0.03, 0.08))
+    mouse('mousePressed', x, y, button='left', buttons=1, click_count=1)
+    time.sleep(random.uniform(0.06, 0.14))
+    mouse('mouseReleased', x, y, button='left', buttons=0, click_count=1)
+
+
+def _execute_js_trusted_click(driver: WebDriver, script: str) -> str:
+    """Two-phase executeJs that injects a *trusted* click between arm and await.
+
+    Phase 1 (arm): run the caller's script, which installs its hooks, assigns
+    ``window.__FRS_AWAIT`` (a Promise resolved when the in-page action completes),
+    and returns ``{"trustedClick":{"x":<cssPx>,"y":<cssPx>}}``. Phase 2: dispatch a
+    trusted pointer approach + click at that point via CDP. Phase 3 (await): resolve
+    ``window.__FRS_AWAIT`` and return its value. Setup is bounded by
+    EXECUTE_JS_TIMEOUT; completion is bounded by TRUSTED_CLICK_TIMEOUT."""
+    # Keep the page in the foreground and treated as focused: an occluded/blurred
+    # renderer is background-throttled, which starves in-page proof-of-work workers.
+    for cmd, params in (('Page.bringToFront', {}),
+                        ('Emulation.setFocusEmulationEnabled', {'enabled': True})):
+        try:
+            driver.execute_cdp_cmd(cmd, params)
+        except Exception:
+            pass
+
+    arm = _execute_js(driver, script)
+    if arm.startswith("EXECUTE_JS_ERROR"):
+        return arm
+    try:
+        coords = (json.loads(arm) or {}).get('trustedClick')
+        cx, cy = float(coords['x']), float(coords['y'])
+    except Exception:
+        return "EXECUTE_JS_ERROR: trustedClick arm script did not return {trustedClick:{x,y}}: " + arm[:200]
+
+    _trusted_pointer_gesture(driver, cx, cy)
+
+    try:
+        res = driver.execute_cdp_cmd('Runtime.evaluate', {
+            'expression': "(() => window.__FRS_AWAIT)()",
+            'awaitPromise': True,
+            'returnByValue': True,
+            'timeout': TRUSTED_CLICK_TIMEOUT * 1000,
+        })
+    except Exception as e:
+        logging.warning("executeJs (trusted await) failed: " + str(e))
+        return "EXECUTE_JS_ERROR: " + str(e)
+
+    exc = res.get('exceptionDetails')
+    if exc:
+        msg = exc.get('exception', {}).get('description') or exc.get('text') or 'exception'
+        return "EXECUTE_JS_ERROR: " + str(msg)
+    value = res.get('result', {}).get('value')
+    return str(value) if value is not None else ""
 
 
 def _post_request(req: V1RequestBase, driver: WebDriver):

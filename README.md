@@ -230,6 +230,10 @@ session. When you no longer need to use a session you should make sure to close 
 | waitInSeconds       | Optional, default none. Length to wait in seconds after solving the challenge, and before returning the results. Useful to allow it to load dynamic content.                                                                                                                                                                                 |
 | disableMedia        | Optional, default false. When true FlareSolverr will prevent media resources (images, CSS, and fonts) from being loaded to speed up navigation.                                                                                                                                                                                              |
 | tabs_till_verify    | Optional, default none. Number of times the `Tab` button is needed to be pressed to end up on the turnstile captcha, in order to verify it. After verifying the captcha, the result will be stored in the solution under `turnstile_token`.                                                                                                  |
+| documentStartJs     | Optional, default none. JavaScript registered before navigation that runs at document start on the requested page and every redirect. Removed after the request, so retained sessions do not keep it. On success the solution's `documentStartJsResult` is `"installed"`. |
+| executeJs           | Optional, default none. JavaScript run on the page after the challenge is solved. It may `return` a value or a `Promise` (awaited); the result is returned as a string in the solution's `executeJsResult`. Limited by `EXECUTE_JS_TIMEOUT`. Eg: `"executeJs": "return document.title;"` |
+| trustedClick        | Optional, default false. With `executeJs`, the script assigns a `Promise` to `window.__FRS_AWAIT` and returns `{"trustedClick":{"x":240,"y":180}}`. FlareSolverr sends a trusted (`isTrusted`) click at that viewport point, then awaits the `Promise` and returns its value. Limited by `TRUSTED_CLICK_TIMEOUT`. |
+| twoCaptchaApiKey    | Optional, default none. 2Captcha API key for this request, used when a Google reCAPTCHA checkbox click alone does not pass. Overrides `TWOCAPTCHA_API_KEY`. |
 
 > **Warning**
 > If you want to use Cloudflare clearance cookie in your scripts, make sure you use the FlareSolverr User-Agent too. If they don't match you will see the challenge.
@@ -323,6 +327,9 @@ This works like `request.get`, with the addition of the postData parameter. Note
 | HOST                 | 0.0.0.0                | Listening interface. You don't need to change this if you are running on Docker.                                                         |
 | PROMETHEUS_ENABLED   | false                  | Enable Prometheus exporter. See the Prometheus section below.                                                                            |
 | PROMETHEUS_PORT      | 8192                   | Listening port for Prometheus exporter. See the Prometheus section below.                                                                |
+| EXECUTE_JS_TIMEOUT   | 20                     | Max seconds an `executeJs` script may run. |
+| TRUSTED_CLICK_TIMEOUT | 100                    | Max seconds to wait for the `Promise` after a `trustedClick`. |
+| TWOCAPTCHA_API_KEY   | none                   | 2Captcha API key used when a Google reCAPTCHA checkbox click alone does not pass. Without it, only the checkbox click is tried. |
 
 Environment variables are set differently depending on the operating system. Some examples:
 
