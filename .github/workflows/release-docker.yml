@@ -7,6 +7,10 @@ on:
   pull_request:
     branches:
       - master
+  # Rebuild the latest release weekly so the image picks up Chromium and Debian security fixes
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -14,11 +18,19 @@ concurrency:
 
 jobs:
   build-docker-images:
-    if: ${{ !github.event.pull_request.head.repo.fork }}
+    if: ${{ !github.event.pull_request.head.repo.fork && (github.event_name != 'schedule' || github.repository == 'FlareSolverr/FlareSolverr') }}
     runs-on: ubuntu-22.04
     steps:
+      - name: Find latest release
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: echo RELEASE_TAG=$(gh release view --repo ${{ github.repository }} --json tagName --jq .tagName) >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          ref: ${{ env.RELEASE_TAG }}
 
       - name: Downcase repo
         run: echo REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
@@ -27,11 +39,12 @@ jobs:
         id: docker_meta
         uses: docker/metadata-action@v6
         with:
+          context: git
           images: |
             ${{ env.REPOSITORY }},enable=${{ github.event_name != 'pull_request' }}
             ghcr.io/${{ env.REPOSITORY }}
           tags: |
-            type=semver,pattern={{version}},prefix=v
+            type=semver,pattern={{version}},prefix=v,value=${{ env.RELEASE_TAG }}
             type=ref,event=pr
           flavor: |
             latest=auto
