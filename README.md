@@ -49,7 +49,8 @@ Supported architectures are:
 
 We provide a `docker-compose.yml` configuration file. Clone this repository and execute
 `docker-compose up -d` _(Compose V1)_ or `docker compose up -d` _(Compose V2)_ to start
-the container.
+the container. By default the service binds to `127.0.0.1`; set `PORT_BIND=0.0.0.0` if you
+intentionally need to expose it on other interfaces (not recommended).
 
 If you prefer the `docker cli` execute the following command:
 
