@@ -1,4 +1,5 @@
 import logging
+import threading
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
@@ -24,6 +25,7 @@ class SessionsStorage:
 
     def __init__(self):
         self.sessions = {}
+        self._lock = threading.RLock()
 
     def create(self, session_id: Optional[str] = None, proxy: Optional[dict] = None,
                force_new: Optional[bool] = False) -> Tuple[Session, bool]:
@@ -42,19 +44,20 @@ class SessionsStorage:
         if force_new:
             self.destroy(session_id)
 
-        if self.exists(session_id):
-            return self.sessions[session_id], False
+        with self._lock:
+            if session_id in self.sessions:
+                return self.sessions[session_id], False
 
-        driver = utils.get_webdriver(proxy)
-        created_at = datetime.now()
-        session = Session(session_id, driver, created_at)
-
-        self.sessions[session_id] = session
+            driver = utils.get_webdriver(proxy)
+            created_at = datetime.now()
+            session = Session(session_id, driver, created_at)
+            self.sessions[session_id] = session
 
         return session, True
 
     def exists(self, session_id: str) -> bool:
-        return session_id in self.sessions
+        with self._lock:
+            return session_id in self.sessions
 
     def destroy(self, session_id: str) -> bool:
         """destroy closes the driver instance and removes session from the storage.
@@ -62,10 +65,11 @@ class SessionsStorage:
         The function returns True if session was found and destroyed,
         and False if session_id wasn't found.
         """
-        if not self.exists(session_id):
+        with self._lock:
+            session = self.sessions.pop(session_id, None)
+        if session is None:
             return False
 
-        session = self.sessions.pop(session_id)
         if utils.PLATFORM_VERSION == "nt":
             session.driver.close()
         session.driver.quit()
@@ -81,4 +85,5 @@ class SessionsStorage:
         return session, fresh
 
     def session_ids(self) -> list[str]:
-        return list(self.sessions.keys())
+        with self._lock:
+            return list(self.sessions.keys())
