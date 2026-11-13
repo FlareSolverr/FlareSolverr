@@ -5,7 +5,7 @@ import time
 from datetime import timedelta
 from html import escape
 from random import uniform
-from urllib.parse import unquote, quote
+from urllib.parse import parse_qsl, quote
 
 from func_timeout import FunctionTimedOut, func_timeout
 from selenium.common import TimeoutException
@@ -168,6 +168,8 @@ def _cmd_request_get(req: V1RequestBase) -> V1ResponseBase:
 
 def _cmd_request_post(req: V1RequestBase) -> V1ResponseBase:
     # do some validations
+    if req.url is None:
+        raise Exception("Request parameter 'url' is mandatory in 'request.post' command.")
     if req.postData is None:
         raise Exception("Request parameter 'postData' is mandatory in 'request.post' command.")
     if req.returnRawHtml is not None:
@@ -496,26 +498,15 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
 
 def _post_request(req: V1RequestBase, driver: WebDriver):
-    post_form = f'<form id="hackForm" action="{req.url}" method="POST">'
-    query_string = req.postData if req.postData and req.postData[0] != '?' else req.postData[1:] if req.postData else ''
-    pairs = query_string.split('&')
-    for pair in pairs:
-        parts = pair.split('=', 1)
-        # noinspection PyBroadException
-        try:
-            name = unquote(parts[0])
-        except Exception:
-            name = parts[0]
+    post_form = f'<form id="hackForm" action="{escape(req.url)}" method="POST">'
+    query_string = req.postData or ''
+    if query_string.startswith('?'):
+        query_string = query_string[1:]
+    pairs = parse_qsl(query_string, keep_blank_values=True)
+    for name, value in pairs:
         if name == 'submit':
             continue
-        # noinspection PyBroadException
-        try:
-            value = unquote(parts[1]) if len(parts) > 1 else ''
-        except Exception:
-            value = parts[1] if len(parts) > 1 else ''
-        # Protection of " character, for syntax
-        value=value.replace('"','&quot;')
-        post_form += f'<input type="text" name="{escape(quote(name))}" value="{escape(quote(value))}"><br>'
+        post_form += f'<input type="text" name="{escape(name)}" value="{escape(value)}"><br>'
     post_form += '</form>'
     html_content = f"""
         <!DOCTYPE html>
@@ -525,4 +516,4 @@ def _post_request(req: V1RequestBase, driver: WebDriver):
             <script>document.getElementById('hackForm').submit();</script>
         </body>
         </html>"""
-    driver.get("data:text/html;charset=utf-8,{html_content}".format(html_content=html_content))
+    driver.get("data:text/html;charset=utf-8," + quote(html_content))
