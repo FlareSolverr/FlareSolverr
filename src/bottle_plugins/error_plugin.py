@@ -1,4 +1,4 @@
-from bottle import response
+from bottle import HTTPError, response
 import logging
 
 
@@ -11,6 +11,9 @@ def error_plugin(callback):
     def wrapper(*args, **kwargs):
         try:
             actual_response = callback(*args, **kwargs)
+        except HTTPError:
+            # Preserve framework/client HTTP errors (e.g. malformed JSON -> 400)
+            raise
         except Exception as e:
             logging.error(str(e))
             actual_response = {
