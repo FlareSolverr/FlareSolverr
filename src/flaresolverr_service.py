@@ -344,6 +344,12 @@ def _get_turnstile_token_by_click(driver: WebDriver, start_url: str):
             if solved:
                 return token
             logging.debug("No Turnstile token after the click")
+        else:
+            # no visible checkbox: an invisible/managed widget may still pass on its own after the first wait
+            solved, token = _wait_turnstile_result(driver, start_url, initial_token, 1)
+            if solved:
+                logging.info("Turnstile passed without clicking")
+                return token
         if attempt >= 2 and reset_turnstile(driver):
             # after an error the widget does not accept more clicks until it is reset
             logging.debug("Turnstile widget reset")
