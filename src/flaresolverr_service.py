@@ -370,6 +370,9 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
             # if CDP commands are not available or fail, ignore and continue
             logging.debug("Network.setBlockedURLs failed or unsupported on this webdriver")
 
+    # discard the events of previous requests made with this browser
+    utils.get_performance_log(driver)
+
     # navigate to the page
     logging.debug(f"Navigating to... {req.url}")
     turnstile_token = None
@@ -472,12 +475,13 @@ def _evil_logic(req: V1RequestBase, driver: WebDriver, method: str) -> Challenge
 
     challenge_res = ChallengeResolutionResultT({})
     challenge_res.url = driver.current_url
-    challenge_res.status = 200  # todo: fix, selenium not provides this info
+    main_response = utils.parse_main_response(utils.get_performance_log(driver))
+    challenge_res.status = main_response[0] if main_response else 200
     challenge_res.userAgent = utils.get_user_agent(driver)
     challenge_res.turnstile_token = turnstile_token
 
     if not req.returnOnlyCookies:
-        challenge_res.headers = {}  # todo: fix, selenium not provides this info
+        challenge_res.headers = main_response[1] if main_response else {}
 
         if req.waitInSeconds and req.waitInSeconds > 0:
             logging.info("Waiting " + str(req.waitInSeconds) + " seconds before returning the response...")
