@@ -87,10 +87,24 @@ class TestFlareSolverr(unittest.TestCase):
         solution = body.solution
         self.assertIn(self.google_url, solution.url)
         self.assertEqual(solution.status, 200)
-        self.assertIs(len(solution.headers), 0)
+        self.assertGreater(len(solution.headers), 0)
         self.assertIn("<title>Google</title>", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
+
+    def test_v1_endpoint_request_get_status_404(self):
+        res = self.app.post_json('/v1', {
+            "cmd": "request.get",
+            "url": self.google_url + "/404"
+        })
+        self.assertEqual(res.status_code, 200)
+
+        body = V1ResponseBase(res.json)
+        self.assertEqual(STATUS_OK, body.status)
+
+        solution = body.solution
+        self.assertEqual(solution.status, 404)
+        self.assertIn("text/html", solution.headers["content-type"])
 
     def test_v1_endpoint_request_get_disable_resources(self):
         res = self.app.post_json("/v1", {
@@ -110,7 +124,7 @@ class TestFlareSolverr(unittest.TestCase):
         solution = body.solution
         self.assertIn(self.google_url, solution.url)
         self.assertEqual(solution.status, 200)
-        self.assertIs(len(solution.headers), 0)
+        self.assertGreater(len(solution.headers), 0)
         self.assertIn("<title>Google</title>", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
@@ -132,7 +146,7 @@ class TestFlareSolverr(unittest.TestCase):
         solution = body.solution
         self.assertIn(self.cloudflare_url, solution.url)
         self.assertEqual(solution.status, 200)
-        self.assertIs(len(solution.headers), 0)
+        self.assertGreater(len(solution.headers), 0)
         self.assertIn("<title>nowSecure</title>", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
@@ -158,7 +172,7 @@ class TestFlareSolverr(unittest.TestCase):
         solution = body.solution
         self.assertIn(self.cloudflare_url_2, solution.url)
         self.assertEqual(solution.status, 200)
-        self.assertIs(len(solution.headers), 0)
+        self.assertGreater(len(solution.headers), 0)
         self.assertIn("<title>harry - idope torrent search</title>", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
@@ -184,7 +198,7 @@ class TestFlareSolverr(unittest.TestCase):
         solution = body.solution
         self.assertIn(self.ddos_guard_url, solution.url)
         self.assertEqual(solution.status, 200)
-        self.assertIs(len(solution.headers), 0)
+        self.assertGreater(len(solution.headers), 0)
         self.assertIn("<title>Литрес", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
@@ -210,7 +224,7 @@ class TestFlareSolverr(unittest.TestCase):
         solution = body.solution
         self.assertIn(self.fairlane_url, solution.url)
         self.assertEqual(solution.status, 200)
-        self.assertIs(len(solution.headers), 0)
+        self.assertGreater(len(solution.headers), 0)
         self.assertIn("<title>Rental Apartments Amsterdam</title>", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
@@ -236,7 +250,7 @@ class TestFlareSolverr(unittest.TestCase):
         solution = body.solution
         self.assertIn(self.custom_cloudflare_url, solution.url)
         self.assertEqual(solution.status, 200)
-        self.assertIs(len(solution.headers), 0)
+        self.assertGreater(len(solution.headers), 0)
         self.assertIn("<title>MuziekFabriek : Aanmelden</title>", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
@@ -289,7 +303,7 @@ class TestFlareSolverr(unittest.TestCase):
         solution = body.solution
         self.assertIn(self.google_url, solution.url)
         self.assertEqual(solution.status, 200)
-        self.assertIs(len(solution.headers), 0)
+        self.assertGreater(len(solution.headers), 0)
         self.assertIn("<title>Google</title>", solution.response)
         self.assertGreater(len(solution.cookies), 1)
         self.assertIn("Chrome/", solution.userAgent)
@@ -353,7 +367,7 @@ class TestFlareSolverr(unittest.TestCase):
         solution = body.solution
         self.assertIn(self.google_url, solution.url)
         self.assertEqual(solution.status, 200)
-        self.assertIs(len(solution.headers), 0)
+        self.assertGreater(len(solution.headers), 0)
         self.assertIn("<title>Google</title>", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
@@ -389,7 +403,7 @@ class TestFlareSolverr(unittest.TestCase):
         solution = body.solution
         self.assertIn(self.google_url, solution.url)
         self.assertEqual(solution.status, 200)
-        self.assertIs(len(solution.headers), 0)
+        self.assertGreater(len(solution.headers), 0)
         self.assertIn("<title>Google</title>", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
@@ -421,7 +435,7 @@ class TestFlareSolverr(unittest.TestCase):
         solution = body.solution
         self.assertIn(self.google_url, solution.url)
         self.assertEqual(solution.status, 200)
-        self.assertIs(len(solution.headers), 0)
+        self.assertGreater(len(solution.headers), 0)
         self.assertIn("<title>Google</title>", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
@@ -500,7 +514,7 @@ class TestFlareSolverr(unittest.TestCase):
         solution = body.solution
         self.assertIn(self.post_url, solution.url)
         self.assertEqual(solution.status, 200)
-        self.assertIs(len(solution.headers), 0)
+        self.assertGreater(len(solution.headers), 0)
         self.assertIn('"form": {\n    "param1": "value1", \n    "param2": "value2"\n  }', solution.response)
         self.assertEqual(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)
@@ -522,8 +536,8 @@ class TestFlareSolverr(unittest.TestCase):
 
         solution = body.solution
         self.assertIn(self.cloudflare_url, solution.url)
-        self.assertEqual(solution.status, 200)
-        self.assertIs(len(solution.headers), 0)
+        self.assertEqual(solution.status, 405)
+        self.assertGreater(len(solution.headers), 0)
         self.assertIn("<title>405 Not Allowed</title>", solution.response)
         self.assertGreater(len(solution.cookies), 0)
         self.assertIn("Chrome/", solution.userAgent)

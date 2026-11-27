@@ -157,6 +157,8 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
         options.add_argument('--disable-gpu-sandbox')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
+    # Network events are read back to report the status and headers of the response
+    options.set_capability('goog:loggingPrefs', {'performance': 'ALL'})
 
     # Chrome parses --disable-features as a single value: passing the switch a
     # second time keeps the last value and silently discards the earlier one
@@ -348,6 +350,39 @@ def extract_version_nt_folder() -> str:
                     # Found a Chrome version.
                     return match.group(0)
     return ''
+
+
+def get_performance_log(driver: WebDriver) -> list:
+    # reading the log also clears it
+    try:
+        return driver.get_log('performance')
+    except Exception:
+        logging.debug('Performance log is not available')
+        return []
+
+
+def parse_main_response(entries: list) -> tuple[int, dict] | None:
+    messages = []
+    for entry in entries:
+        try:
+            messages.append(json.loads(entry['message'])['message'])
+        except (KeyError, TypeError, ValueError):
+            continue
+
+    main_frames = set()
+    for message in messages:
+        if message.get('method') == 'Page.frameNavigated':
+            frame = message['params']['frame']
+            if 'parentId' not in frame:
+                main_frames.add(frame['id'])
+
+    result = None
+    for message in messages:
+        params = message.get('params', {})
+        if (message.get('method') == 'Network.responseReceived' and params.get('type') == 'Document'
+                and params.get('frameId') in main_frames):
+            result = (int(params['response']['status']), params['response'].get('headers', {}))
+    return result
 
 
 def get_user_agent(driver=None) -> str:
